@@ -354,6 +354,20 @@ final class ManagingOrdersContext implements Context
     }
 
     /**
+     * @Then /^(its) code should be "([^"]+)"$/
+     */
+    public function itemCodeShouldBe($itemName, $code)
+    {
+        $itemCodeOnPage = $this->showPage->getItemCode($itemName);
+
+        Assert::same(
+            $itemCodeOnPage,
+            $code,
+            'Item code is %s, but should be %s.'
+        );
+    }
+
+    /**
      * @Then /^(its) unit price should be ([^"]+)$/
      */
     public function itemUnitPriceShouldBe($itemName, $unitPrice)
@@ -724,7 +738,7 @@ final class ManagingOrdersContext implements Context
     }
 
     /**
-     * @Then /^I should be notified that the ([^"]+) is required$/
+     * @Then /^I should be notified that the (last name|first name|city|street) is required$/
      */
     public function iShouldBeNotifiedThatIsRequired($element)
     {
@@ -742,5 +756,27 @@ final class ManagingOrdersContext implements Context
     private function getNormalizedElementName($elementName)
     {
         return str_replace(' ', '_', $elementName);
+    }
+
+    /**
+     * @Then I should see :provinceName as province in the shipping address
+     */
+    public function iShouldSeeAsProvinceInTheShippingAddress($provinceName)
+    {
+        Assert::true(
+            $this->showPage->hasShippingProvinceName($provinceName),
+            sprintf('Cannot find shipping address with province %s', $provinceName)
+        );
+    }
+
+    /**
+     * @Then I should see :provinceName ad province in the billing address
+     */
+    public function iShouldSeeAdProvinceInTheBillingAddress($provinceName)
+    {
+        Assert::true(
+            $this->showPage->hasBillingProvinceName($provinceName),
+            sprintf('Cannot find shipping address with province %s', $provinceName)
+        );
     }
 }

@@ -11,9 +11,13 @@
 
 namespace Sylius\Bundle\CoreBundle\Form\Type;
 
+use Sylius\Bundle\ResourceBundle\Form\EventSubscriber\AddCodeFormSubscriber;
 use Sylius\Bundle\ResourceBundle\Form\Type\AbstractResourceType;
 use Symfony\Component\Form\FormBuilderInterface;
 
+/**
+ * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
+ */
 class ImageType extends AbstractResourceType
 {
     /**
@@ -21,9 +25,12 @@ class ImageType extends AbstractResourceType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('file', 'file', [
-            'label' => 'sylius.form.image.file',
-        ]);
+        $builder
+            ->addEventSubscriber(new AddCodeFormSubscriber())
+            ->add('file', 'file', [
+                'label' => 'sylius.form.image.file',
+            ])
+        ;
     }
 
     /**

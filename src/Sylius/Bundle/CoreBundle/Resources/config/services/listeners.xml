@@ -14,15 +14,10 @@
 <container xmlns="http://symfony.com/schema/dic/services" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
         <service id="sylius.listener.cart_blamer" class="Sylius\Bundle\CoreBundle\EventListener\CartBlamerListener">
-            <argument type="service" id="sylius.manager.cart" />
+            <argument type="service" id="sylius.manager.order" />
             <argument type="service" id="sylius.context.cart" />
             <tag name="kernel.event_listener" event="sylius.user.security.implicit_login" method="onImplicitLogin" />
             <tag name="kernel.event_listener" event="security.interactive_login" method="onInteractiveLogin" />
-        </service>
-        <service id="sylius.listener.order_state" class="Sylius\Bundle\CoreBundle\EventListener\OrderStateListener">
-            <argument type="service" id="sylius.order_processing.state_resolver" />
-            <tag name="kernel.event_listener" event="sylius.checkout.finalize.pre_complete" method="resolveOrderStates" priority="-100" />
-            <tag name="kernel.event_listener" event="winzou.state_machine.post_transition" method="resolveOrderStatesOnTransition" priority="-100" />
         </service>
         <service id="sylius.listener.order_payment" class="Sylius\Bundle\CoreBundle\EventListener\OrderPaymentListener">
             <tag name="kernel.event_listener" event="sylius.checkout.finalize.pre_complete" method="updateOrderPayment" />
@@ -43,15 +38,11 @@
         </service>
         <service id="sylius.listener.image_upload" class="Sylius\Bundle\CoreBundle\EventListener\ImageUploadListener">
             <argument type="service" id="sylius.image_uploader" />
-            <argument type="service" id="sylius.variant_resolver.default" />
-            <tag name="kernel.event_listener" event="sylius.product.pre_create" method="uploadProductImage" />
-            <tag name="kernel.event_listener" event="sylius.product.pre_update" method="uploadProductImage" />
-            <tag name="kernel.event_listener" event="sylius.product_variant.pre_create" method="uploadProductVariantImage" />
-            <tag name="kernel.event_listener" event="sylius.product_variant.pre_update" method="uploadProductVariantImage" />
-            <tag name="kernel.event_listener" event="sylius.taxon.pre_create" method="uploadTaxonImage" />
-            <tag name="kernel.event_listener" event="sylius.taxon.pre_update" method="uploadTaxonImage" />
+            <tag name="kernel.event_listener" event="sylius.product.pre_create" method="uploadImage" />
+            <tag name="kernel.event_listener" event="sylius.product.pre_update" method="uploadImage" />
+            <tag name="kernel.event_listener" event="sylius.taxon.pre_create" method="uploadImage" />
+            <tag name="kernel.event_listener" event="sylius.taxon.pre_update" method="uploadImage" />
         </service>
-
         <service id="sylius.listener.order_recalculation" class="Sylius\Bundle\CoreBundle\EventListener\OrderRecalculationListener">
             <argument type="service" id="sylius.order_processing.order_processor" />
             <tag name="kernel.event_listener" event="sylius.cart_change" method="recalculateOrder" />

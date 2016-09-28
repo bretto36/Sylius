@@ -13,17 +13,17 @@ namespace Sylius\Bundle\CoreBundle\Fixture\Factory;
 
 use Sylius\Bundle\CoreBundle\Fixture\OptionsResolver\LazyOption;
 use Sylius\Component\Core\Formatter\StringInflector;
+use Sylius\Component\Core\Model\ImageInterface;
 use Sylius\Component\Core\Model\ProductInterface;
-use Sylius\Component\Core\Model\ProductVariantImageInterface;
 use Sylius\Component\Core\Model\ProductVariantInterface;
 use Sylius\Component\Core\Model\TaxonInterface;
 use Sylius\Component\Core\Uploader\ImageUploaderInterface;
 use Sylius\Component\Locale\Model\LocaleInterface;
-use Sylius\Component\Product\Model\AttributeInterface;
-use Sylius\Component\Product\Model\AttributeValueInterface;
+use Sylius\Component\Product\Model\ProductAttributeInterface;
+use Sylius\Component\Product\Model\ProductAttributeValueInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
-use Sylius\Component\Variation\Generator\VariantGeneratorInterface;
+use Sylius\Component\Product\Generator\ProductVariantGeneratorInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -45,14 +45,14 @@ final class ProductExampleFactory implements ExampleFactoryInterface
     private $productVariantFactory;
 
     /**
-     * @var VariantGeneratorInterface
+     * @var ProductVariantGeneratorInterface
      */
     private $variantGenerator;
 
     /**
      * @var FactoryInterface
      */
-    private $productVariantImageFactory;
+    private $productImageFactory;
 
     /**
      * @var ImageUploaderInterface
@@ -77,9 +77,9 @@ final class ProductExampleFactory implements ExampleFactoryInterface
     /**
      * @param FactoryInterface $productFactory
      * @param FactoryInterface $productVariantFactory
-     * @param VariantGeneratorInterface $variantGenerator
+     * @param ProductVariantGeneratorInterface $variantGenerator
      * @param FactoryInterface $productAttributeValueFactory
-     * @param FactoryInterface $productVariantImageFactory
+     * @param FactoryInterface $productImageFactory
      * @param ImageUploaderInterface $imageUploader
      * @param RepositoryInterface $taxonRepository
      * @param RepositoryInterface $productAttributeRepository
@@ -90,9 +90,9 @@ final class ProductExampleFactory implements ExampleFactoryInterface
     public function __construct(
         FactoryInterface $productFactory,
         FactoryInterface $productVariantFactory,
-        VariantGeneratorInterface $variantGenerator,
+        ProductVariantGeneratorInterface $variantGenerator,
         FactoryInterface $productAttributeValueFactory,
-        FactoryInterface $productVariantImageFactory,
+        FactoryInterface $productImageFactory,
         ImageUploaderInterface $imageUploader,
         RepositoryInterface $taxonRepository,
         RepositoryInterface $productAttributeRepository,
@@ -103,7 +103,7 @@ final class ProductExampleFactory implements ExampleFactoryInterface
         $this->productFactory = $productFactory;
         $this->productVariantFactory = $productVariantFactory;
         $this->variantGenerator = $variantGenerator;
-        $this->productVariantImageFactory = $productVariantImageFactory;
+        $this->productImageFactory = $productImageFactory;
         $this->imageUploader = $imageUploader;
         $this->localeRepository = $localeRepository;
 
@@ -152,7 +152,7 @@ final class ProductExampleFactory implements ExampleFactoryInterface
 
                         Assert::notNull($productAttribute);
 
-                        /** @var AttributeValueInterface $productAttributeValue */
+                        /** @var ProductAttributeValueInterface $productAttributeValue */
                         $productAttributeValue = $productAttributeValueFactory->createNew();
                         $productAttributeValue->setAttribute($productAttribute);
                         $productAttributeValue->setValue($value ?: $this->getRandomValueForProductAttribute($productAttribute));
@@ -230,17 +230,18 @@ final class ProductExampleFactory implements ExampleFactoryInterface
             $productVariant->setCode(sprintf('%s-variant#%d', $options['code'], $i));
             $productVariant->setOnHand($this->faker->randomNumber(1));
 
-            foreach ($options['images'] as $imagePath) {
-                /** @var ProductVariantImageInterface $productVariantImage */
-                $productVariantImage = $this->productVariantImageFactory->createNew();
-                $productVariantImage->setFile(new UploadedFile($imagePath, basename($imagePath)));
-
-                $this->imageUploader->upload($productVariantImage);
-
-                $productVariant->addImage($productVariantImage);
-            }
-
             ++$i;
+        }
+
+        foreach ($options['images'] as $imageCode => $imagePath) {
+            /** @var ImageInterface $productImage */
+            $productImage = $this->productImageFactory->createNew();
+            $productImage->setCode($imageCode);
+            $productImage->setFile(new UploadedFile($imagePath, basename($imagePath)));
+
+            $this->imageUploader->upload($productImage);
+
+            $product->addImage($productImage);
         }
 
         return $product;
@@ -259,23 +260,23 @@ final class ProductExampleFactory implements ExampleFactoryInterface
     }
 
     /**
-     * @param AttributeInterface $productAttribute
+     * @param ProductAttributeInterface $productAttribute
      *
      * @return mixed
      */
-    private function getRandomValueForProductAttribute(AttributeInterface $productAttribute)
+    private function getRandomValueForProductAttribute(ProductAttributeInterface $productAttribute)
     {
         switch ($productAttribute->getStorageType()) {
-            case AttributeValueInterface::STORAGE_BOOLEAN:
+            case ProductAttributeValueInterface::STORAGE_BOOLEAN:
                 return $this->faker->boolean;
-            case AttributeValueInterface::STORAGE_INTEGER:
+            case ProductAttributeValueInterface::STORAGE_INTEGER:
                 return $this->faker->numberBetween(0, 10000);
-            case AttributeValueInterface::STORAGE_FLOAT:
+            case ProductAttributeValueInterface::STORAGE_FLOAT:
                 return $this->faker->randomFloat(4, 0, 10000);
-            case AttributeValueInterface::STORAGE_TEXT:
+            case ProductAttributeValueInterface::STORAGE_TEXT:
                 return $this->faker->sentence;
-            case AttributeValueInterface::STORAGE_DATE:
-            case AttributeValueInterface::STORAGE_DATETIME:
+            case ProductAttributeValueInterface::STORAGE_DATE:
+            case ProductAttributeValueInterface::STORAGE_DATETIME:
                 return $this->faker->dateTimeThisCentury;
             default:
                 throw new \BadMethodCallException();

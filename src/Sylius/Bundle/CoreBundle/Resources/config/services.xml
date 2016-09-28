@@ -23,6 +23,8 @@
         <import resource="services/fixtures_factories.xml" />
         <import resource="services/form.xml" />
         <import resource="services/handlers.xml" />
+        <import resource="services/installer.xml" />
+        <import resource="services/installer_requirements.xml" />
         <import resource="services/listeners.xml" />
         <import resource="services/order_processor.xml" />
         <import resource="services/pricing.xml" />
@@ -38,11 +40,6 @@
         <service id="sylius.integer_distributor" class="Sylius\Component\Core\Distributor\IntegerDistributor" />
         <service id="sylius.proportional_integer_distributor" class="Sylius\Component\Core\Distributor\ProportionalIntegerDistributor" />
         <service id="sylius.invoice_number_generator" class="Sylius\Component\Core\Payment\IdBasedInvoiceNumberGenerator" />
-        <service id="sylius.order.purger" class="Sylius\Bundle\CoreBundle\Purger\ExpiredOrdersPurger">
-            <argument type="service" id="sylius.manager.order" />
-            <argument type="service" id="sylius.repository.order" />
-            <argument type="service" id="sm.factory" />
-        </service>
         <service id="sylius.image_uploader" class="Sylius\Component\Core\Uploader\ImageUploader">
             <argument type="service">
                 <service class="Gaufrette\Filesystem">
@@ -78,15 +75,17 @@
         <service id="sylius.form.event_subscriber.set_customer" class="Sylius\Bundle\CoreBundle\Form\EventSubscriber\SetCustomerFormSubscriber">
             <argument type="service" id="sylius.repository.customer" />
         </service>
-        <service id="sylius.custom_factory.cart_item" class="Sylius\Component\Core\Factory\CartItemFactory" decorates="sylius.factory.cart_item">
-            <argument type="service" id="sylius.custom_factory.cart_item.inner" />
-            <argument type="service" id="sylius.variant_resolver.default" />
-        </service>
         <service id="sylius.inventory.on_hand_quantity_updater" class="Sylius\Component\Core\Inventory\Updater\OnHandQuantityUpdater"/>
         <service id="sylius.inventory.on_hold_quantity_updater" class="Sylius\Component\Core\Inventory\Updater\OnHoldQuantityUpdater" />
         <service id="sylius.handler.order_inventory" class="Sylius\Component\Core\Inventory\Handler\OrderInventoryHandler">
             <argument type="service" id="sylius.inventory.on_hand_quantity_updater" />
             <argument type="service" id="sylius.inventory.on_hold_quantity_updater" />
         </service>
+
+        <service id="sylius.custom_factory.order_item" class="Sylius\Component\Core\Factory\CartItemFactory" decorates="sylius.factory.order_item">
+            <argument type="service" id="sylius.custom_factory.order_item.inner" />
+            <argument type="service" id="sylius.product_variant_resolver.default" />
+        </service>
+        <service id="sylius.factory.cart_item" alias="sylius.custom_factory.order_item" />
     </services>
 </container>

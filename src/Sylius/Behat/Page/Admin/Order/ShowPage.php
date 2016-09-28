@@ -236,6 +236,14 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
     /**
      * {@inheritdoc}
      */
+    public function getItemCode($itemName)
+    {
+        return $this->getItemProperty($itemName, 'sylius-product-variant-code');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getItemUnitPrice($itemName)
     {
         return $this->getItemProperty($itemName, 'unit-price');
@@ -348,6 +356,26 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
     /**
      * {@inheritdoc}
      */
+    public function hasShippingProvinceName($provinceName)
+    {
+        $shippingAddressText = $this->getElement('shipping_address')->getText();
+
+        return false !== stripos($shippingAddressText, $provinceName);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasBillingProvinceName($provinceName)
+    {
+        $billingAddressText = $this->getElement('billing_address')->getText();
+
+        return false !== stripos($billingAddressText, $provinceName);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getRouteName()
     {
         return 'sylius_admin_order_show';
@@ -362,6 +390,8 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
             'billing_address' => '#billing-address',
             'customer' => '#customer',
             'items_total' => '#items-total',
+            'order_notes' => '#sylius-order-notes',
+            'order_state' => 'div.sub.header > span.ui.label',
             'payments' => '#payments',
             'promotion_discounts' => '#promotion-discounts',
             'promotion_total' => '#promotion-total',
@@ -373,8 +403,6 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
             'tax_total' => '#tax-total',
             'taxes' => '#taxes',
             'total' => '#total',
-            'order_state' => 'div.sub.header > span.ui.label',
-            'order_notes' => '#sylius-order-notes',
         ]);
     }
 

@@ -174,7 +174,7 @@ class SummaryPage extends SymfonyPage implements SummaryPageInterface
         $optionValueElement = $itemElement->find('css', $selector);
 
         if (null === $optionValueElement) {
-            throw new ElementNotFoundException($this->getSession(), sprintf('Option value of "%s"', $optionName), 'css', $selector);
+            throw new ElementNotFoundException($this->getSession(), sprintf('ProductOption value of "%s"', $optionName), 'css', $selector);
         }
 
         return $optionValue === $optionValueElement->getText();
@@ -264,7 +264,7 @@ class SummaryPage extends SymfonyPage implements SummaryPageInterface
             'cart_items' => '#sylius-cart-items',
             'cart_total' => '#sylius-cart-button',
             'clear_button' => '#sylius-cart-clear',
-            'coupon_field' => '#sylius_cart_promotionCoupon',
+            'coupon_field' => '#sylius_order_promotionCoupon',
             'grand_total' => '#sylius-cart-grand-total',
             'product_discounted_total' => '#sylius-cart-items tr:contains("%name%") .sylius-discounted-total',
             'product_row' => '#sylius-cart-items tbody tr:contains("%name%")',

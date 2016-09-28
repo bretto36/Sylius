@@ -17,10 +17,8 @@ use Sylius\Behat\NotificationType;
 use Sylius\Behat\Page\Shop\Cart\SummaryPageInterface;
 use Sylius\Behat\Page\Shop\Product\ShowPageInterface;
 use Sylius\Behat\Service\NotificationCheckerInterface;
-use Sylius\Behat\Service\SharedSecurityServiceInterface;
-use Sylius\Component\Core\Model\ShopUserInterface;
 use Sylius\Behat\Service\SharedStorageInterface;
-use Sylius\Component\Product\Model\OptionInterface;
+use Sylius\Component\Product\Model\ProductOptionInterface;
 use Sylius\Component\Product\Model\ProductInterface;
 use Webmozart\Assert\Assert;
 
@@ -52,29 +50,21 @@ final class CartContext implements Context
     private $notificationChecker;
 
     /**
-     * @var SharedSecurityServiceInterface
-     */
-    private $sharedSecurityService;
-
-    /**
      * @param SharedStorageInterface $sharedStorage
      * @param SummaryPageInterface $summaryPage
      * @param ShowPageInterface $productShowPage
      * @param NotificationCheckerInterface $notificationChecker
-     * @param SharedSecurityServiceInterface $sharedSecurityService
      */
     public function __construct(
         SharedStorageInterface $sharedStorage,
         SummaryPageInterface $summaryPage,
         ShowPageInterface $productShowPage,
-        NotificationCheckerInterface $notificationChecker,
-        SharedSecurityServiceInterface $sharedSecurityService
+        NotificationCheckerInterface $notificationChecker
     ) {
         $this->sharedStorage = $sharedStorage;
         $this->summaryPage = $summaryPage;
         $this->productShowPage = $productShowPage;
         $this->notificationChecker = $notificationChecker;
-        $this->sharedSecurityService = $sharedSecurityService;
     }
 
     /**
@@ -266,27 +256,6 @@ final class CartContext implements Context
     }
 
     /**
-     * @Given /^(this user) has ("[^"]+" product) in the cart$/
-     */
-    public function thisUserHasProductInTheCart(ShopUserInterface $user, ProductInterface $product)
-    {
-        $this->sharedSecurityService->performActionAsShopUser($user, function () use ($product) {
-            $this->iAddProductToTheCart($product);
-        });
-    }
-
-    /**
-     * @Given /^(this user) has (\d+) (products "[^"]+") in the cart$/
-     * @Given /^(this user) added (\d+) (products "[^"]+") to the cart$/
-     */
-    public function thisCustomerHasAddedProductsToTheCart(ShopUserInterface $shopUser, $quantity, ProductInterface $product)
-    {
-        $this->sharedSecurityService->performActionAsShopUser($shopUser, function () use ($quantity, $product) {
-            $this->iAddQuantityOfProductsToTheCart($quantity, $product);
-        });
-    }
-
-    /**
      * @Given /^I added (products "([^"]+)" and "([^"]+)") to the cart$/
      * @When /^I add (products "([^"]+)" and "([^"]+)") to the cart$/
      * @Given /^I added (products "([^"]+)", "([^"]+)" and "([^"]+)") to the cart$/
@@ -402,7 +371,7 @@ final class CartContext implements Context
     /**
      * @When I add :product with :productOption :productOptionValue to the cart
      */
-    public function iAddThisProductWithToTheCart(ProductInterface $product, OptionInterface $productOption, $productOptionValue)
+    public function iAddThisProductWithToTheCart(ProductInterface $product, ProductOptionInterface $productOption, $productOptionValue)
     {
         $this->productShowPage->open(['slug' => $product->getSlug()]);
 

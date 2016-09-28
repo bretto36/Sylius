@@ -11,7 +11,7 @@
 
 namespace Sylius\Behat\Page\Shop\Product;
 
-use Sylius\Component\Product\Model\OptionInterface;
+use Sylius\Component\Product\Model\ProductOptionInterface;
 use Sylius\Component\Product\Model\ProductInterface;
 use Sylius\Behat\Page\SymfonyPage;
 
@@ -54,7 +54,7 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
     /**
      * {@inheritdoc}
      */
-    public function addToCartWithOption(OptionInterface $option, $optionValue)
+    public function addToCartWithOption(ProductOptionInterface $option, $optionValue)
     {
         $select = $this->getDocument()->find('css', sprintf('select#sylius_cart_item_variant_%s', $option->getCode()));
 
@@ -105,11 +105,11 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
     {
         $message = sprintf('%s does not have sufficient stock.', $product->getName());
 
-        if (!$this->hasElement('validation-errors')) {
+        if (!$this->hasElement('validation_errors')) {
             return false;
         }
 
-        return $this->getElement('validation-errors')->getText() === $message;
+        return $this->getElement('validation_errors')->getText() === $message;
     }
 
     /**
@@ -117,7 +117,7 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
      */
     public function waitForValidationErrors($timeout)
     {
-        $errorsContainer = $this->getElement('selecting-variants');
+        $errorsContainer = $this->getElement('selecting_variants');
 
         $this->getDocument()->waitFor($timeout, function () use ($errorsContainer) {
             return false !== $errorsContainer->has('css', '[class ~="sylius-validation-error"]');
@@ -137,7 +137,7 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
      */
     public function isOutOfStock()
     {
-        return $this->hasElement('out-of-stock');
+        return $this->hasElement('out_of_stock');
     }
 
     /**
@@ -159,15 +159,35 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
     /**
      * {@inheritdoc}
      */
+    public function isMainImageDisplayed()
+    {
+        $imageElement = $this->getElement('main_image');
+
+        if (null === $imageElement) {
+            return false;
+        }
+
+        $imageUrl = $imageElement->getAttribute('src');
+        $this->getDriver()->visit($imageUrl);
+        $pageText = $this->getDocument()->getText();
+        $this->getDriver()->back();
+
+        return false === stripos($pageText, '404 Not Found');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function getDefinedElements()
     {
         return array_merge(parent::getDefinedElements(), [
             'attributes' => '#sylius-product-attributes',
+            'main_image' => '#main-image',
             'name' => '#sylius-product-name',
-            'out-of-stock' => '#sylius-product-out-of-stock',
+            'out_of_stock' => '#sylius-product-out-of-stock',
             'product_price' => '#product-price',
-            'selecting-variants' => "#sylius-product-selecting-variant",
-            'validation-errors' => '.sylius-validation-error'
+            'selecting_variants' => "#sylius-product-selecting-variant",
+            'validation_errors' => '.sylius-validation-error',
         ]);
     }
 }

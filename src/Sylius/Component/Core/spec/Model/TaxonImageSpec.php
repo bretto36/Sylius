@@ -13,6 +13,7 @@ namespace spec\Sylius\Component\Core\Model;
 
 use PhpSpec\ObjectBehavior;
 use Sylius\Component\Core\Model\Image;
+use Sylius\Component\Core\Model\ImageAwareInterface;
 use Sylius\Component\Core\Model\ProductVariantInterface;
 use Sylius\Component\Core\Model\TaxonImage;
 use Sylius\Component\Core\Model\TaxonInterface;
@@ -34,25 +35,49 @@ final class TaxonImageSpec extends ObjectBehavior
         $this->shouldHaveType(Image::class);
     }
 
-    function it_does_not_have_a_taxon_by_default()
+    function it_does_not_have_id_by_default()
     {
-        $this->getTaxon()->shouldReturn(null);
+        $this->getId()->shouldReturn(null);
     }
 
-    function its_taxon_is_mutable(TaxonInterface $taxon)
+    function it_does_not_have_file_by_default()
     {
-        $this->setTaxon($taxon);
-        $this->getTaxon()->shouldReturn($taxon);
+        $this->hasFile()->shouldReturn(false);
+        $this->getFile()->shouldReturn(null);
     }
 
-    function it_does_not_have_a_code_by_default()
+    function its_file_is_mutable()
+    {
+        $file = new \SplFileInfo(__FILE__);
+        $this->setFile($file);
+        $this->getFile()->shouldReturn($file);
+    }
+
+    function its_path_is_mutable()
+    {
+        $this->setPath(__FILE__);
+        $this->getPath()->shouldReturn(__FILE__);
+    }
+
+    function it_does_not_have_code_by_default()
     {
         $this->getCode()->shouldReturn(null);
     }
 
     function its_code_is_mutable()
     {
-        $this->setCode('thumbnail');
-        $this->getCode()->shouldReturn('thumbnail');
+        $this->setCode('banner');
+        $this->getCode()->shouldReturn('banner');
+    }
+
+    function it_does_not_have_owner_by_default()
+    {
+        $this->getOwner()->shouldReturn(null);
+    }
+
+    function its_owner_is_mutable(ImageAwareInterface $owner)
+    {
+        $this->setOwner($owner);
+        $this->getOwner()->shouldReturn($owner);
     }
 }

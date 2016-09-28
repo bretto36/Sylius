@@ -11,17 +11,9 @@
 
 namespace Sylius\Component\Core\Model;
 
-use Sylius\Component\Resource\Model\CodeAwareInterface;
-
-interface TaxonImageInterface extends ImageInterface, CodeAwareInterface
+/**
+ * @author Saidul Islam <saidul.04@gmail.com>
+ */
+interface TaxonImageInterface extends ImageInterface
 {
-    /**
-     * @return TaxonInterface
-     */
-    public function getTaxon();
-
-    /**
-     * @param TaxonInterface $taxon
-     */
-    public function setTaxon(TaxonInterface $taxon = null);
 }

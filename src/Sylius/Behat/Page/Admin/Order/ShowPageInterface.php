@@ -153,6 +153,13 @@ interface ShowPageInterface extends SymfonyPageInterface
      *
      * @return string
      */
+    public function getItemCode($itemName);
+
+    /**
+     * @param string $itemName
+     *
+     * @return string
+     */
     public function getItemUnitPrice($itemName);
 
     /**
@@ -227,4 +234,18 @@ interface ShowPageInterface extends SymfonyPageInterface
      * @return bool
      */
     public function hasNote($note);
+
+    /**
+     * @param string $provinceName
+     *
+     * @return bool
+     */
+    public function hasShippingProvinceName($provinceName);
+
+    /**
+     * @param string $provinceName
+     *
+     * @return bool
+     */
+    public function hasBillingProvinceName($provinceName);
 }

@@ -12,9 +12,11 @@
 namespace Sylius\Behat\Page\Admin\Taxon;
 
 use Behat\Mink\Element\NodeElement;
+use Behat\Mink\Exception\ElementNotFoundException;
 use Sylius\Behat\Behaviour\ChecksCodeImmutability;
 use Sylius\Behat\Page\Admin\Crud\UpdatePage as BaseUpdatePage;
 use Sylius\Component\Core\Model\TaxonInterface;
+use Webmozart\Assert\Assert;
 
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
@@ -125,6 +127,29 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getValidationMessageForImage($element)
+    {
+        $provinceForm = $this->getLastImageElement();
+
+        $foundElement = $provinceForm->find('css', '.pointing');
+        if (null === $foundElement) {
+            throw new ElementNotFoundException($this->getSession(), 'Tag', 'css', '.pointing');
+        }
+
+        return $foundElement->getText();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isImageCodeDisabled()
+    {
+        return 'disabled' === $this->getLastImageElement()->findField('Code')->getAttribute('disabled');
+    }
+
+    /**
      * @return NodeElement
      */
     protected function getCodeElement()
@@ -139,11 +164,11 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
     {
         return array_merge(parent::getDefinedElements(), [
             'code' => '#sylius_taxon_code',
+            'description' => '#sylius_taxon_translations_en_US_description',
             'images' => '#sylius_taxon_images',
             'name' => '#sylius_taxon_translations_en_US_name',
             'parent' => '#sylius_taxon_parent',
             'permalink' => '#sylius_taxon_translations_en_US_permalink',
-            'description' => '#sylius_taxon_translations_en_US_description',
         ]);
     }
 
@@ -153,6 +178,8 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
     private function getLastImageElement()
     {
         $imageElements = $this->getImageElements();
+
+        Assert::notEmpty($imageElements);
 
         return end($imageElements);
     }

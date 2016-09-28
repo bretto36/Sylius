@@ -11,12 +11,13 @@
 
 namespace Sylius\Component\Core\Model;
 
+use Sylius\Component\Resource\Model\CodeAwareInterface;
 use Sylius\Component\Resource\Model\ResourceInterface;
-use Sylius\Component\Resource\Model\TimestampableInterface;
 
-interface ImageInterface extends
-    ResourceInterface,
-    TimestampableInterface
+/**
+ * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
+ */
+interface ImageInterface extends ResourceInterface, CodeAwareInterface
 {
     /**
      * @return bool
@@ -42,4 +43,14 @@ interface ImageInterface extends
      * @param string $path
      */
     public function setPath($path);
+
+    /**
+     * @return ImageAwareInterface
+     */
+    public function getOwner();
+
+    /**
+     * @param ImageAwareInterface $owner
+     */
+    public function setOwner(ImageAwareInterface $owner = null);
 }

@@ -406,7 +406,7 @@ final class ManagingProductsContext implements Context
         Assert::same(
             $value,
             $this->updateSimpleProductPage->getAttributeValue($attribute),
-            sprintf('Attribute "%s" should have value "%s" but it does not.', $attribute, $value)
+            sprintf('ProductAttribute "%s" should have value "%s" but it does not.', $attribute, $value)
         );
     }
 
@@ -524,6 +524,56 @@ final class ManagingProductsContext implements Context
             $this->updateSimpleProductPage->isTracked(),
             '"%s" should be tracked, but it is not.'
         );
+    }
+
+    /**
+     * @When I attach the :path image with a code :code
+     */
+    public function iAttachImageWithACode($path, $code)
+    {
+        /** @var CreatePageInterface|UpdatePageInterface $currentPage */
+        $currentPage = $this->currentPageResolver->getCurrentPageWithForm([
+            $this->createSimpleProductPage,
+            $this->createConfigurableProductPage,
+            $this->updateSimpleProductPage,
+            $this->updateConfigurableProductPage,
+        ], $this->sharedStorage->has('product') ? $this->sharedStorage->get('product') : null);
+
+        $currentPage->attachImageWithCode($code, $path);
+    }
+
+    /**
+     * @Then /^(this product) should have(?:| also) an image with a code "([^"]*)"$/
+     * @Then /^the (product "[^"]+") should have(?:| also) an image with a code "([^"]*)"$/
+     */
+    public function thisProductShouldHaveAnImageWithCode(ProductInterface $product, $code)
+    {
+        $this->sharedStorage->set('product', $product);
+
+        /** @var UpdatePageInterface $currentPage */
+        $currentPage = $this->currentPageResolver->getCurrentPageWithForm([
+            $this->updateSimpleProductPage,
+            $this->updateConfigurableProductPage,
+        ], $product);
+
+        Assert::true(
+            $currentPage->isImageWithCodeDisplayed($code),
+            sprintf('Image with a code %s should have been displayed.', $code)
+        );
+    }
+
+    /**
+     * @When I change the image with the :code code to :path
+     */
+    public function iChangeItsImageToPathForTheCode($path, $code)
+    {
+        /** @var UpdateSimpleProductPageInterface|UpdateConfigurableProductPageInterface $currentPage */
+        $currentPage = $this->currentPageResolver->getCurrentPageWithForm([
+            $this->updateSimpleProductPage,
+            $this->updateConfigurableProductPage,
+        ], $this->sharedStorage->get('product'));
+
+        $currentPage->changeImageWithCode($code, $path);
     }
 
     /**

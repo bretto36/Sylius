@@ -16,8 +16,6 @@ use Prophecy\Argument;
 use Sylius\Bundle\CoreBundle\Form\Type\ImageType;
 use Sylius\Bundle\CoreBundle\Form\Type\TaxonImageType;
 use Sylius\Bundle\ResourceBundle\Form\EventSubscriber\AddCodeFormSubscriber;
-use Sylius\Bundle\TaxonomyBundle\Form\EventListener\BuildTaxonFormSubscriber;
-use Sylius\Bundle\TaxonomyBundle\Form\Type\TaxonType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormTypeInterface;
@@ -53,12 +51,13 @@ final class TaxonImageTypeSpec extends ObjectBehavior
     {
         $builder->getFormFactory()->willReturn($factory);
 
-        $builder->add('file', 'file', Argument::any())
+        $builder
+            ->addEventSubscriber(Argument::type(AddCodeFormSubscriber::class))
             ->shouldBeCalled()
             ->willReturn($builder)
         ;
 
-        $builder->add('code', 'text', Argument::any())
+        $builder->add('file', 'file', Argument::any())
             ->shouldBeCalled()
             ->willReturn($builder)
         ;

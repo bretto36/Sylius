@@ -3,6 +3,14 @@ UPGRADE
 
 ## From 0.19 to 1.0.0-alpha
 
+### Variation and VariationBundle
+
+ * Merge ``Variation`` component and ``VariationBundle`` into ``Product`` component and ``ProductBundle``.
+
+### CartBundle
+
+ * Merge ``Cart`` component and ``CartBundle`` into ``Order\Core`` component and ``Order\CoreBundle``.
+
 ### WebBundle
  
  * Removed ``WebBundle``. See ``ShopBundle`` for the website and ``AdminBundle`` for administration-related.

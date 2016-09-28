@@ -11,13 +11,13 @@
 
 namespace Sylius\Bundle\CoreBundle\Form\Type;
 
-use Sylius\Bundle\ProductBundle\Form\Type\VariantType as BaseVariantType;
+use Sylius\Bundle\ProductBundle\Form\Type\ProductVariantType as BaseProductVariantType;
 use Symfony\Component\Form\FormBuilderInterface;
 
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class ProductVariantType extends BaseVariantType
+class ProductVariantType extends BaseProductVariantType
 {
     /**
      * {@inheritdoc}
@@ -39,13 +39,6 @@ class ProductVariantType extends BaseVariantType
             ])
             ->add('onHand', 'integer', [
                 'label' => 'sylius.form.variant.on_hand',
-            ])
-            ->add('images', 'collection', [
-                'type' => 'sylius_image',
-                'allow_add' => true,
-                'allow_delete' => true,
-                'by_reference' => false,
-                'label' => 'sylius.form.variant.images',
             ])
             ->add('width', 'number', [
                 'required' => false,

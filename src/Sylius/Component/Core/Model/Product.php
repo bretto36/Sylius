@@ -61,6 +61,11 @@ class Product extends BaseProduct implements ProductInterface, ReviewableProduct
      */
     protected $averageRating = 0;
 
+    /**
+     * @var Collection|ImageInterface[]
+     */
+    protected $images;
+
     public function __construct()
     {
         parent::__construct();
@@ -68,24 +73,9 @@ class Product extends BaseProduct implements ProductInterface, ReviewableProduct
         $this->taxons = new ArrayCollection();
         $this->channels = new ArrayCollection();
         $this->reviews = new ArrayCollection();
+        $this->images = new ArrayCollection();
 
         $this->variantSelectionMethod = self::VARIANT_SELECTION_CHOICE;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getMetadataClassIdentifier()
-    {
-        return self::METADATA_CLASS_IDENTIFIER;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getMetadataIdentifier()
-    {
-        return $this->getMetadataClassIdentifier().'-'.$this->getId();
     }
 
     /**
@@ -346,24 +336,58 @@ class Product extends BaseProduct implements ProductInterface, ReviewableProduct
     /**
      * {@inheritdoc}
      */
-    public function getImage()
+    public function getImages()
     {
-        if (null === $this->getFirstVariant()) {
-            return null;
-        }
-
-        return $this->getFirstVariant()->getImage();
+        return $this->images;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getImages()
+    public function getImageByCode($code)
     {
-        if (null === $this->getFirstVariant()) {
-            return new ArrayCollection();
+        foreach ($this->images as $image) {
+            if ($code === $image->getCode()) {
+                return $image;
+            }
         }
 
-        return $this->getFirstVariant()->getImages();
+        return null;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasImages()
+    {
+        return !$this->images->isEmpty();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasImage(ImageInterface $image)
+    {
+        return $this->images->contains($image);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function addImage(ImageInterface $image)
+    {
+        $image->setOwner($this);
+        $this->images->add($image);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function removeImage(ImageInterface $image)
+    {
+        if ($this->hasImage($image)) {
+            $image->setOwner(null);
+            $this->images->removeElement($image);
+        }
     }
 }

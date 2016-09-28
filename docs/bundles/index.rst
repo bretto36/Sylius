@@ -4,10 +4,8 @@ Symfony Bundles
 .. toctree::
     :hidden:
 
-    general/index
     SyliusAddressingBundle/index
     SyliusAttributeBundle/index
-    SyliusCartBundle/index
     SyliusFixturesBundle/index
     SyliusGridBundle/index
     SyliusInventoryBundle/index
@@ -22,6 +20,5 @@ Symfony Bundles
     SyliusTaxationBundle/index
     SyliusTaxonomyBundle/index
     SyliusThemeBundle/index
-    SyliusVariationBundle/index
 
 .. include:: /bundles/map.rst.inc

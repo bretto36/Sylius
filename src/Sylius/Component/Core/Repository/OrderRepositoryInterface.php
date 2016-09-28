@@ -13,6 +13,7 @@ namespace Sylius\Component\Core\Repository;
 
 use Doctrine\ORM\QueryBuilder;
 use Pagerfanta\PagerfantaInterface;
+use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\CouponInterface;
 use Sylius\Component\Core\Model\CustomerInterface;
 use Sylius\Component\Core\Model\OrderInterface;
@@ -33,14 +34,6 @@ interface OrderRepositoryInterface extends BaseOrderRepositoryInterface
     public function createByCustomerQueryBuilder(CustomerInterface $customer);
 
     /**
-     * @param \DateTime $expiresAt
-     * @param string $state
-     *
-     * @return OrderInterface[]
-     */
-    public function findExpired(\DateTime $expiresAt, $state = OrderInterface::STATE_NEW);
-
-    /**
      * @param CustomerInterface $customer
      * @param CouponInterface $coupon
      *
@@ -59,24 +52,9 @@ interface OrderRepositoryInterface extends BaseOrderRepositoryInterface
      * @param CustomerInterface $customer
      * @param array $sorting
      *
-     * @return PagerfantaInterface
-     */
-    public function createPaginatorByCustomer(CustomerInterface $customer, array $sorting = []);
-
-    /**
-     * @param CustomerInterface $customer
-     * @param array $sorting
-     *
      * @return OrderInterface[]
      */
     public function findByCustomer(CustomerInterface $customer, array $sorting = []);
-
-    /**
-     * @param int $id
-     *
-     * @return OrderInterface|null
-     */
-    public function findForDetailsPage($id);
     
     /**
      * @param int $id
@@ -91,50 +69,7 @@ interface OrderRepositoryInterface extends BaseOrderRepositoryInterface
      *
      * @return PagerfantaInterface
      */
-    public function createFilterPaginator(array $criteria = null, array $sorting = null);
-
-    /**
-     * @param array $criteria
-     * @param array $sorting
-     *
-     * @return PagerfantaInterface
-     */
     public function createCheckoutsPaginator(array $criteria = null, array $sorting = null);
-
-    /**
-     * @param \DateTime $from
-     * @param \DateTime $to
-     * @param string|null $state
-     *
-     * @return OrderInterface[]
-     */
-    public function findBetweenDates(\DateTime $from, \DateTime $to, $state = null);
-
-    /**
-     * @param \DateTime $from
-     * @param \DateTime $to
-     * @param string|null $state
-     *
-     * @return int
-     */
-    public function countBetweenDates(\DateTime $from, \DateTime $to, $state = null);
-
-    /**
-     * @param \DateTime $from
-     * @param \DateTime $to
-     * @param string|null $state
-     *
-     * @return int
-     */
-    public function revenueBetweenDates(\DateTime $from, \DateTime $to, $state = null);
-
-    /**
-     * @param array $sorting
-     * @param int $limit
-     *
-     * @return OrderInterface[]
-     */
-    public function findCompleted(array $sorting = [], $limit = 5);
 
     /**
      * @param string $number
@@ -143,4 +78,12 @@ interface OrderRepositoryInterface extends BaseOrderRepositoryInterface
      * @return OrderInterface|null
      */
     public function findOneByNumberAndCustomer($number, CustomerInterface $customer);
+
+    /**
+     * @param string $id
+     * @param ChannelInterface $channel
+     *
+     * @return OrderInterface|null
+     */
+    public function findCartByIdAndChannel($id, ChannelInterface $channel);
 }

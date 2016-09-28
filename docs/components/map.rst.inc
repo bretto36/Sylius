@@ -1,7 +1,6 @@
 * :doc:`/components/general/index`
 * :doc:`/components/Addressing/index`
 * :doc:`/components/Attribute/index`
-* :doc:`/components/Cart/index`
 * :doc:`/components/Channel/index`
 * :doc:`/components/Currency/index`
 * :doc:`/components/Grid/index`
@@ -20,4 +19,3 @@
 * :doc:`/components/Taxation/index`
 * :doc:`/components/Taxonomy/index`
 * :doc:`/components/User/index`
-* :doc:`/components/Variation/index`
