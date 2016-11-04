@@ -19,8 +19,6 @@ use Sylius\Bundle\SettingsBundle\Schema\SettingsBuilderInterface;
 use Symfony\Component\Form\FormBuilderInterface;
 
 /**
- * @mixin CallbackSchema
- *
  * @author Kamil Kokot <kamil.kokot@lakion.com>
  */
 final class CallbackSchemaSpec extends ObjectBehavior
@@ -32,7 +30,7 @@ final class CallbackSchemaSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\SettingsBundle\Schema\CallbackSchema');
+        $this->shouldHaveType(CallbackSchema::class);
     }
 
     function it_implements_schema_interface()

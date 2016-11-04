@@ -35,4 +35,28 @@ interface ShowPageInterface
      * @return bool
      */
     public function isProductWithPriceOnList($productName, $productPrice);
+
+    /**
+     * @return int
+     */
+    public function countProductsItems();
+
+    /**
+     * @param string $name
+     * 
+     * @return bool
+     */
+    public function isProductOnPageWithName($name);
+
+    /**
+     * @return string
+     */
+    public function getFirstProductNameFromList();
+
+    /**
+     * @param string $name
+     */
+    public function search($name);
+
+    public function clearFilter();
 }

@@ -13,6 +13,7 @@ namespace spec\Sylius\Bundle\AttributeBundle\Form\EventSubscriber;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use Sylius\Bundle\AttributeBundle\Form\EventSubscriber\BuildAttributeFormSubscriber;
 use Sylius\Component\Attribute\Model\AttributeInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Form\Form;
@@ -31,7 +32,7 @@ final class BuildAttributeFormSubscriberSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\AttributeBundle\Form\EventSubscriber\BuildAttributeFormSubscriber');
+        $this->shouldHaveType(BuildAttributeFormSubscriber::class);
     }
 
     function it_implements_event_subscriber_interface()
@@ -40,11 +41,11 @@ final class BuildAttributeFormSubscriberSpec extends ObjectBehavior
     }
 
     function it_adds_configuration_and_validation_field_if_necessary(
-        $formFactory,
         AttributeInterface $attribute,
-        Form $form,
         Form $configurationForm,
-        FormEvent $event
+        Form $form,
+        FormEvent $event,
+        FormFactoryInterface $formFactory
     ) {
         $event->getData()->willReturn($attribute);
         $event->getForm()->willReturn($form);
@@ -62,10 +63,10 @@ final class BuildAttributeFormSubscriberSpec extends ObjectBehavior
     }
 
     function it_does_nothing_if_configuration_and_validation_form_does_not_exist(
-        $formFactory,
         AttributeInterface $attribute,
         Form $form,
-        FormEvent $event
+        FormEvent $event,
+        FormFactoryInterface $formFactory
     ) {
         $event->getData()->willReturn($attribute);
         $event->getForm()->willReturn($form);

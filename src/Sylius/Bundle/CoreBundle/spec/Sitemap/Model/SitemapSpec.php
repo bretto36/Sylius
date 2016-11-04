@@ -13,6 +13,7 @@ namespace spec\Sylius\Bundle\CoreBundle\Sitemap\Model;
 
 use PhpSpec\ObjectBehavior;
 use Sylius\Bundle\CoreBundle\Sitemap\Exception\SitemapUrlNotFoundException;
+use Sylius\Bundle\CoreBundle\Sitemap\Model\Sitemap;
 use Sylius\Bundle\CoreBundle\Sitemap\Model\SitemapInterface;
 use Sylius\Bundle\CoreBundle\Sitemap\Model\SitemapUrlInterface;
 
@@ -23,7 +24,7 @@ final class SitemapSpec extends ObjectBehavior
 {
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\CoreBundle\Sitemap\Model\Sitemap');
+        $this->shouldHaveType(Sitemap::class);
     }
 
     function it_implements_sitemap_interface()

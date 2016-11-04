@@ -12,6 +12,7 @@
 namespace spec\Sylius\Bundle\LocaleBundle\Form\Type;
 
 use PhpSpec\ObjectBehavior;
+use Sylius\Bundle\LocaleBundle\Form\Type\LocaleChoiceType;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Symfony\Component\Form\FormTypeInterface;
 
@@ -27,7 +28,7 @@ final class LocaleChoiceTypeSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\LocaleBundle\Form\Type\LocaleChoiceType');
+        $this->shouldHaveType(LocaleChoiceType::class);
     }
 
     function it_is_a_form_type()

@@ -70,4 +70,21 @@ interface UpdateConfigurableProductPageInterface extends UpdatePageInterface
      * @param string $path
      */
     public function changeImageWithCode($code, $path);
+
+    /**
+     * @param string $code
+     */
+    public function removeImageWithCode($code);
+
+    public function removeFirstImage();
+
+    /**
+     * @return int
+     */
+    public function countImages();
+
+    /**
+     * @return bool
+     */
+    public function isImageCodeDisabled();
 }

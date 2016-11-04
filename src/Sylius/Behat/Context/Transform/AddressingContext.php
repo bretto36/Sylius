@@ -14,7 +14,9 @@ namespace Sylius\Behat\Context\Transform;
 use Behat\Behat\Context\Context;
 use Sylius\Component\Addressing\Converter\CountryNameConverterInterface;
 use Sylius\Component\Core\Model\AddressInterface;
+use Sylius\Component\Core\Repository\AddressRepositoryInterface;
 use Sylius\Component\Resource\Factory\FactoryInterface;
+use Webmozart\Assert\Assert;
 
 /**
  * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
@@ -32,20 +34,28 @@ final class AddressingContext implements Context
     private $countryNameConverter;
 
     /**
+     * @var AddressRepositoryInterface
+     */
+    private $addressRepository;
+
+    /**
      * @param FactoryInterface $addressFactory
      * @param CountryNameConverterInterface $countryNameConverter
+     * @param AddressRepositoryInterface $addressRepository
      */
     public function __construct(
         FactoryInterface $addressFactory,
-        CountryNameConverterInterface $countryNameConverter
+        CountryNameConverterInterface $countryNameConverter,
+        AddressRepositoryInterface $addressRepository
     ) {
         $this->addressFactory = $addressFactory;
         $this->countryNameConverter = $countryNameConverter;
+        $this->addressRepository = $addressRepository;
     }
 
     /**
      * @Transform /^to "([^"]+)"$/
-     * @Transform /^"([^"]+)" as shipping country$/
+     * @Transform /^"([^"]+)" based \w+ address$/
      */
     public function createNewAddress($countryName)
     {
@@ -63,7 +73,7 @@ final class AddressingContext implements Context
     {
         $countryCode = $this->countryNameConverter->convertToCode($countryName);
         $customerName = explode(' ', $customerName);
-        
+
         return $this->createAddress($countryCode, $customerName[0], $customerName[1], $cityName, $street, $postcode, $provinceName);
     }
 
@@ -80,7 +90,8 @@ final class AddressingContext implements Context
      * @Transform /^"([^"]+)" addressed it to "([^"]+)", "([^"]+)" "([^"]+)" in the "([^"]+)"(?:|, "([^"]+)")$/
      * @Transform /^of "([^"]+)" in the "([^"]+)", "([^"]+)" "([^"]+)", "([^"]+)"(?:|, "([^"]+)")$/
      * @Transform /^addressed it to "([^"]+)", "([^"]+)", "([^"]+)" "([^"]+)" in the "([^"]+)"(?:|, "([^"]+)")$/
-     * @Transform /^address is "([^"]+)", "([^"]+)", "([^"]+)", "([^"]+)", "([^"]+)", "([^"]+)"$/
+     * @Transform /^address (?:|is )"([^"]+)", "([^"]+)", "([^"]+)", "([^"]+)", "([^"]+)"(?:|, "([^"]+)")$/
+     * @Transform /^address as "([^"]+)", "([^"]+)", "([^"]+)", "([^"]+)", "([^"]+)"(?:|, "([^"]+)")$/
      */
     public function createNewAddressWithName($name, $street, $postcode, $city, $countryName, $provinceName = null)
     {
@@ -88,6 +99,17 @@ final class AddressingContext implements Context
         $names = explode(" ", $name);
 
         return $this->createAddress($countryCode, $names[0], $names[1], $city, $street, $postcode, $provinceName);
+    }
+
+    /**
+     * @Transform /^"([^"]+)" street$/
+     */
+    public function getByStreet($street)
+    {
+        $address = $this->addressRepository->findOneBy(['street' => $street]);
+        Assert::notNull($address, sprintf('Cannot find address by %s street' , $street));
+
+        return $address;
     }
 
     /**

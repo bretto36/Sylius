@@ -37,14 +37,14 @@ final class SyliusProductExtension extends AbstractResourceExtension implements 
         $config = $this->processConfiguration($this->getConfiguration($config, $container), $config);
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 
-        $loader->load(sprintf('driver/%s.xml', $config['driver']));
+        $loader->load(sprintf('services/integrations/%s.xml', $config['driver']));
 
         $this->registerResources('sylius', $config['driver'], $config['resources'], $container);
 
         $loader->load('services.xml');
 
         $formDefinition = $container->getDefinition('sylius.form.type.product_variant_generation');
-        $formDefinition->addArgument($container->getDefinition('sylius.form.listener.product_variant_generator'));
+        $formDefinition->addArgument($container->getDefinition('sylius.form.event_subscriber.product_variant_generator'));
 
         $container->getDefinition('sylius.form.type.product')->addArgument(new Reference('sylius.product_variant_resolver.default'));
     }

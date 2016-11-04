@@ -13,7 +13,6 @@ namespace Sylius\Bundle\CoreBundle\Fixture;
 
 use Sylius\Bundle\FixturesBundle\Fixture\AbstractFixture;
 use Sylius\Component\Attribute\AttributeType\TextAttributeType;
-use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -26,11 +25,6 @@ final class StickerProductFixture extends AbstractFixture
      * @var TaxonFixture
      */
     private $taxonFixture;
-
-    /**
-     * @var RepositoryInterface
-     */
-    private $taxonRepository;
 
     /**
      * @var ProductAttributeFixture
@@ -59,20 +53,17 @@ final class StickerProductFixture extends AbstractFixture
 
     /**
      * @param TaxonFixture $taxonFixture
-     * @param RepositoryInterface $taxonRepository
      * @param ProductAttributeFixture $productAttributeFixture
      * @param ProductOptionFixture $productOptionFixture
      * @param ProductFixture $productFixture
      */
     public function __construct(
         TaxonFixture $taxonFixture,
-        RepositoryInterface $taxonRepository,
         ProductAttributeFixture $productAttributeFixture,
         ProductOptionFixture $productOptionFixture,
         ProductFixture $productFixture
     ) {
         $this->taxonFixture = $taxonFixture;
-        $this->taxonRepository = $taxonRepository;
         $this->productAttributeFixture = $productAttributeFixture;
         $this->productOptionFixture = $productOptionFixture;
         $this->productFixture = $productFixture;
@@ -139,6 +130,7 @@ final class StickerProductFixture extends AbstractFixture
                     'sticker_paper' => sprintf('Paper from tree %s', $this->faker->randomElement(['Wung', 'Tanajno', 'Lemon-San', 'Me-Gusta'])),
                     'sticker_resolution' => $this->faker->randomElement(['JKM XD', '476DPI', 'FULL HD', '200DPI']),
                 ],
+                'product_options' => ['sticker_size'],
                 'images' => [
                     'main' => sprintf('%s/../Resources/fixtures/%s', __DIR__, 'stickers.jpg'),
                     'thumbnail' => sprintf('%s/../Resources/fixtures/%s', __DIR__, 'stickers.jpg'),

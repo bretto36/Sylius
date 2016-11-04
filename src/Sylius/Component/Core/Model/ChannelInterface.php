@@ -11,26 +11,16 @@
 
 namespace Sylius\Component\Core\Model;
 
-use Sylius\Bundle\ThemeBundle\Model\ThemeInterface;
 use Sylius\Component\Addressing\Model\ZoneInterface;
 use Sylius\Component\Channel\Model\ChannelInterface as BaseChannelInterface;
-use Sylius\Component\Core\Taxation\Strategy\TaxCalculationStrategyInterface;
 use Sylius\Component\Currency\Model\CurrenciesAwareInterface;
 use Sylius\Component\Currency\Model\CurrencyInterface;
 use Sylius\Component\Locale\Model\LocaleInterface;
 use Sylius\Component\Locale\Model\LocalesAwareInterface;
 use Sylius\Component\Payment\Model\PaymentMethodsAwareInterface;
 use Sylius\Component\Shipping\Model\ShippingMethodsAwareInterface;
-use Sylius\Component\Taxonomy\Model\TaxonsAwareInterface;
 
 /**
- * Model implementing this interface should reference several:
- *   - Currencies;
- *   - Locales;
- *   - Payment methods;
- *   - Shipping methods;
- *   - Taxons.
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
 interface ChannelInterface extends
@@ -38,18 +28,12 @@ interface ChannelInterface extends
     CurrenciesAwareInterface,
     LocalesAwareInterface,
     PaymentMethodsAwareInterface,
-    ShippingMethodsAwareInterface,
-    TaxonsAwareInterface
+    ShippingMethodsAwareInterface
 {
     /**
-     * @return string
+     * @return LocaleInterface
      */
-    public function getThemeName();
-
-    /**
-     * @param string $themeName
-     */
-    public function setThemeName($themeName);
+    public function getDefaultLocale();
 
     /**
      * @param LocaleInterface $locale
@@ -57,19 +41,14 @@ interface ChannelInterface extends
     public function setDefaultLocale(LocaleInterface $locale);
 
     /**
-     * @return LocaleInterface
+     * @return CurrencyInterface
      */
-    public function getDefaultLocale();
+    public function getDefaultCurrency();
 
     /**
      * @param CurrencyInterface $currency
      */
     public function setDefaultCurrency(CurrencyInterface $currency);
-
-    /**
-     * @return CurrencyInterface
-     */
-    public function getDefaultCurrency();
 
     /**
      * @return ZoneInterface
@@ -90,4 +69,14 @@ interface ChannelInterface extends
      * @param string $taxCalculationStrategy
      */
     public function setTaxCalculationStrategy($taxCalculationStrategy);
+
+    /**
+     * @return string
+     */
+    public function getThemeName();
+
+    /**
+     * @param string $themeName
+     */
+    public function setThemeName($themeName);
 }

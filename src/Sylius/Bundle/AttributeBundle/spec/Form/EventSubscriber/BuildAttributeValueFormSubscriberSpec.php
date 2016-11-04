@@ -24,8 +24,6 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 
 /**
- * @mixin BuildAttributeValueFormSubscriber
- *
  * @author Leszek Prabucki <leszek.prabucki@gmail.com>
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
  * @author Paweł Jędrzejewski <pawel@sylius.org>
@@ -39,12 +37,15 @@ final class BuildAttributeValueFormSubscriberSpec extends ObjectBehavior
 
     function it_is_initialized()
     {
-        $this->shouldHaveType('Sylius\Bundle\AttributeBundle\Form\EventSubscriber\BuildAttributeValueFormSubscriber');
+        $this->shouldHaveType(BuildAttributeValueFormSubscriber::class);
     }
 
     function it_subscribes_to_pre_set_data_event()
     {
-        self::getSubscribedEvents()->shouldReturn([FormEvents::PRE_SET_DATA => 'preSetData', FormEvents::PRE_SUBMIT => 'preSubmit']);
+        self::getSubscribedEvents()->shouldReturn([
+            FormEvents::PRE_SET_DATA => 'preSetData',
+            FormEvents::PRE_SUBMIT => 'preSubmit',
+        ]);
     }
 
     function it_does_not_add_any_field_when_attribute_is_new_or_empty(FormEvent $event, Form $form)

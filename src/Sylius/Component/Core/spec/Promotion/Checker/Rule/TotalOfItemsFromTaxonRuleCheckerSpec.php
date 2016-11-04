@@ -23,8 +23,6 @@ use Sylius\Component\Resource\Exception\UnexpectedTypeException;
 use Sylius\Component\Taxonomy\Repository\TaxonRepositoryInterface;
 
 /**
- * @mixin TotalOfItemsFromTaxonRuleChecker
- *
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
  */
 final class TotalOfItemsFromTaxonRuleCheckerSpec extends ObjectBehavior
@@ -39,12 +37,12 @@ final class TotalOfItemsFromTaxonRuleCheckerSpec extends ObjectBehavior
         $this->shouldHaveType(TotalOfItemsFromTaxonRuleChecker::class);
     }
 
-    function it_implements_rule_checker_interface()
+    function it_implements_a_rule_checker_interface()
     {
         $this->shouldImplement(RuleCheckerInterface::class);
     }
 
-    function it_recognizes_subject_as_eligible_if_it_has_items_from_configured_taxon_which_has_required_total(
+    function it_recognizes_a_subject_as_eligible_if_it_has_items_from_configured_taxon_which_has_required_total(
         TaxonRepositoryInterface $taxonRepository,
         OrderInterface $order,
         OrderItemInterface $compositeBowItem,
@@ -74,7 +72,7 @@ final class TotalOfItemsFromTaxonRuleCheckerSpec extends ObjectBehavior
         $this->isEligible($order, ['taxon' => 'bows', 'amount' => 10000])->shouldReturn(true);
     }
 
-    function it_recognizes_subject_as_eligible_if_it_has_items_from_configured_taxon_which_has_total_equal_with_required(
+    function it_recognizes_a_subject_as_eligible_if_it_has_items_from_configured_taxon_which_has_total_equal_with_required(
         TaxonRepositoryInterface $taxonRepository,
         OrderInterface $order,
         OrderItemInterface $compositeBowItem,
@@ -98,7 +96,7 @@ final class TotalOfItemsFromTaxonRuleCheckerSpec extends ObjectBehavior
         $this->isEligible($order, ['taxon' => 'bows', 'amount' => 10000])->shouldReturn(true);
     }
 
-    function it_does_not_recognize_subject_as_eligible_if_items_from_required_taxon_has_too_low_total(
+    function it_does_not_recognize_a_subject_as_eligible_if_items_from_required_taxon_has_too_low_total(
         TaxonRepositoryInterface $taxonRepository,
         OrderInterface $order,
         OrderItemInterface $compositeBowItem,
@@ -129,7 +127,7 @@ final class TotalOfItemsFromTaxonRuleCheckerSpec extends ObjectBehavior
         $this->isEligible($order, [])->shouldReturn(false);
     }
 
-    function it_throws_exception_if_passed_subject_is_not_order(PromotionSubjectInterface $subject)
+    function it_throws_an_exception_if_passed_subject_is_not_order(PromotionSubjectInterface $subject)
     {
         $this
             ->shouldThrow(new UnexpectedTypeException($subject->getWrappedObject(), OrderInterface::class))
@@ -146,7 +144,7 @@ final class TotalOfItemsFromTaxonRuleCheckerSpec extends ObjectBehavior
         $this->isEligible($order, ['taxon' => 'sniper_rifles', 'amount' => 1000])->shouldReturn(false);
     }
 
-    function it_has_configuration_form_type()
+    function it_has_a_configuration_form_type()
     {
         $this->getConfigurationFormType()->shouldReturn('sylius_promotion_rule_total_of_items_from_taxon_configuration');
     }

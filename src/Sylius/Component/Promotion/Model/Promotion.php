@@ -82,17 +82,17 @@ class Promotion implements PromotionInterface
     protected $couponBased = false;
 
     /**
-     * @var Collection|CouponInterface[]
+     * @var Collection|PromotionCouponInterface[]
      */
     protected $coupons;
 
     /**
-     * @var Collection|RuleInterface[]
+     * @var Collection|PromotionRuleInterface[]
      */
     protected $rules;
 
     /**
-     * @var Collection|ActionInterface[]
+     * @var Collection|PromotionActionInterface[]
      */
     protected $actions;
 
@@ -235,6 +235,14 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
+    public function decrementUsed()
+    {
+        --$this->used;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getStartsAt()
     {
         return $this->startsAt;
@@ -299,7 +307,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function hasCoupon(CouponInterface $coupon)
+    public function hasCoupon(PromotionCouponInterface $coupon)
     {
         return $this->coupons->contains($coupon);
     }
@@ -307,7 +315,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function addCoupon(CouponInterface $coupon)
+    public function addCoupon(PromotionCouponInterface $coupon)
     {
         if (!$this->hasCoupon($coupon)) {
             $coupon->setPromotion($this);
@@ -318,7 +326,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function removeCoupon(CouponInterface $coupon)
+    public function removeCoupon(PromotionCouponInterface $coupon)
     {
         $coupon->setPromotion(null);
         $this->coupons->removeElement($coupon);
@@ -343,7 +351,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function hasRule(RuleInterface $rule)
+    public function hasRule(PromotionRuleInterface $rule)
     {
         return $this->rules->contains($rule);
     }
@@ -351,7 +359,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function addRule(RuleInterface $rule)
+    public function addRule(PromotionRuleInterface $rule)
     {
         if (!$this->hasRule($rule)) {
             $rule->setPromotion($this);
@@ -362,7 +370,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function removeRule(RuleInterface $rule)
+    public function removeRule(PromotionRuleInterface $rule)
     {
         $rule->setPromotion(null);
         $this->rules->removeElement($rule);
@@ -387,7 +395,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function hasAction(ActionInterface $action)
+    public function hasAction(PromotionActionInterface $action)
     {
         return $this->actions->contains($action);
     }
@@ -395,7 +403,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function addAction(ActionInterface $action)
+    public function addAction(PromotionActionInterface $action)
     {
         if (!$this->hasAction($action)) {
             $action->setPromotion($this);
@@ -406,7 +414,7 @@ class Promotion implements PromotionInterface
     /**
      * {@inheritdoc}
      */
-    public function removeAction(ActionInterface $action)
+    public function removeAction(PromotionActionInterface $action)
     {
         $action->setPromotion(null);
         $this->actions->removeElement($action);

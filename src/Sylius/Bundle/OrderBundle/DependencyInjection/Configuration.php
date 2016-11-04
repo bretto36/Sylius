@@ -11,23 +11,14 @@
 
 namespace Sylius\Bundle\OrderBundle\DependencyInjection;
 
-use Sylius\Bundle\OrderBundle\Controller\AdjustmentController;
-use Sylius\Bundle\OrderBundle\Controller\CartController;
-use Sylius\Bundle\OrderBundle\Controller\CartItemController;
-use Sylius\Bundle\OrderBundle\Controller\CommentController;
 use Sylius\Bundle\OrderBundle\Controller\OrderItemController;
-use Sylius\Bundle\OrderBundle\Doctrine\ORM\OrderRepository;
-use Sylius\Component\Order\Factory\OrderItemUnitFactory;
-use Sylius\Bundle\OrderBundle\Form\Type\AdjustmentType;
-use Sylius\Bundle\OrderBundle\Form\Type\CommentType;
 use Sylius\Bundle\OrderBundle\Form\Type\OrderItemType;
 use Sylius\Bundle\OrderBundle\Form\Type\OrderType;
 use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
 use Sylius\Bundle\ResourceBundle\SyliusResourceBundle;
+use Sylius\Component\Order\Factory\OrderItemUnitFactory;
 use Sylius\Component\Order\Model\Adjustment;
 use Sylius\Component\Order\Model\AdjustmentInterface;
-use Sylius\Component\Order\Model\Comment;
-use Sylius\Component\Order\Model\CommentInterface;
 use Sylius\Component\Order\Model\Order;
 use Sylius\Component\Order\Model\OrderInterface;
 use Sylius\Component\Order\Model\OrderItem;
@@ -42,14 +33,9 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 /**
- * This class contains the configuration information for the bundle.
- *
- * This information is solely responsible for how the different configuration
- * sections are normalized, and merged.
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class Configuration implements ConfigurationInterface
+final class Configuration implements ConfigurationInterface
 {
     /**
      * {@inheritdoc}
@@ -67,6 +53,7 @@ class Configuration implements ConfigurationInterface
         ;
 
         $this->addResourcesSection($rootNode);
+        $this->addExpirationPeriodsSection($rootNode);
 
         return $treeBuilder;
     }
@@ -167,46 +154,9 @@ class Configuration implements ConfigurationInterface
                                     ->children()
                                         ->scalarNode('model')->defaultValue(Adjustment::class)->cannotBeEmpty()->end()
                                         ->scalarNode('interface')->defaultValue(AdjustmentInterface::class)->cannotBeEmpty()->end()
-                                        ->scalarNode('controller')->defaultValue(AdjustmentController::class)->cannotBeEmpty()->end()
+                                        ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
                                         ->scalarNode('repository')->cannotBeEmpty()->end()
                                         ->scalarNode('factory')->defaultValue(Factory::class)->end()
-                                        ->arrayNode('form')
-                                            ->addDefaultsIfNotSet()
-                                            ->children()
-                                                ->scalarNode('default')->defaultValue(AdjustmentType::class)->cannotBeEmpty()->end()
-                                            ->end()
-                                        ->end()
-                                    ->end()
-                                ->end()
-                                ->arrayNode('validation_groups')
-                                    ->addDefaultsIfNotSet()
-                                    ->children()
-                                        ->arrayNode('default')
-                                            ->prototype('scalar')->end()
-                                            ->defaultValue(['sylius'])
-                                        ->end()
-                                    ->end()
-                                ->end()
-                            ->end()
-                        ->end()
-                        ->arrayNode('comment')
-                            ->addDefaultsIfNotSet()
-                            ->children()
-                                ->variableNode('options')->end()
-                                ->arrayNode('classes')
-                                    ->addDefaultsIfNotSet()
-                                    ->children()
-                                        ->scalarNode('model')->defaultValue(Comment::class)->cannotBeEmpty()->end()
-                                        ->scalarNode('interface')->defaultValue(CommentInterface::class)->cannotBeEmpty()->end()
-                                        ->scalarNode('controller')->defaultValue(CommentController::class)->cannotBeEmpty()->end()
-                                        ->scalarNode('repository')->cannotBeEmpty()->end()
-                                        ->scalarNode('factory')->defaultValue(Factory::class)->end()
-                                        ->arrayNode('form')
-                                            ->addDefaultsIfNotSet()
-                                            ->children()
-                                                ->scalarNode('default')->defaultValue(CommentType::class)->cannotBeEmpty()->end()
-                                            ->end()
-                                        ->end()
                                     ->end()
                                 ->end()
                                 ->arrayNode('validation_groups')
@@ -235,6 +185,24 @@ class Configuration implements ConfigurationInterface
                                 ->end()
                             ->end()
                         ->end()
+                    ->end()
+                ->end()
+            ->end()
+        ;
+    }
+
+    /**
+     * @param ArrayNodeDefinition $node
+     */
+    private function addExpirationPeriodsSection(ArrayNodeDefinition $node)
+    {
+        $node
+            ->children()
+                ->arrayNode('expiration')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->scalarNode('cart')->defaultValue('2 days')->cannotBeEmpty()->end()
+                        ->scalarNode('order')->defaultValue('5 days')->cannotBeEmpty()->end()
                     ->end()
                 ->end()
             ->end()

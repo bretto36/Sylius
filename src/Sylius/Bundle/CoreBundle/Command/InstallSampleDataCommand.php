@@ -17,7 +17,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class InstallSampleDataCommand extends AbstractInstallCommand
+final class InstallSampleDataCommand extends AbstractInstallCommand
 {
     /**
      * {@inheritdoc}
@@ -60,16 +60,10 @@ EOT
             return 1;
         }
 
-        $doctrineConfiguration = $this->get('doctrine.orm.entity_manager')->getConnection()->getConfiguration();
-        $logger = $doctrineConfiguration->getSQLLogger();
-        $doctrineConfiguration->setSQLLogger(null);
-
         $commands = [
             'sylius:fixtures:load' => ['--no-interaction' => true],
         ];
 
         $this->runCommands($commands, $input, $output);
-
-        $doctrineConfiguration->setSQLLogger($logger);
     }
 }

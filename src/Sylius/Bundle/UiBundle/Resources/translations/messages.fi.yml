@@ -50,6 +50,7 @@ sylius:
         apply_coupon: Lisää kuponki
         are_your_sure_you_want_to_perform_this_action: Oletko varma, että haluat suorittaa tämän toiminnon?
         back: Edellinen
+        channels: Kanavat
         checkout: Kassa
         choose_file: Valitse tiedosto
         city: Kaupunki
@@ -64,7 +65,6 @@ sylius:
         contact_us: Ota yhteyttä
         contain_variants: Sisältää muuttujia
         contains: Sisältää
-        content: Sisältö
         countries: Maat
         country: Maa
         country_details: Maatiedot
@@ -77,7 +77,6 @@ sylius:
         create_country: Luo maa
         create_currency: Luo valuutta
         create_customer: Luo asiakas
-        create_group: Luo ryhmä
         create_menu: Luo valikko
         create_new_coupon: Luo uusi kuponki
         create_new_page: Luo uusi sivu
@@ -91,6 +90,7 @@ sylius:
         create_redirect_route: Luo uudelleenohjaus
         currency: Valuutta
         current_password: Nykyinen salasana
+        customer: Asiakas
         customer_orders: Asiakkaan tilaukset
         customer_since: Asiakas alkaen
         customers: Asiakkaat
@@ -114,7 +114,6 @@ sylius:
         edit_coupon: Muokkaa kuponkia
         edit_currency: Muokkaa valuuttaa
         edit_customer: Muokkaa asiakkaan tietoja
-        edit_group: Muokkaa ryhmää
         edit_payment_method: Muokkaa maksutapaa
         edit_product: Muokkaa tuotetta
         edit_promotion: Muokkaa kampanjaa
@@ -126,21 +125,27 @@ sylius:
         email: Sähköpostiosoite
         exchange_rate: Vaihtokurssi
         extra_notes: Muistiinpanot
-        label: Otsikko
+        marketing: Markkinointi
         members: Jäsenet
         message: Viesti
         new_password: Uusi salasana
         next: Seuraava
+        orders: Tilaukset
         parent: Vanhempi
         phone_number: Puhelinnumero
         postcode: Postinumero
         pricing: Hinnoittelu
+        products: Tuotteet
         promotion_coupons: Kupongit
+        promotions: Kampanjat
         province: Lääni
         provinces: Maakunnat
         remember_me: Muista minut
+        sales: Myynnit
+        sales_this_month: Myynnit
         street: Katuosoite
-        subscribed_to_newsletter: Tilaa uutiskirje
         topic: Aihe
         translations: Käännökset
+        type: Tyyppi
         username: Käyttäjänimi
+        zones: Vyöhykkeet

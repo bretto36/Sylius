@@ -21,12 +21,12 @@ use Symfony\Component\HttpKernel\Kernel as HttpKernel;
  */
 class Kernel extends HttpKernel
 {
-    const VERSION = '1.0.0-dev';
+    const VERSION = '1.0.0-alpha.1';
     const VERSION_ID = '10000';
     const MAJOR_VERSION = '1';
     const MINOR_VERSION = '0';
     const RELEASE_VERSION = '0';
-    const EXTRA_VERSION = 'DEV';
+    const EXTRA_VERSION = 'alpha.1';
 
     /**
      * {@inheritdoc}
@@ -61,13 +61,10 @@ class Kernel extends HttpKernel
             new \Sylius\Bundle\GridBundle\SyliusGridBundle(),
             new \winzou\Bundle\StateMachineBundle\winzouStateMachineBundle(),
 
-            new \Sonata\BlockBundle\SonataBlockBundle(),
             new \Symfony\Cmf\Bundle\CoreBundle\CmfCoreBundle(),
-            new \Symfony\Cmf\Bundle\BlockBundle\CmfBlockBundle(),
             new \Symfony\Cmf\Bundle\ContentBundle\CmfContentBundle(),
             new \Symfony\Cmf\Bundle\RoutingBundle\CmfRoutingBundle(),
             new \Symfony\Cmf\Bundle\MenuBundle\CmfMenuBundle(),
-            new \Symfony\Cmf\Bundle\MediaBundle\CmfMediaBundle(),
 
             new \Doctrine\Bundle\DoctrineBundle\DoctrineBundle(),
             new \Doctrine\Bundle\DoctrineCacheBundle\DoctrineCacheBundle(),
@@ -80,17 +77,13 @@ class Kernel extends HttpKernel
 
             new \Sonata\IntlBundle\SonataIntlBundle(),
             new \Bazinga\Bundle\HateoasBundle\BazingaHateoasBundle(),
-            new \FOS\OAuthServerBundle\FOSOAuthServerBundle(),
             new \FOS\RestBundle\FOSRestBundle(),
 
-            new \FOS\ElasticaBundle\FOSElasticaBundle(),
             new \Knp\Bundle\GaufretteBundle\KnpGaufretteBundle(),
             new \Knp\Bundle\MenuBundle\KnpMenuBundle(),
-            new \Knp\Bundle\SnappyBundle\KnpSnappyBundle(),
             new \Liip\ImagineBundle\LiipImagineBundle(),
             new \Payum\Bundle\PayumBundle\PayumBundle(),
             new \JMS\SerializerBundle\JMSSerializerBundle(),
-            new \JMS\TranslationBundle\JMSTranslationBundle(),
             new \Stof\DoctrineExtensionsBundle\StofDoctrineExtensionsBundle(),
             new \WhiteOctober\PagerfantaBundle\WhiteOctoberPagerfantaBundle(),
 

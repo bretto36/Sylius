@@ -11,12 +11,11 @@
 
 namespace Sylius\Bundle\CoreBundle\Doctrine\ORM;
 
-use Doctrine\ORM\QueryBuilder;
 use Sylius\Bundle\OrderBundle\Doctrine\ORM\OrderRepository as BaseOrderRepository;
 use Sylius\Component\Core\Model\ChannelInterface;
-use Sylius\Component\Core\Model\CouponInterface;
 use Sylius\Component\Core\Model\CustomerInterface;
 use Sylius\Component\Core\Model\OrderInterface;
+use Sylius\Component\Core\Model\PromotionCouponInterface;
 use Sylius\Component\Core\Repository\OrderRepositoryInterface;
 
 class OrderRepository extends BaseOrderRepository implements OrderRepositoryInterface
@@ -29,9 +28,12 @@ class OrderRepository extends BaseOrderRepository implements OrderRepositoryInte
         $queryBuilder = $this->createQueryBuilder('o');
 
         return $queryBuilder
+            ->addSelect('channel')
+            ->leftJoin('o.channel', 'channel')
             ->addSelect('customer')
             ->leftJoin('o.customer', 'customer')
-            ->andWhere($queryBuilder->expr()->isNotNull('o.completedAt'))
+            ->andWhere('o.state != :state')
+            ->setParameter('state', OrderInterface::STATE_CART)
         ;
     }
 
@@ -43,10 +45,11 @@ class OrderRepository extends BaseOrderRepository implements OrderRepositoryInte
         $queryBuilder = $this->createQueryBuilder('o');
 
         $queryBuilder
-            ->andWhere($queryBuilder->expr()->isNotNull('o.completedAt'))
             ->innerJoin('o.customer', 'customer')
             ->andWhere('customer = :customer')
+            ->andWhere('o.state != :state')
             ->setParameter('customer', $customer)
+            ->setParameter('state', OrderInterface::STATE_CART)
         ;
 
         return $queryBuilder;
@@ -86,17 +89,19 @@ class OrderRepository extends BaseOrderRepository implements OrderRepositoryInte
     /**
      * {@inheritdoc}
      */
-    public function countByCustomerAndCoupon(CustomerInterface $customer, CouponInterface $coupon)
+    public function countByCustomerAndCoupon(CustomerInterface $customer, PromotionCouponInterface $coupon)
     {
         $queryBuilder = $this->createQueryBuilder('o')
             ->select('count(o.id)')
-            ->leftJoin('o.items', 'item')
             ->innerJoin('o.promotionCoupon', 'coupon')
             ->andWhere('o.customer = :customer')
-            ->andWhere('o.completedAt IS NOT NULL')
             ->andWhere('coupon = :coupon')
+            ->andWhere('o.state != :cartState')
+            ->andWhere('o.state != :cancelledState')
             ->setParameter('customer', $customer)
             ->setParameter('coupon', $coupon)
+            ->setParameter('cartState', OrderInterface::STATE_CART)
+            ->setParameter('cancelledState', OrderInterface::STATE_CANCELLED)
         ;
 
         $count = (int) $queryBuilder

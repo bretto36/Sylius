@@ -12,6 +12,7 @@
 namespace spec\Sylius\Bundle\UserBundle\Form\EventSubscriber;
 
 use PhpSpec\ObjectBehavior;
+use Sylius\Bundle\UserBundle\Form\EventSubscriber\AddUserFormSubscriber;
 use Sylius\Component\User\Model\UserInterface;
 use Sylius\Component\User\Model\UserAwareInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -30,7 +31,7 @@ final class AddUserFormSubscriberSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\UserBundle\Form\EventSubscriber\AddUserFormSubscriber');
+        $this->shouldHaveType(AddUserFormSubscriber::class);
     }
 
     function it_is_event_subscriber_instance()
@@ -128,7 +129,7 @@ final class AddUserFormSubscriberSpec extends ObjectBehavior
 
         $this->preSubmit($event);
     }
-    
+
     function it_throws_invalid_argument_exception_when_forms_normalized_data_does_not_implement_user_aware_interface(
         FormEvent $event,
         Form $form,
@@ -137,7 +138,7 @@ final class AddUserFormSubscriberSpec extends ObjectBehavior
         $event->getData()->willReturn(['user' => ['plainPassword' => '']]);
         $event->getForm()->willReturn($form);
         $form->getNormData()->willReturn($user);
-        
+
         $this->shouldThrow(\InvalidArgumentException::class)->during('preSubmit', [$event]);
     }
 }

@@ -20,8 +20,6 @@ use Sylius\Component\Currency\Converter\CurrencyConverterInterface;
 use Symfony\Component\Templating\Helper\Helper;
 
 /**
- * @mixin PriceHelper
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
  */
@@ -34,7 +32,7 @@ final class PriceHelperSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\MoneyBundle\Templating\Helper\PriceHelper');
+        $this->shouldHaveType(PriceHelper::class);
     }
 
     function it_is_a_templating_helper()
@@ -89,6 +87,5 @@ final class PriceHelperSpec extends ObjectBehavior
         $moneyHelper->formatAmount(300, 'GBP', null)->willReturn('£3.00');
 
         $this->convertAndFormatAmount(100, 'GBP', 3.0)->shouldReturn('£3.00');
-
     }
 }

@@ -22,9 +22,6 @@ use Sylius\Component\Resource\Model\TimestampableInterface;
 interface ProductVariantInterface extends TimestampableInterface, ResourceInterface, CodeAwareInterface
 {
     /**
-     * This should be generated from option values
-     * when no other is set.
-     *
      * @return string
      */
     public function getName();
@@ -37,24 +34,24 @@ interface ProductVariantInterface extends TimestampableInterface, ResourceInterf
     /**
      * @return Collection|ProductOptionValueInterface[]
      */
-    public function getOptions();
+    public function getOptionValues();
 
     /**
-     * @param ProductOptionValueInterface $option
+     * @param ProductOptionValueInterface $optionValue
      */
-    public function addOption(ProductOptionValueInterface $option);
+    public function addOptionValue(ProductOptionValueInterface $optionValue);
 
     /**
-     * @param ProductOptionValueInterface $option
+     * @param ProductOptionValueInterface $optionValue
      */
-    public function removeOption(ProductOptionValueInterface $option);
+    public function removeOptionValue(ProductOptionValueInterface $optionValue);
 
     /**
-     * @param ProductOptionValueInterface $option
+     * @param ProductOptionValueInterface $optionValue
      *
      * @return bool
      */
-    public function hasOption(ProductOptionValueInterface $option);
+    public function hasOptionValue(ProductOptionValueInterface $optionValue);
 
     /**
      * @return ProductInterface
@@ -77,7 +74,7 @@ interface ProductVariantInterface extends TimestampableInterface, ResourceInterf
     public function getAvailableOn();
 
     /**
-     * @param null|\DateTime $availableOn
+     * @param \DateTime|null $availableOn
      */
     public function setAvailableOn(\DateTime $availableOn = null);
 
@@ -87,7 +84,7 @@ interface ProductVariantInterface extends TimestampableInterface, ResourceInterf
     public function getAvailableUntil();
 
     /**
-     * @param null|\DateTime $availableUntil
+     * @param \DateTime|null $availableUntil
      */
     public function setAvailableUntil(\DateTime $availableUntil = null);
 }

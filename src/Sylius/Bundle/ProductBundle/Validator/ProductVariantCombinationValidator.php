@@ -31,12 +31,12 @@ class ProductVariantCombinationValidator extends ConstraintValidator
             throw new UnexpectedTypeException($value, ProductVariantInterface::class);
         }
 
-        $variable = $value->getProduct();
-        if (!$variable->hasVariants() || !$variable->hasOptions()) {
+        $product = $value->getProduct();
+        if (!$product->hasVariants() || !$product->hasOptions()) {
             return;
         }
 
-        if ($this->matches($value, $variable)) {
+        if ($this->matches($value, $product)) {
             $this->context->addViolation($constraint->message);
         }
     }
@@ -50,18 +50,14 @@ class ProductVariantCombinationValidator extends ConstraintValidator
     private function matches(ProductVariantInterface $variant, ProductInterface $variable)
     {
         foreach ($variable->getVariants() as $existingVariant) {
-            if ($variant === $existingVariant) {
+            if ($variant === $existingVariant || !$variant->getOptionValues()->count()) {
                 continue;
             }
 
             $matches = true;
 
-            if (!$variant->getOptions()->count()) {
-                continue;
-            }
-
-            foreach ($variant->getOptions() as $option) {
-                if (!$existingVariant->hasOption($option)) {
+            foreach ($variant->getOptionValues() as $optionValue) {
+                if (!$existingVariant->hasOptionValue($optionValue)) {
                     $matches = false;
                 }
             }

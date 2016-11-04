@@ -20,8 +20,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormTypeInterface;
 
 /**
- * @mixin DefaultResourceType
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
 final class DefaultResourceTypeSpec extends ObjectBehavior
@@ -36,7 +34,7 @@ final class DefaultResourceTypeSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\ResourceBundle\Form\Type\DefaultResourceType');
+        $this->shouldHaveType(DefaultResourceType::class);
     }
 
     function it_is_a_form_type()
@@ -59,7 +57,7 @@ final class DefaultResourceTypeSpec extends ObjectBehavior
         $this->buildForm($formBuilder, []);
     }
 
-    function it_generates_name_from_metadata(MetadataInterface $metadata)
+    function it_generates_name_from_metadata()
     {
         $this->getName()->shouldReturn('sylius_order_item');
     }

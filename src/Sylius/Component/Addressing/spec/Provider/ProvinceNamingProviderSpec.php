@@ -14,6 +14,7 @@ namespace spec\Sylius\Component\Addressing\Provider;
 use PhpSpec\ObjectBehavior;
 use Sylius\Component\Addressing\Model\AddressInterface;
 use Sylius\Component\Addressing\Model\ProvinceInterface;
+use Sylius\Component\Addressing\Provider\ProvinceNamingProvider;
 use Sylius\Component\Addressing\Provider\ProvinceNamingProviderInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 
@@ -30,7 +31,7 @@ final class ProvinceNamingProviderSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Component\Addressing\Provider\ProvinceNamingProvider');
+        $this->shouldHaveType(ProvinceNamingProvider::class);
     }
 
     function it_implements_province_name_provider_interface()

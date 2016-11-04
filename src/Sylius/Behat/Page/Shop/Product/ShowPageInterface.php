@@ -95,7 +95,50 @@ interface ShowPageInterface extends PageInterface
     public function getPrice();
 
     /**
+     * @return int
+     */
+    public function countReviews();
+
+    /**
      * @return bool
      */
     public function isMainImageDisplayed();
+
+    /**
+     * @param string $title
+     *
+     * @return bool
+     */
+    public function hasReviewTitled($title);
+
+    /**
+     * @return float
+     */
+    public function getAverageRating();
+
+    /**
+     * @param string $optionName
+     * @param string $optionValue
+     */
+    public function selectOption($optionName, $optionValue);
+
+    /**
+     * @param string $variantName
+     */
+    public function selectVariant($variantName);
+
+    /**
+     * @param string $productAssociationName
+     *
+     * @return bool
+     */
+    public function hasAssociation($productAssociationName);
+
+    /**
+     * @param string $productName
+     * @param string $productAssociationName
+     *
+     * @return bool
+     */
+    public function hasProductInAssociation($productName, $productAssociationName);
 }

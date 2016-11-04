@@ -130,23 +130,15 @@ final class CurrencyContext implements Context
      * @Given /^(that channel) allows to shop using "([^"]+)" and "([^"]+)" currencies$/
      * @Given /^(that channel) allows to shop using "([^"]+)", "([^"]+)" and "([^"]+)" currencies$/
      */
-    public function thatChannelAllowsToShopUsingAndCurrencies(
-        ChannelInterface $channel,
-        $firstCurrencyCode,
-        $secondCurrencyCode = null,
-        $thirdCurrencyCode = null
-    ) {
-        $currencies = new ArrayCollection();
-
-        foreach ([$firstCurrencyCode, $secondCurrencyCode, $thirdCurrencyCode] as $currencyCode) {
-            if (null === $currencyCode) {
-                break;
-            }
-
-            $currencies[] = $this->provideCurrency($currencyCode);
+    public function thatChannelAllowsToShopUsingAndCurrencies(ChannelInterface $channel, ...$currenciesCodes)
+    {
+        foreach ($channel->getCurrencies() as $currency) {
+            $channel->removeCurrency($currency);
         }
 
-        $channel->setCurrencies($currencies);
+        foreach ($currenciesCodes as $currencyCode) {
+            $channel->addCurrency($this->provideCurrency($currencyCode));
+        }
 
         $this->channelManager->flush();
     }
@@ -172,7 +164,7 @@ final class CurrencyContext implements Context
     }
 
     /**
-     * @Given /^(that channel)(?: also|) allows to shop using the "([^"]+)" currency with exchange rate (\d+)\.(\d+)$/
+     * @Given /^(that channel)(?: also|) allows to shop using the "([^"]+)" currency with exchange rate ([0-9\.]+)$/
      */
     public function thatChannelAllowsToShopUsingCurrency(ChannelInterface $channel, $currencyCode, $exchangeRate = 1.0)
     {
@@ -184,8 +176,8 @@ final class CurrencyContext implements Context
     }
 
     /**
-     * @Given /^the exchange rate for (currency "[^"]+") was changed to ((\d+)\.(\d+))$/
-     * @Given /^the ("[^"]+" currency) has an exchange rate of ((\d+)\.(\d+))$/
+     * @Given /^the exchange rate for (currency "[^"]+") was changed to ([0-9\.]+)$/
+     * @Given /^the ("[^"]+" currency) has an exchange rate of ([0-9\.]+)$/
      */
     public function theExchangeRateForWasChangedTo(CurrencyInterface $currency, $exchangeRate)
     {

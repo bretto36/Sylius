@@ -26,11 +26,45 @@ class ProductRepository extends BaseProductRepository implements ProductReposito
     /**
      * {@inheritdoc}
      */
-    public function createListQueryBuilder()
+    public function createQueryBuilderWithLocaleCodeAndTaxonId($localeCode, $taxonId = null)
+    {
+        $queryBuilder = $this->createQueryBuilder('o');
+
+        $queryBuilder
+            ->addSelect('translation')
+            ->leftJoin('o.translations', 'translation')
+            ->andWhere('translation.locale = :localeCode')
+            ->setParameter('localeCode', $localeCode)
+        ;
+
+        if (null !== $taxonId) {
+            $queryBuilder
+                ->innerJoin('o.taxons', 'taxon')
+                ->andWhere('taxon.id = :taxonId')
+                ->setParameter('taxonId', $taxonId)
+            ;
+        }
+
+        return $queryBuilder;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function createQueryBuilderForEnabledByTaxonCodeAndChannelAndLocale($code, ChannelInterface $channel, $locale)
     {
         return $this->createQueryBuilder('o')
             ->addSelect('translation')
             ->leftJoin('o.translations', 'translation')
+            ->innerJoin('o.taxons', 'taxon')
+            ->innerJoin('o.channels', 'channel')
+            ->andWhere('translation.locale = :locale')
+            ->andWhere('taxon.code = :code')
+            ->andWhere('channel = :channel')
+            ->andWhere('o.enabled = true')
+            ->setParameter('locale', $locale)
+            ->setParameter('code', $code)
+            ->setParameter('channel', $channel)
         ;
     }
 
@@ -48,37 +82,6 @@ class ProductRepository extends BaseProductRepository implements ProductReposito
             ->setMaxResults($count)
             ->getQuery()
             ->getResult()
-        ;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function findOneByIdAndChannel($id, ChannelInterface $channel = null)
-    {
-        $queryBuilder = $this->createQueryBuilder('o')
-            ->addSelect('image')
-            ->select('o, option, variant')
-            ->leftJoin('o.options', 'option')
-            ->leftJoin('o.variants', 'variant')
-            ->leftJoin('variant.images', 'image')
-            ->innerJoin('o.channels', 'channel')
-        ;
-
-        $queryBuilder
-            ->andWhere($queryBuilder->expr()->eq('o.id', ':id'))
-            ->setParameter('id', $id)
-        ;
-
-        if (null !== $channel) {
-            $queryBuilder
-                ->andWhere('channel = :channel')
-                ->setParameter('channel', $channel);
-        }
-
-        return $queryBuilder
-            ->getQuery()
-            ->getOneOrNullResult()
         ;
     }
 
@@ -113,6 +116,21 @@ class ProductRepository extends BaseProductRepository implements ProductReposito
             ->andWhere('translation.slug = :slug')
             ->setParameter('slug', $slug)
             ->setParameter('channel', $channel)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findOneBySlug($slug)
+    {
+        return $this->createQueryBuilder('o')
+            ->leftJoin('o.translations', 'translation')
+            ->andWhere('o.enabled = true')
+            ->andWhere('translation.slug = :slug')
+            ->setParameter('slug', $slug)
             ->getQuery()
             ->getOneOrNullResult()
         ;

@@ -14,6 +14,7 @@ namespace spec\Sylius\Bundle\AttributeBundle\Form\Type;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Sylius\Bundle\AttributeBundle\Form\EventSubscriber\BuildAttributeFormSubscriber;
+use Sylius\Bundle\AttributeBundle\Form\Type\AttributeType;
 use Sylius\Bundle\ResourceBundle\Form\EventSubscriber\AddCodeFormSubscriber;
 use Sylius\Component\Registry\ServiceRegistryInterface;
 use Symfony\Component\Form\FormBuilder;
@@ -37,7 +38,7 @@ final class AttributeTypeSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\AttributeBundle\Form\Type\AttributeType');
+        $this->shouldHaveType(AttributeType::class);
     }
 
     function it_is_a_form_type()
@@ -77,7 +78,10 @@ final class AttributeTypeSpec extends ObjectBehavior
 
     function it_defines_assigned_data_class(OptionsResolver $resolver)
     {
-        $resolver->setDefaults(['data_class' => 'ProductAttribute', 'validation_groups' => ['sylius']])->shouldBeCalled();
+        $resolver
+            ->setDefaults(['data_class' => 'ProductAttribute', 'validation_groups' => ['sylius']])
+            ->shouldBeCalled()
+        ;
 
         $this->configureOptions($resolver);
     }

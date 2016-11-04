@@ -13,8 +13,8 @@ namespace Sylius\Behat\Context\Ui\Shop;
 
 use Behat\Behat\Context\Context;
 use Sylius\Behat\Page\Shop\Product\ShowPageInterface;
+use Sylius\Behat\Page\Shop\ProductReview\IndexPageInterface;
 use Sylius\Behat\Page\Shop\Taxon\ShowPageInterface as TaxonShowPageInterface;
-use Sylius\Behat\Page\SymfonyPageInterface;
 use Sylius\Component\Core\Model\ProductInterface;
 use Sylius\Component\Core\Model\TaxonInterface;
 use Webmozart\Assert\Assert;
@@ -37,15 +37,23 @@ final class ProductContext implements Context
     private $taxonShowPage;
 
     /**
+     * @var IndexPageInterface
+     */
+    private $productReviewsIndexPage;
+
+    /**
      * @param ShowPageInterface $showPage
      * @param TaxonShowPageInterface $taxonShowPage
+     * @param IndexPageInterface $productReviewsIndexPage
      */
     public function __construct(
         ShowPageInterface $showPage,
-        TaxonShowPageInterface $taxonShowPage
+        TaxonShowPageInterface $taxonShowPage,
+        IndexPageInterface $productReviewsIndexPage
     ) {
         $this->showPage = $showPage;
         $this->taxonShowPage = $taxonShowPage;
+        $this->productReviewsIndexPage = $productReviewsIndexPage;
     }
 
     /**
@@ -76,6 +84,7 @@ final class ProductContext implements Context
 
     /**
      * @When /^I check (this product)'s details/
+     * @When I view product :product
      */
     public function iOpenProductPage(ProductInterface $product)
     {
@@ -124,13 +133,29 @@ final class ProductContext implements Context
             sprintf('Product should have attribute %s with value %s, but it does not.', $attributeName, $AttributeValue)
         );
     }
-    
+
     /**
      * @When /^I browse products from (taxon "([^"]+)")$/
      */
     public function iCheckListOfProductsForTaxon(TaxonInterface $taxon)
     {
         $this->taxonShowPage->open(['permalink' => $taxon->getPermalink()]);
+    }
+
+    /**
+     * @When I search for products with name :name
+     */
+    public function iSearchForProductsWithName($name)
+    {
+        $this->taxonShowPage->search($name);
+    }
+
+    /**
+     * @When I clear filter
+     */
+    public function iClearFilter()
+    {
+        $this->taxonShowPage->clearFilter();
     }
 
     /**
@@ -189,6 +214,7 @@ final class ProductContext implements Context
     }
 
     /**
+     * @Then the product price should be :price
      * @Then I should see the product price :price
      */
     public function iShouldSeeTheProductPrice($price)
@@ -198,6 +224,22 @@ final class ProductContext implements Context
             $this->showPage->getPrice(),
             'Product should have price %2$s, but it has %s'
         );
+    }
+
+    /**
+     * @When I set its :optionName to :optionValue
+     */
+    public function iSetItsOptionTo($optionName, $optionValue)
+    {
+        $this->showPage->selectOption($optionName, $optionValue);
+    }
+
+    /**
+     * @When I select :variantName variant
+     */
+    public function iSelectVariant($variantName)
+    {
+        $this->showPage->selectVariant($variantName);
     }
 
     /**
@@ -243,6 +285,178 @@ final class ProductContext implements Context
         Assert::true(
             $this->showPage->isMainImageDisplayed(),
             'The main image should have been displayed.'
+        );
+    }
+
+    /**
+     * @When /^I view (oldest|newest) products from (taxon "([^"]+)")$/
+     */
+    public function iViewSortedProductsFromTaxon($sortDirection, TaxonInterface $taxon)
+    {
+        $sorting = ['createdAt' => 'oldest' === $sortDirection ? 'asc' : 'desc'];
+
+        $this->taxonShowPage->open(['permalink' => $taxon->getPermalink(), 'sorting' => $sorting]);
+    }
+
+    /**
+     * @Then I should see :numberOfProducts products in the list
+     */
+    public function iShouldSeeProductsInTheList($numberOfProducts)
+    {
+        $foundRows = $this->taxonShowPage->countProductsItems();
+
+        Assert::same(
+            (int) $numberOfProducts,
+            $foundRows,
+            '%s rows with products should appear on page, %s rows has been found'
+        );
+    }
+
+    /**
+     * @Then I should see a product with name :name
+     */
+    public function iShouldSeeProductWithName($name)
+    {
+        Assert::true(
+            $this->taxonShowPage->isProductOnPageWithName($name),
+            sprintf('The product with name "%s" has not been found.', $name)
+        );
+    }
+
+    /**
+     * @Then the first product on the list should have name :name
+     */
+    public function theFirstProductOnTheListShouldHaveName($name)
+    {
+        $actualName = $this->taxonShowPage->getFirstProductNameFromList();
+
+        Assert::same(
+            $actualName,
+            $name,
+            sprintf('Expected first product\'s name to be "%s", but it is "%s".', $name, $actualName)
+        );
+    }
+
+    /**
+     * @Then I should see :count product reviews
+     */
+    public function iShouldSeeProductReviews($count)
+    {
+        Assert::same(
+            (int) $count,
+            $this->showPage->countReviews(),
+            'Product has %2$s reviews, but should have %s.'
+        );
+    }
+
+    /**
+     * @Then I should see reviews titled :firstReview, :secondReview and :thirdReview
+     */
+    public function iShouldSeeReviewsTitled(...$reviews)
+    {
+        foreach ($reviews as $review) {
+            Assert::true(
+                $this->showPage->hasReviewTitled($review),
+                sprintf('Product should have review titled "%s" but it does not.', $review)
+            );
+        }
+    }
+
+    /**
+     * @Then I should not see review titled :title
+     */
+    public function iShouldNotSeeReviewTitled($title)
+    {
+        Assert::false(
+            $this->showPage->hasReviewTitled($title),
+            sprintf('Product should not have review titled "%s" but it does.', $title)
+        );
+    }
+
+    /**
+     * @When /^I check (this product)'s reviews$/
+     */
+    public function iCheckThisProductSReviews(ProductInterface $product)
+    {
+        $this->productReviewsIndexPage->open(['slug' => $product->getSlug()]);
+    }
+
+    /**
+     * @Then I should see :count product reviews in the list
+     */
+    public function iShouldSeeProductReviewsInTheList($count)
+    {
+        Assert::same(
+            (int) $count,
+            $this->productReviewsIndexPage->countReviews(),
+            'Product has %2$s reviews in the list, but should have %s.'
+        );
+    }
+
+    /**
+     * @Then I should not see review titled :title in the list
+     */
+    public function iShouldNotSeeReviewTitledInTheList($title)
+    {
+        Assert::false(
+            $this->productReviewsIndexPage->hasReviewTitled($title),
+            sprintf('Product should not have review titled "%s" but it does.', $title)
+        );
+    }
+
+    /**
+     * @Then /^I should be notified that there are no reviews$/
+     */
+    public function iShouldBeNotifiedThatThereAreNoReviews()
+    {
+        Assert::true(
+            $this->productReviewsIndexPage->hasNoReviewMessage(),
+            'There should be message about no reviews but there is not.'
+        );
+    }
+
+    /**
+     * @Then I should see :rating as its average rating
+     */
+    public function iShouldSeeAsItsAverageRating($rating)
+    {
+        Assert::same(
+            (float) $rating,
+            $this->showPage->getAverageRating(),
+            'Product should have average rating %2$s but has %s.'
+        );
+    }
+
+    /**
+     * @Then /^I should(?:| also) see the product association "([^"]+)" with (products "[^"]+" and "[^"]+")$/
+     */
+    public function iShouldSeeTheProductAssociationWithProducts($productAssociationName, array $products)
+    {
+        Assert::true(
+            $this->showPage->hasAssociation($productAssociationName),
+            sprintf('There should be an association named "%s" but it does not.', $productAssociationName)
+        );
+
+        foreach ($products as $product) {
+            $this->assertIsProductIsInAssociation($product->getName(), $productAssociationName);
+        }
+    }
+
+    /**
+     * @param string $productName
+     * @param string $productAssociationName
+     *
+     * @throws \InvalidArgumentException
+     */
+    private function assertIsProductIsInAssociation($productName, $productAssociationName)
+    {
+        Assert::true(
+            $this->showPage->hasProductInAssociation($productName, $productAssociationName),
+            sprintf(
+                'There should be an associated product "%s" under association "%s" but it does not.',
+                $productName,
+                $productAssociationName
+            )
         );
     }
 }

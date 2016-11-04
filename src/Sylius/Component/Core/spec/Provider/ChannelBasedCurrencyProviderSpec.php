@@ -22,8 +22,6 @@ use Sylius\Component\Currency\Model\CurrencyInterface;
 use Sylius\Component\Currency\Provider\CurrencyProviderInterface;
 
 /**
- * @mixin ChannelBasedCurrencyProvider
- *
  * @author Kamil Kokot <kamil.kokot@lakion.com>
  */
 final class ChannelBasedCurrencyProviderSpec extends ObjectBehavior
@@ -35,7 +33,7 @@ final class ChannelBasedCurrencyProviderSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Component\Core\Provider\ChannelBasedCurrencyProvider');
+        $this->shouldHaveType(ChannelBasedCurrencyProvider::class);
     }
 
     function it_is_a_currency_provider()

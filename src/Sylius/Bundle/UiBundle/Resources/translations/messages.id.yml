@@ -15,7 +15,8 @@ sylius:
         city: Kota
         code: Kode
         company: Perusahaan
-        content: Isi
+        content: Konten
+        country: Negara
         coupon: Kupon
         currency: Mata Uang
         current_stock: Stok
@@ -23,11 +24,9 @@ sylius:
         email: Email
         enabled: Diaktifkan
         first_name: Nama Depan
-        groups: Kelompok
         id: ID
         image: Gambar
         images: Gambar
-        label: Label
         last_name: Nama belakang
         lastname: Nama belakang
         members: Anggota
@@ -53,6 +52,7 @@ sylius:
         tax_category: Kategori Pajak
         title: Judul
         topic: Topik
+        type: Jenis
         unit_price: Harga Satuan
         variant: Varian
         variant_selection_method: Metode Pilih Varian

@@ -13,6 +13,7 @@ namespace spec\Sylius\Bundle\SettingsBundle\Model;
 
 use PhpSpec\ObjectBehavior;
 use Sylius\Bundle\SettingsBundle\Exception\ParameterNotFoundException;
+use Sylius\Bundle\SettingsBundle\Model\Settings;
 use Sylius\Bundle\SettingsBundle\Model\SettingsInterface;
 
 /**
@@ -22,7 +23,7 @@ final class SettingsSpec extends ObjectBehavior
 {
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\SettingsBundle\Model\Settings');
+        $this->shouldHaveType(Settings::class);
     }
 
     function it_implements_settings_interface()
@@ -78,10 +79,7 @@ final class SettingsSpec extends ObjectBehavior
     function it_can_set_a_parameter()
     {
         $this->set('key', 'value');
-        $this->getParameters()->shouldReturn([
-            'key' => 'value',
-        ])
-        ;
+        $this->getParameters()->shouldReturn(['key' => 'value']);
     }
 
     function it_throws_parameter_not_found_exception_when_getting_non_existing_parameter()

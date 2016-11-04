@@ -58,17 +58,11 @@ class Order implements OrderInterface
     protected $adjustments;
 
     /**
-     * @var Collection|CommentInterface[]
-     */
-    protected $comments;
-
-    /**
      * @var int
      */
     protected $adjustmentsTotal = 0;
 
     /**
-     * Calculated total.
      * Items total + adjustments total.
      *
      * @var int
@@ -84,7 +78,6 @@ class Order implements OrderInterface
     {
         $this->items = new ArrayCollection();
         $this->adjustments = new ArrayCollection();
-        $this->comments = new ArrayCollection();
         $this->createdAt = new \DateTime();
     }
 
@@ -94,22 +87,6 @@ class Order implements OrderInterface
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isCompleted()
-    {
-        return null !== $this->completedAt;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function complete()
-    {
-        $this->completedAt = new \DateTime();
     }
 
     /**
@@ -126,6 +103,22 @@ class Order implements OrderInterface
     public function setCompletedAt(\DateTime $completedAt = null)
     {
         $this->completedAt = $completedAt;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isCompleted()
+    {
+        return null !== $this->completedAt;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function complete()
+    {
+        $this->completedAt = new \DateTime();
     }
 
     /**
@@ -247,36 +240,6 @@ class Order implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function getComments()
-    {
-        return $this->comments;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function addComment(CommentInterface $comment)
-    {
-        if (!$this->comments->contains($comment)) {
-            $comment->setOrder($this);
-            $this->comments->add($comment);
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function removeComment(CommentInterface $comment)
-    {
-        if ($this->comments->contains($comment)) {
-            $comment->setOrder(null);
-            $this->comments->removeElement($comment);
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getTotal()
     {
         return $this->total;
@@ -285,17 +248,17 @@ class Order implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function setState($state)
+    public function getState()
     {
-        $this->state = $state;
+        return $this->state;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getState()
+    public function setState($state)
     {
-        return $this->state;
+        $this->state = $state;
     }
 
     /**

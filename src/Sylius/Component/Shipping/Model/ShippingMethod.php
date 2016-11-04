@@ -12,7 +12,6 @@
 namespace Sylius\Component\Shipping\Model;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Resource\Model\TimestampableTrait;
 use Sylius\Component\Resource\Model\ToggleableTrait;
 use Sylius\Component\Resource\Model\TranslatableTrait;
@@ -39,13 +38,16 @@ class ShippingMethod implements ShippingMethodInterface
     protected $code;
 
     /**
+     * @var int
+     */
+    protected $position;
+
+    /**
      * @var ShippingCategoryInterface
      */
     protected $category;
 
     /**
-     * The one of 3 requirement variants.
-     *
      * @var int
      */
     protected $categoryRequirement = ShippingMethodInterface::CATEGORY_REQUIREMENT_MATCH_ANY;
@@ -64,7 +66,6 @@ class ShippingMethod implements ShippingMethodInterface
     {
         $this->initializeTranslationsCollection();
 
-        $this->rules = new ArrayCollection();
         $this->createdAt = new \DateTime();
     }
 
@@ -98,6 +99,22 @@ class ShippingMethod implements ShippingMethodInterface
     public function setCode($code)
     {
         $this->code = $code;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPosition()
+    {
+        return $this->position;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setPosition($position)
+    {
+        $this->position = $position;
     }
 
     /**

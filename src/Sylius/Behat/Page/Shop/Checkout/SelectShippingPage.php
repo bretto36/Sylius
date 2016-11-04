@@ -46,15 +46,16 @@ class SelectShippingPage extends SymfonyPage implements SelectShippingPageInterf
     /**
      * {@inheritdoc}
      */
-    public function hasShippingMethod($shippingMethod)
+    public function getShippingMethods()
     {
-        try {
-            $this->getElement('shipping_method_option', ['%shipping_method%' => $shippingMethod]);
-        } catch (ElementNotFoundException $exception) {
-            return false;
+        $inputs = $this->getSession()->getPage()->findAll('css', '#shipping_methods .item .content label');
+
+        $shippingMethods = [];
+        foreach ($inputs as $input) {
+            $shippingMethods[] = trim($input->getText());
         }
 
-        return true;
+        return $shippingMethods;
     }
 
     /**
@@ -77,7 +78,7 @@ class SelectShippingPage extends SymfonyPage implements SelectShippingPageInterf
     public function hasShippingMethodFee($shippingMethodName, $fee)
     {
         $feeElement = $this->getElement('shipping_method_fee', ['%shipping_method%' => $shippingMethodName])->getText();
-        
+
         return false !== strpos($feeElement, $fee);
     }
 
@@ -95,9 +96,7 @@ class SelectShippingPage extends SymfonyPage implements SelectShippingPageInterf
 
     public function nextStep()
     {
-        if (!$this->getElement('next_step')->hasClass('disabled')) {
-            $this->getElement('next_step')->press();
-        }
+        $this->getElement('next_step')->press();
     }
 
     public function changeAddress()
@@ -120,9 +119,9 @@ class SelectShippingPage extends SymfonyPage implements SelectShippingPageInterf
             throw new ElementNotFoundException($this->getSession(), 'Items element');
         }
 
-        $validationMessage = $foundElement->find('css', '.pointing');
+        $validationMessage = $foundElement->find('css', '.sylius-validation-error');
         if (null === $validationMessage) {
-            throw new ElementNotFoundException($this->getSession(), 'Validation message', 'css', '.pointing');
+            throw new ElementNotFoundException($this->getSession(), 'Validation message', 'css', '.sylius-validation-error');
         }
 
         return $validationMessage->getText();
@@ -134,6 +133,14 @@ class SelectShippingPage extends SymfonyPage implements SelectShippingPageInterf
     public function hasNoAvailableShippingMethodsWarning()
     {
         return $this->hasElement('warning_no_shipping_methods');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isNextStepButtonUnavailable()
+    {
+        return $this->getElement('next_step')->hasClass('disabled');
     }
 
     /**

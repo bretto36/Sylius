@@ -13,6 +13,7 @@ namespace spec\Sylius\Bundle\PricingBundle\Form\Type;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use Sylius\Bundle\PricingBundle\Form\Type\VolumePriceConfigurationType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 
@@ -20,7 +21,7 @@ final class VolumePriceConfigurationTypeSpec extends ObjectBehavior
 {
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\PricingBundle\Form\Type\VolumePriceConfigurationType');
+        $this->shouldHaveType(VolumePriceConfigurationType::class);
     }
 
     function it_is_a_form()

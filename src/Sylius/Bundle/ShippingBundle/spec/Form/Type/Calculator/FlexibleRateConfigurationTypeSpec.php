@@ -13,6 +13,7 @@ namespace spec\Sylius\Bundle\ShippingBundle\Form\Type\Calculator;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use Sylius\Bundle\ShippingBundle\Form\Type\Calculator\FlexibleRateConfigurationType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Test\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -24,7 +25,7 @@ final class FlexibleRateConfigurationTypeSpec extends ObjectBehavior
 {
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\ShippingBundle\Form\Type\Calculator\FlexibleRateConfigurationType');
+        $this->shouldHaveType(FlexibleRateConfigurationType::class);
     }
 
     function it_is_a_form()

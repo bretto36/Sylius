@@ -100,6 +100,15 @@ final class ManagingShippingMethodsContext implements Context
     }
 
     /**
+     * @When I specify its position as :position
+     * @When I do not specify its position
+     */
+    public function iSpecifyItsPositionAs($position = null)
+    {
+        $this->createPage->specifyPosition($position);
+    }
+
+    /**
      * @When I name it :name in :language
      * @When I rename it to :name in :language
      */
@@ -302,11 +311,52 @@ final class ManagingShippingMethodsContext implements Context
         $this->assertFieldValidationMessage($field, 'This value should not be blank.');
     }
     /**
+     * @Given I am browsing shipping methods
      * @When I want to browse shipping methods
      */
     public function iWantToBrowseShippingMethods()
     {
         $this->indexPage->open();
+    }
+
+    /**
+     * @Then the first shipping method on the list should have :field :value
+     */
+    public function theFirstShippingMethodOnTheListShouldHave($field, $value)
+    {
+        $fields = $this->indexPage->getColumnFields($field);
+        $actualValue = reset($fields);
+
+        Assert::same(
+            $actualValue,
+            $value,
+            sprintf('Expected first shipping method\'s %s to be "%s", but it is "%s".', $field, $value, $actualValue)
+        );
+    }
+
+    /**
+     * @Then the last shipping method on the list should have :field :value
+     */
+    public function theLastShippingMethodOnTheListShouldHave($field, $value)
+    {
+        $fields = $this->indexPage->getColumnFields($field);
+        $actualValue = end($fields);
+
+        Assert::same(
+            $actualValue,
+            $value,
+            sprintf('Expected last shipping method\'s %s to be "%s", but it is "%s".', $field, $value, $actualValue)
+        );
+    }
+
+    /**
+     * @When I switch the way shipping methods are sorted by :field
+     * @When I start sorting shipping methods by :field
+     * @Given the shipping methods are already sorted by :field
+     */
+    public function iSortShippingMethodsBy($field)
+    {
+        $this->indexPage->sortBy($field);
     }
 
     /**

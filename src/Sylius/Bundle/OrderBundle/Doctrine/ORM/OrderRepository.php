@@ -12,6 +12,8 @@
 namespace Sylius\Bundle\OrderBundle\Doctrine\ORM;
 
 use Sylius\Bundle\ResourceBundle\Doctrine\ORM\EntityRepository;
+use Sylius\Component\Core\OrderCheckoutStates;
+use Sylius\Component\Core\OrderPaymentStates;
 use Sylius\Component\Order\Model\OrderInterface;
 use Sylius\Component\Order\Repository\OrderRepositoryInterface;
 
@@ -60,9 +62,10 @@ class OrderRepository extends EntityRepository implements OrderRepositoryInterfa
         return $queryBuilder
             ->addSelect('item')
             ->leftJoin('o.items', 'item')
-            ->andWhere($queryBuilder->expr()->isNotNull('o.completedAt'))
+            ->andWhere('o.state != :state')
             ->setMaxResults($count)
             ->orderBy('o.completedAt', 'desc')
+            ->setParameter('state', OrderInterface::STATE_CART)
             ->getQuery()
             ->getResult()
         ;
@@ -71,17 +74,14 @@ class OrderRepository extends EntityRepository implements OrderRepositoryInterfa
     /**
      * {@inheritdoc}
      */
-    public function findOneByNumber($orderNumber)
+    public function findOneByNumber($number)
     {
         $queryBuilder = $this->createQueryBuilder('o');
 
-        $queryBuilder
-            ->andWhere($queryBuilder->expr()->isNotNull('o.completedAt'))
-            ->andWhere('o.number = :orderNumber')
-            ->setParameter('orderNumber', $orderNumber)
-        ;
-
         return $queryBuilder
+            ->andWhere($queryBuilder->expr()->isNotNull('o.completedAt'))
+            ->andWhere('o.number = :number')
+            ->setParameter('number', $number)
             ->getQuery()
             ->getOneOrNullResult()
         ;
@@ -98,6 +98,40 @@ class OrderRepository extends EntityRepository implements OrderRepositoryInterfa
             ->setParameter('id', $id)
             ->getQuery()
             ->getOneOrNullResult()
+        ;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findCartsNotModifiedSince(\DateTime $terminalDate)
+    {
+        return $this->createQueryBuilder('o')
+            ->where('o.state = :state')
+            ->andWhere('o.updatedAt < :terminalDate')
+            ->setParameter('state', OrderInterface::STATE_CART)
+            ->setParameter('terminalDate', $terminalDate)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findOrdersUnpaidSince(\DateTime $terminalDate)
+    {
+        return $this->createQueryBuilder('o')
+            ->where('o.checkoutState = :checkoutState')
+            ->andWhere('o.paymentState != :paymentState')
+            ->andWhere('o.state = :orderState')
+            ->andWhere('o.completedAt < :terminalDate')
+            ->setParameter('checkoutState', OrderCheckoutStates::STATE_COMPLETED)
+            ->setParameter('paymentState', OrderPaymentStates::STATE_PAID)
+            ->setParameter('orderState', OrderInterface::STATE_NEW)
+            ->setParameter('terminalDate', $terminalDate)
+            ->getQuery()
+            ->getResult()
         ;
     }
 }

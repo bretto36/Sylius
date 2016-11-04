@@ -18,12 +18,10 @@ use Sylius\Bundle\ResourceBundle\SyliusResourceBundle;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
- * Sales order management bundle.
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  * @author Gorka Laucirica <gorka.lauzirika@gmail.com>
  */
-class SyliusOrderBundle extends AbstractResourceBundle
+final class SyliusOrderBundle extends AbstractResourceBundle
 {
     /**
      * {@inheritdoc}

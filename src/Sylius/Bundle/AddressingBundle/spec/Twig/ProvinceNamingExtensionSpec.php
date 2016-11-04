@@ -12,6 +12,7 @@
 namespace spec\Sylius\Bundle\AddressingBundle\Twig;
 
 use PhpSpec\ObjectBehavior;
+use Sylius\Bundle\AddressingBundle\Twig\ProvinceNamingExtension;
 use Sylius\Component\Addressing\Model\AddressInterface;
 use Sylius\Component\Addressing\Provider\ProvinceNamingProviderInterface;
 
@@ -27,7 +28,7 @@ final class ProvinceNamingExtensionSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\AddressingBundle\Twig\ProvinceNamingExtension');
+        $this->shouldHaveType(ProvinceNamingExtension::class);
     }
 
     function it_is_a_twig_extension()

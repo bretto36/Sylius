@@ -85,7 +85,6 @@ sylius:
         create_country: Добавить поселок, село
         create_currency: Добавить валюту
         create_customer: Создание клиента
-        create_group: Создать группу
         create_imagine_block: Создать блок-изображение
         create_locale: Добавить язык
         create_menu_node: Создание пункта меню
@@ -122,7 +121,7 @@ sylius:
         customer: Клиент
         customer_details: Информация о клиенте
         customers: Клиенты
-        customers_list_of_all_customers_in_store: 'Клиенты <small>список всех клиентов магазина</small>'
+        customers_list_of_all_customers_in_store: Клиенты <small>список всех клиентов магазина</small>
         dashboard: Приборная панель
         data: Данные
         date: Дата
@@ -132,11 +131,10 @@ sylius:
         default_shipping_address: sylius.account.address.default.shipping
         delete: sylius.account.address.action.delete
         delete_image: Удалить товар
-        deleted: ﻿Удалено
+        deleted: '﻿Удалено'
         description: Описание
         edit: Редактировать
         edit_association_type: Редактировать тип взаимосвязи
-        edit_group: Редактировать группу
         edit_locale: Редактировать язык
         edit_my_address: sylius.account.address.update
         edit_your_personal_information: Edit my personal information
@@ -172,9 +170,7 @@ sylius:
         exchange_rate: Обменный курс
         exclusive: Эксклюзив
         existing_customer: Существующий клиент
-        expires_at: Истекает
         failed: Провален
-        filter: Фильтр
         first_name: Имя
         fulfill: Завершён
         gateway: Терминал
@@ -186,10 +182,9 @@ sylius:
         generating_coupons: Генерирование купонов
         go_to_dashboard: Перейти в панель управления
         grand_total: Всего в корзине
-        groups: Группы
         guest: Гость
         guest_customer: Гость
-        hello_name: 'Здравствуйте, <b>%name%</b>'
+        hello_name: Здравствуйте, <b>%name%</b>
         hide_deleted: Скрыть удаленные
         home: Домой
         hostname: Хост
@@ -201,14 +196,13 @@ sylius:
         index_of_all_configured_locales: Список всех настроенных языков
         information: Информация
         inventory: Запасы
-        inventory_here_you_can_see_current_stock_levels: 'Склад <small>Здесь вы можете увидеть уровень запасов</small>'
+        inventory_here_you_can_see_current_stock_levels: Склад <small>Здесь вы можете увидеть уровень запасов</small>
         inventory_index: Запасы
         inventory_state: inventory state
         inventory_tracking: Отслеживание продаж
         invoice: Счет-фактура
         item: Товар
         items_total: Всего товаров
-        label: Заголовок
         last_login: Последний вход
         last_name: Фамилия
         last_update: Последнее изменение
@@ -221,7 +215,7 @@ sylius:
         locales: Языки
         login: Вход
         login_button: Вход
-        login_sylius_store: 'Вход в <small>магазин Sylius</small>'
+        login_sylius_store: Вход в <small>магазин Sylius</small>
         logout: Выход
         main_taxon: Основной таксон
         manage: Управление
@@ -276,8 +270,8 @@ sylius:
         no_promotion: Без скидки
         no_shipping_category: Нет категории доставки
         no_shipping_charges: Без оплаты за пересылку
-        no_short_description: '<i>Нет краткого описания</i>'
-        no_sku: '<i>Без ИПТ</i>'
+        no_short_description: <i>Нет краткого описания</i>
+        no_sku: <i>Без ИПТ</i>
         no_tax_category: Нет налоговой категории
         no_taxes: Без НДС
         not_available_in_your_country: Недоступно в вашей стране
@@ -321,11 +315,11 @@ sylius:
         product_association_index: Взаимосвязи
         product_association_type_index: Типы взаимосвязи
         product_association_types: Типы взаимосвязей продуктов
-        product_details_viewing_product_product: 'Детали товара <small>Просмотр товара "<strong>%product%</strong>"</small>'
+        product_details_viewing_product_product: Детали товара <small>Просмотр товара "<strong>%product%</strong>"</small>
         products: Товары
-        products_categorized_as_name: 'Товары категории «%name%»'
-        products_categorized_under_taxon_taxon: 'Товары <small>категории "%taxon%"</small>'
-        products_index_of_all_products_in_your_store: 'Товары <small>Список всех товаров в вашем магазине</small>'
+        products_categorized_as_name: Товары категории «%name%»
+        products_categorized_under_taxon_taxon: Товары <small>категории "%taxon%"</small>
+        products_index_of_all_products_in_your_store: Товары <small>Список всех товаров в вашем магазине</small>
         promotion_coupons: sylius.breadcrumb.promotion_coupon.index
         promotion_details: Детали акции
         promotion_total: Сумма скидки
@@ -344,6 +338,7 @@ sylius:
         register: Регистрация
         register_button: Регистрация
         registration_date: Дата регистрации
+        rejected: Отклонено
         release_inventory: Инвентаризация выпуска
         remember_me: Запомнить меня
         reports: Отчеты
@@ -382,7 +377,7 @@ sylius:
         show_all: Показать все
         show_deleted: Показать удаленные
         sign_in: Войти
-        sign_in_to_the_store_or_create_new_account: 'Войти <small>или зарегистрироваться</small>'
+        sign_in_to_the_store_or_create_new_account: Войти <small>или зарегистрироваться</small>
         sign_out: Выйти
         simple_blocks: Простые блок
         sku: Идентификатор товарной позиции
@@ -404,7 +399,6 @@ sylius:
         taxation_categories: Налоговые категории
         taxation_settings: Настройки налогооблажения
         taxes: Налоги
-        taxons: Налоги
         theme: Тема оформления
         there_are_no_blocks_to_display: Нет блоков для отображения
         there_are_no_channels_configured: Нет настроенных каналов
@@ -421,7 +415,7 @@ sylius:
         total_qty: Общее количество
         total_registrations: Регистраций в этом месяце
         tracking_number: Номер для отслеживания
-        translations: ﻿Переводы
+        translations: '﻿Переводы'
         type: Тип
         unavailable: Недоступен
         unit_price: Цена
@@ -433,7 +427,7 @@ sylius:
         user_confirmation_name: Подтверждение пользователя
         user_details: Детали пользователя
         username: Логин
-        users_list_of_all_users_registered_in_store: 'Пользователи <small>список всех пользователей зарегистрированных в магазине</small>'
+        users_list_of_all_users_registered_in_store: Пользователи <small>список всех пользователей зарегистрированных в магазине</small>
         variant: Вариант
         variant_selection_method: Метод выбора вариантов
         view_more: Посмотреть больше

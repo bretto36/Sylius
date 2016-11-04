@@ -3,11 +3,6 @@
 
 sylius:
     form:
-        action:
-            add_product_configuration:
-                price: Harga Satuan
-                quantity: Kuantitas
-                variant: Varian
         block:
             body: Body
             id: ID
@@ -92,3 +87,10 @@ sylius:
             email: Email
         product_association_type:
             name: Nama
+    installer:
+        extensions:
+            "off": false
+            "on": true
+        settings:
+            "off": false
+            "on": true

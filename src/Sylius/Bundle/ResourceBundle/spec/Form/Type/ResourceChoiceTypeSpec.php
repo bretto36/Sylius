@@ -14,6 +14,7 @@ namespace spec\Sylius\Bundle\ResourceBundle\Form\Type;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Sylius\Bundle\ResourceBundle\DependencyInjection\Driver\Exception\UnknownDriverException;
+use Sylius\Bundle\ResourceBundle\Form\Type\ResourceChoiceType;
 use Sylius\Bundle\ResourceBundle\SyliusResourceBundle;
 use Sylius\Component\Resource\Metadata\MetadataInterface;
 use Symfony\Component\Form\FormTypeInterface;
@@ -31,7 +32,7 @@ final class ResourceChoiceTypeSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\ResourceBundle\Form\Type\ResourceChoiceType');
+        $this->shouldHaveType(ResourceChoiceType::class);
     }
 
     function it_throws_unknown_driver_exception_when_constructing_with_invalid_driver(MetadataInterface $metadata)

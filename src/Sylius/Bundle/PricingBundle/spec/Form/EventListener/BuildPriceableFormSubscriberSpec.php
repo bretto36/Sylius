@@ -13,6 +13,7 @@ namespace spec\Sylius\Bundle\PricingBundle\Form\EventListener;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use Sylius\Bundle\PricingBundle\Form\EventListener\BuildPriceableFormSubscriber;
 use Sylius\Component\Pricing\Calculator\CalculatorInterface;
 use Sylius\Component\Pricing\Calculator\Calculators;
 use Sylius\Component\Pricing\Model\PriceableInterface;
@@ -36,7 +37,7 @@ final class BuildPriceableFormSubscriberSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\PricingBundle\Form\EventListener\BuildPriceableFormSubscriber');
+        $this->shouldHaveType(BuildPriceableFormSubscriber::class);
     }
 
     function it_should_be_event_subscriber()

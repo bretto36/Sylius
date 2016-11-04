@@ -15,9 +15,9 @@ use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Sylius\Bundle\ResourceBundle\Form\EventSubscriber\AddCodeFormSubscriber;
 use Sylius\Bundle\ShippingBundle\Form\EventListener\BuildShippingMethodFormSubscriber;
+use Sylius\Bundle\ShippingBundle\Form\Type\ShippingMethodType;
 use Sylius\Component\Registry\ServiceRegistryInterface;
-use Sylius\Component\Shipping\Calculator\FlatRateCalculator;
-use Sylius\Component\Shipping\Calculator\PerUnitRateCalculator;
+use Sylius\Component\Shipping\Calculator\CalculatorInterface;
 use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormBuilder;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -45,58 +45,19 @@ final class ShippingMethodTypeSpec extends ObjectBehavior
         $checkerRegistry->all()->willReturn([]);
     }
 
+    function it_is_initializable()
+    {
+        $this->shouldHaveType(ShippingMethodType::class);
+    }
+
     function it_is_a_form_type()
     {
         $this->shouldImplement(FormTypeInterface::class);
     }
 
-    function it_builds_form_with_proper_fields(FormBuilder $builder, $calculatorRegistry)
-    {
-        $calculatorRegistry->all()->willReturn([]);
-
-        $builder
-            ->addEventSubscriber(Argument::type(BuildShippingMethodFormSubscriber::class))
-            ->willReturn($builder)
-        ;
-
-        $builder
-            ->addEventSubscriber(Argument::type(AddCodeFormSubscriber::class))
-            ->willReturn($builder)
-        ;
-
-        $builder
-            ->add('translations', 'sylius_translations', Argument::any())
-            ->willReturn($builder)
-        ;
-
-        $builder
-            ->add('category', 'sylius_shipping_category_choice', Argument::any())
-            ->willReturn($builder)
-        ;
-
-        $builder
-            ->add('categoryRequirement', 'choice', Argument::type('array'))
-            ->willReturn($builder)
-        ;
-
-        $builder
-            ->add('calculator', 'sylius_shipping_calculator_choice', Argument::any())
-            ->willReturn($builder)
-        ;
-
-        $builder
-            ->add('enabled', 'checkbox', Argument::any())
-            ->willReturn($builder)
-        ;
-
-        $builder->setAttribute(Argument::any(), Argument::any())->shouldBeCalled();
-
-        $this->buildForm($builder, []);
-    }
-
     function it_adds_build_shipping_method_event_subscriber(
         FormBuilder $builder,
-        $calculatorRegistry
+        ServiceRegistryInterface $calculatorRegistry
     ) {
         $calculatorRegistry->all()->willReturn([]);
         $builder->add(Argument::any(), Argument::cetera())->willReturn($builder);
@@ -117,15 +78,15 @@ final class ShippingMethodTypeSpec extends ObjectBehavior
     }
 
     function it_builds_prototypes_forms_for_calculators(
-        $calculatorRegistry,
+        ServiceRegistryInterface $calculatorRegistry,
         FormBuilder $builder,
         FormBuilder $flatRateFormBuilder,
         Form $flatRateForm,
-        FlatRateCalculator $flatRateCalculator,
+        CalculatorInterface $flatRateCalculator,
         FormBuilder $perUnitFormBuilder,
         Form $perUnitForm,
-        PerUnitRateCalculator $perUnitRateCalculator,
-        $formRegistry
+        CalculatorInterface $perUnitRateCalculator,
+        FormRegistryInterface $formRegistry
     ) {
         $builder
             ->add(Argument::any(), Argument::cetera())

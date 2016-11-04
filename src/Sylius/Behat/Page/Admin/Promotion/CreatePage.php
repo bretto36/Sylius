@@ -12,6 +12,7 @@
 namespace Sylius\Behat\Page\Admin\Promotion;
 
 use Behat\Mink\Element\NodeElement;
+use Behat\Mink\Exception\ElementNotFoundException;
 use Sylius\Behat\Behaviour\NamesIt;
 use Sylius\Behat\Behaviour\SpecifiesItsCode;
 use Sylius\Behat\Page\Admin\Crud\CreatePage as BaseCreatePage;
@@ -126,12 +127,37 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
     /**
      * {@inheritdoc}
      */
+    public function getValidationMessageForAction()
+    {
+        $actionForm = $this->getLastAddedCollectionItem('actions');
+
+        $foundElement = $actionForm->find('css', '.sylius-validation-error');
+        if (null === $foundElement) {
+            throw new ElementNotFoundException($this->getSession(), 'Tag', 'css', '.sylius-validation-error');
+        }
+
+        return $foundElement->getText();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function selectFilterOption($option, $value, $multiple = false)
+    {
+        $this->getLastAddedCollectionItem('actions')->find('named', array('select', $option))->selectOption($value, $multiple);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function getDefinedElements()
     {
         return [
             'actions' => '#sylius_promotion_actions',
             'code' => '#sylius_promotion_code',
             'ends_at' => '#sylius_promotion_endsAt',
+            'minimum' => '#sylius_promotion_actions_0_configuration_filters_price_range_filter_min',
+            'maximum' => '#sylius_promotion_actions_0_configuration_filters_price_range_filter_max',
             'name' => '#sylius_promotion_name',
             'rules' => '#sylius_promotion_rules',
             'starts_at' => '#sylius_promotion_startsAt',
@@ -145,10 +171,10 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
      */
     private function getLastAddedCollectionItem($collection)
     {
-        $rules = $this->getElement($collection)->findAll('css', 'div[data-form-collection="item"]');
+        $items = $this->getElement($collection)->findAll('css', 'div[data-form-collection="item"]');
 
-        Assert::notEmpty($rules);
+        Assert::notEmpty($items);
 
-        return end($rules);
+        return end($items);
     }
 }

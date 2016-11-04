@@ -14,10 +14,11 @@ namespace Sylius\Bundle\ShippingBundle\Form\Type;
 use Sylius\Bundle\ResourceBundle\Form\EventSubscriber\AddCodeFormSubscriber;
 use Sylius\Bundle\ResourceBundle\Form\Type\AbstractResourceType;
 use Sylius\Bundle\ShippingBundle\Form\EventListener\BuildShippingMethodFormSubscriber;
+use Sylius\Component\Promotion\Checker\Rule\RuleCheckerInterface;
 use Sylius\Component\Registry\ServiceRegistryInterface;
 use Sylius\Component\Shipping\Calculator\CalculatorInterface;
-use Sylius\Component\Shipping\Checker\RuleCheckerInterface;
 use Sylius\Component\Shipping\Model\ShippingMethod;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormRegistryInterface;
@@ -46,11 +47,11 @@ class ShippingMethodType extends AbstractResourceType
     private $formRegistry;
 
     /**
-     * @param string                   $dataClass
-     * @param array                    $validationGroups
+     * @param string $dataClass
+     * @param array $validationGroups
      * @param ServiceRegistryInterface $calculatorRegistry
      * @param ServiceRegistryInterface $checkerRegistry
-     * @param FormRegistryInterface    $formRegistry
+     * @param FormRegistryInterface $formRegistry
      */
     public function __construct($dataClass, array $validationGroups, ServiceRegistryInterface $calculatorRegistry, ServiceRegistryInterface $checkerRegistry, FormRegistryInterface $formRegistry)
     {
@@ -72,6 +73,10 @@ class ShippingMethodType extends AbstractResourceType
             ->add('translations', 'sylius_translations', [
                 'type' => 'sylius_shipping_method_translation',
                 'label' => 'sylius.form.shipping_method.translations',
+            ])
+            ->add('position', IntegerType::class, [
+                'required' => false,
+                'label' => 'sylius.form.shipping_method.position',
             ])
             ->add('category', 'sylius_shipping_category_choice', [
                 'required' => false,

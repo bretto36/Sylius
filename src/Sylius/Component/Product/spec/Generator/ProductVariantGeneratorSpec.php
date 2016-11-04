@@ -13,25 +13,22 @@ namespace spec\Sylius\Component\Product\Generator;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use Sylius\Component\Product\Factory\ProductVariantFactoryInterface;
 use Sylius\Component\Product\Generator\ProductVariantGenerator;
-use Sylius\Component\Resource\Factory\FactoryInterface;
 use Sylius\Component\Product\Generator\ProductVariantGeneratorInterface;
-use Sylius\Component\Product\Model\ProductOptionInterface;
-use Sylius\Component\Product\Model\ProductOptionValue;
 use Sylius\Component\Product\Model\ProductInterface;
+use Sylius\Component\Product\Model\ProductOptionInterface;
+use Sylius\Component\Product\Model\ProductOptionValueInterface;
 use Sylius\Component\Product\Model\ProductVariantInterface;
-use Sylius\Component\Product\SetBuilder\SetBuilderInterface;
 
 /**
- * @mixin ProductVariantGenerator
- *
  * @author Adam Elsodaney <adam.elso@gmail.com>
  */
 final class ProductVariantGeneratorSpec extends ObjectBehavior
 {
-    function let(FactoryInterface $variantFactory, SetBuilderInterface $setBuilder)
+    function let(ProductVariantFactoryInterface $productVariantFactory)
     {
-        $this->beConstructedWith($variantFactory, $setBuilder);
+        $this->beConstructedWith($productVariantFactory);
     }
 
     function it_is_initializable()
@@ -39,7 +36,7 @@ final class ProductVariantGeneratorSpec extends ObjectBehavior
         $this->shouldHaveType(ProductVariantGenerator::class);
     }
 
-    function it_is_a_Sylius_variant_generator()
+    function it_implements_product_variant_generator_interfave()
     {
         $this->shouldImplement(ProductVariantGeneratorInterface::class);
     }
@@ -52,13 +49,12 @@ final class ProductVariantGeneratorSpec extends ObjectBehavior
     }
 
     function it_generates_variants_for_every_value_of_an_objects_single_option(
-        FactoryInterface $variantFactory,
-        ProductOptionInterface $colorOption,
-        ProductOptionValue $blackColor,
-        ProductOptionValue $redColor,
-        ProductOptionValue $whiteColor,
-        SetBuilderInterface $setBuilder,
         ProductInterface $productVariable,
+        ProductOptionInterface $colorOption,
+        ProductOptionValueInterface $blackColor,
+        ProductOptionValueInterface $redColor,
+        ProductOptionValueInterface $whiteColor,
+        ProductVariantFactoryInterface $productVariantFactory,
         ProductVariantInterface $permutationVariant
     ) {
         $productVariable->hasOptions()->willReturn(true);
@@ -67,37 +63,29 @@ final class ProductVariantGeneratorSpec extends ObjectBehavior
 
         $colorOption->getValues()->willReturn([$blackColor, $whiteColor, $redColor]);
 
-        // Stubbing `ProductOptionValue` instead of `ProductOptionValueInterface` in order to stub `getId` method.
         $blackColor->getId()->willReturn('black1');
         $whiteColor->getId()->willReturn('white2');
         $redColor->getId()->willReturn('red3');
 
-        $setBuilder->build([
-            ['black1', 'white2', 'red3'],
-        ])->willReturn([
-            ['black1', 'white2', 'red3'],
-        ]);
+        $productVariantFactory->createForProduct($productVariable)->willReturn($permutationVariant);
 
-        $variantFactory->createNew()->willReturn($permutationVariant);
-        $permutationVariant->setProduct($productVariable)->shouldBeCalled();
-        $permutationVariant->addOption(Argument::type(ProductOptionValue::class))->shouldBeCalled();
+        $permutationVariant->addOptionValue(Argument::type(ProductOptionValueInterface::class))->shouldBeCalled();
         $productVariable->addVariant($permutationVariant)->shouldBeCalled();
 
         $this->generate($productVariable);
     }
 
     function it_generates_variants_for_every_possible_permutation_of_an_objects_options_and_option_values(
-        FactoryInterface $variantFactory,
+        ProductInterface $productVariable,
         ProductOptionInterface $colorOption,
         ProductOptionInterface $sizeOption,
-        ProductOptionValue $blackColor,
-        ProductOptionValue $largeSize,
-        ProductOptionValue $mediumSize,
-        ProductOptionValue $redColor,
-        ProductOptionValue $smallSize,
-        ProductOptionValue $whiteColor,
-        SetBuilderInterface $setBuilder,
-        ProductInterface $productVariable,
+        ProductOptionValueInterface $blackColor,
+        ProductOptionValueInterface $largeSize,
+        ProductOptionValueInterface $mediumSize,
+        ProductOptionValueInterface $redColor,
+        ProductOptionValueInterface $smallSize,
+        ProductOptionValueInterface $whiteColor,
+        ProductVariantFactoryInterface $productVariantFactory,
         ProductVariantInterface $permutationVariant
     ) {
         $productVariable->hasOptions()->willReturn(true);
@@ -114,24 +102,9 @@ final class ProductVariantGeneratorSpec extends ObjectBehavior
         $mediumSize->getId()->willReturn('medium5');
         $largeSize->getId()->willReturn('large6');
 
-        $setBuilder->build([
-            ['black1', 'white2', 'red3'],
-            ['small4', 'medium5', 'large6'],
-        ])->willReturn([
-            ['black1', 'small4'],
-            ['black1', 'medium5'],
-            ['black1', 'large6'],
-            ['white2', 'small4'],
-            ['white2', 'medium5'],
-            ['white2', 'large6'],
-            ['red3', 'small4'],
-            ['red3', 'medium5'],
-            ['red3', 'large6'],
-        ]);
+        $productVariantFactory->createForProduct($productVariable)->willReturn($permutationVariant);
 
-        $variantFactory->createNew()->willReturn($permutationVariant);
-        $permutationVariant->setProduct($productVariable)->shouldBeCalled();
-        $permutationVariant->addOption(Argument::type(ProductOptionValue::class))->shouldBeCalled();
+        $permutationVariant->addOptionValue(Argument::type(ProductOptionValueInterface::class))->shouldBeCalled();
         $productVariable->addVariant($permutationVariant)->shouldBeCalled();
 
         $this->generate($productVariable);

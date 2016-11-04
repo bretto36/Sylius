@@ -13,6 +13,7 @@ namespace spec\Sylius\Bundle\PricingBundle\Twig;
 
 use PhpSpec\ObjectBehavior;
 use Sylius\Bundle\PricingBundle\Templating\Helper\PricingHelper;
+use Sylius\Bundle\PricingBundle\Twig\PricingExtension;
 
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
@@ -26,7 +27,7 @@ final class PricingExtensionSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\PricingBundle\Twig\PricingExtension');
+        $this->shouldHaveType(PricingExtension::class);
     }
 
     function it_is_a_Twig_extension()

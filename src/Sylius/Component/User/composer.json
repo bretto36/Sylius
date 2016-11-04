@@ -32,12 +32,11 @@
 
         "doctrine/collections": "^1.1",
         "sylius/resource": "^1.0",
-        "sylius/storage": "^1.0",
         "symfony/security": "^2.8",
         "symfony/polyfill-mbstring": "~1.0"
     },
     "require-dev": {
-        "phpspec/phpspec": "^3.0"
+        "phpspec/phpspec": "^3.1"
     },
     "suggest": {
         "ext-mbstring": "For better performance than using Symfony Polyfill Component"

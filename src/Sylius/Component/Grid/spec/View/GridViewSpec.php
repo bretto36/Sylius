@@ -11,22 +11,20 @@
 
 namespace spec\Sylius\Component\Grid\View;
 
+use PhpSpec\ObjectBehavior;
+use Sylius\Component\Grid\Definition\Field;
 use Sylius\Component\Grid\Definition\Grid;
 use Sylius\Component\Grid\Parameters;
 use Sylius\Component\Grid\View\GridView;
-use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 
 /**
- * @mixin GridView
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
 final class GridViewSpec extends ObjectBehavior
 {
-    function let(Grid $gridDefinition, Parameters $parameters)
+    function let(Grid $gridDefinition)
     {
-        $this->beConstructedWith(['foo', 'bar'], $gridDefinition, $parameters);
+        $this->beConstructedWith(['foo', 'bar'], $gridDefinition, new Parameters());
     }
 
     function it_is_initializable()
@@ -44,72 +42,55 @@ final class GridViewSpec extends ObjectBehavior
         $this->getDefinition()->shouldReturn($gridDefinition);
     }
 
-    function it_has_parameters(Parameters $parameters)
+    function it_has_parameters()
     {
-        $this->getParameters()->shouldReturn($parameters);
+        $this->getParameters()->shouldBeLike(new Parameters());
     }
 
-    function it_knows_which_fields_it_can_be_sorted_by(Grid $gridDefinition, Parameters $parameters)
-    {
-        $gridDefinition->hasField('foo')->willReturn(true);
-        $gridDefinition->hasField('name')->willReturn(true);
-        $gridDefinition->hasField('code')->willReturn(true);
-
-        $gridDefinition->getSorting()->willReturn(
-            [
-                'name' => ['path' => 'name', 'direction' => 'desc'],
-                'code' => ['path' => 'code', 'direction' => 'asc'],
-            ]
-        );
-
-        $parameters->has('sorting')->willReturn(false);
-
-        $this->isSortableBy('name')->shouldReturn(true);
-        $this->isSortableBy('code')->shouldReturn(true);
-    }
-
-    function it_uses_the_first_sorting_parameter_from_definition_if_not_provided_in_parameters(
+    function it_uses_the_default_sorting_from_definition_if_not_provided_in_parameters(
         Grid $gridDefinition,
-        Parameters $parameters
+        Field $codeField,
+        Field $nameField
     ) {
         $gridDefinition->hasField('foo')->willReturn(true);
-        $gridDefinition->hasField('name')->willReturn(true);
+
         $gridDefinition->hasField('code')->willReturn(true);
+        $gridDefinition->getField('code')->willReturn($codeField);
+        $codeField->isSortable()->willReturn(true);
 
-        $gridDefinition->getSorting()->willReturn(
-            [
-                'name' => ['path' => 'name', 'direction' => 'desc'],
-                'code' => ['path' => 'code', 'direction' => 'asc'],
-            ]
-        );
+        $gridDefinition->hasField('name')->willReturn(true);
+        $gridDefinition->getField('name')->willReturn($nameField);
+        $nameField->isSortable()->willReturn(true);
+        $nameField->getSortable()->willReturn('name');
 
-        $parameters->has('sorting')->willReturn(false);
-
-        $this->isSortableBy('name')->shouldReturn(true);
-        $this->isSortableBy('code')->shouldReturn(true);
+        $gridDefinition->getSorting()->willReturn(['name' => 'asc']);
 
         $this->isSortedBy('code')->shouldReturn(false);
         $this->isSortedBy('name')->shouldReturn(true);
     }
 
-    function it_knows_which_field_it_has_been_sorted_by(Grid $gridDefinition, Parameters $parameters)
+    function it_knows_which_field_it_has_been_sorted_by(Grid $gridDefinition, Field $codeField, Field $nameField)
     {
+        $this->beConstructedWith(['foo', 'bar'], $gridDefinition, new Parameters([
+            'sorting' => ['name' => ['direction' => 'asc']],
+        ]));
+
         $gridDefinition->hasField('foo')->willReturn(true);
+
         $gridDefinition->hasField('name')->willReturn(true);
+        $gridDefinition->getField('name')->willReturn($nameField);
+        $nameField->isSortable()->willReturn(true);
+        $nameField->getSortable()->willReturn('name');
+
         $gridDefinition->hasField('code')->willReturn(true);
+        $gridDefinition->getField('code')->willReturn($codeField);
+        $codeField->isSortable()->willReturn(true);
+        $codeField->getSortable()->willReturn('code');
 
-        $gridDefinition->getSorting()->willReturn(
-            [
-                'name' => ['path' => 'name', 'direction' => 'desc'],
-                'code' => ['path' => 'code', 'direction' => 'asc'],
-            ]
-        );
+        $gridDefinition->getSorting()->willReturn(['code' => ['order' => 'desc']]);
 
-        $parameters->has('sorting')->willReturn(true);
-        $parameters->get('sorting')->willReturn(['code' => ['path' => 'code', 'direction' => 'asc']]);
-
-        $this->isSortedBy('name')->shouldReturn(false);
-        $this->isSortedBy('code')->shouldReturn(true);
+        $this->isSortedBy('name')->shouldReturn(true);
+        $this->isSortedBy('code')->shouldReturn(false);
     }
 
     function it_throws_exception_when_trying_to_sort_by_a_non_existent_field(Grid $gridDefinition)
@@ -118,31 +99,28 @@ final class GridViewSpec extends ObjectBehavior
 
         $this
             ->shouldThrow(new \InvalidArgumentException('Field "code" does not exist.'))
-            ->during('isSortableBy', ['code'])
-        ;
-        $this
-            ->shouldThrow(new \InvalidArgumentException('Field "code" does not exist.'))
-            ->during('isSortedBy', ['code'])
-        ;
-        $this
-            ->shouldThrow(new \InvalidArgumentException('Field "code" does not exist.'))
             ->during('getSortingOrder', ['code'])
         ;
     }
 
-    function it_throws_exception_when_trying_to_sort_by_a_non_sortable_field(Grid $gridDefinition)
-    {
+    function it_throws_exception_when_trying_to_sort_by_a_non_sortable_field(
+        Grid $gridDefinition,
+        Field $nameField
+    ) {
         $gridDefinition->hasField('code')->willReturn(true);
-        $gridDefinition->hasField('name')->willReturn(true);
 
-        $gridDefinition->getSorting()->willReturn(['code' => ['path' => 'code', 'direction' => 'asc']]);
+        $gridDefinition->hasField('name')->willReturn(true);
+        $gridDefinition->getField('name')->willReturn($nameField);
+        $nameField->isSortable()->willReturn(false);
+
+        $gridDefinition->getSorting()->willReturn(['code' => ['order' => 'asc']]);
 
         $this
-            ->shouldThrow(new \InvalidArgumentException('Field "name" is not sortable.'))
+            ->shouldThrow(\InvalidArgumentException::class)
             ->during('isSortedBy', ['name'])
         ;
         $this
-            ->shouldThrow(new \InvalidArgumentException('Field "name" is not sortable.'))
+            ->shouldThrow(\InvalidArgumentException::class)
             ->during('getSortingOrder', ['name'])
         ;
     }

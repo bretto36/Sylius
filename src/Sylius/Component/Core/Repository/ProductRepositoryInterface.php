@@ -12,7 +12,6 @@
 namespace Sylius\Component\Core\Repository;
 
 use Doctrine\ORM\QueryBuilder;
-use Pagerfanta\PagerfantaInterface;
 use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\ProductInterface;
 use Sylius\Component\Core\Model\TaxonInterface;
@@ -24,9 +23,36 @@ use Sylius\Component\Product\Repository\ProductRepositoryInterface as BaseProduc
 interface ProductRepositoryInterface extends BaseProductRepositoryInterface
 {
     /**
+     * @param string $localeCode
+     * @param mixed|null $taxonId
+     *
      * @return QueryBuilder
      */
-    public function createListQueryBuilder();
+    public function createQueryBuilderWithLocaleCodeAndTaxonId($localeCode, $taxonId = null);
+
+    /**
+     * @param string $code
+     * @param ChannelInterface $channel
+     * @param string $locale
+     *
+     * @return QueryBuilder
+     */
+    public function createQueryBuilderForEnabledByTaxonCodeAndChannelAndLocale($code, ChannelInterface $channel, $locale);
+
+    /**
+     * @param string $slug
+     * @param ChannelInterface $channel
+     *
+     * @return ProductInterface|null
+     */
+    public function findOneBySlugAndChannel($slug, ChannelInterface $channel);
+
+    /**
+     * @param string $slug
+     *
+     * @return ProductInterface|null
+     */
+    public function findOneBySlug($slug);
 
     /**
      * @param ChannelInterface $channel
@@ -37,26 +63,10 @@ interface ProductRepositoryInterface extends BaseProductRepositoryInterface
     public function findLatestByChannel(ChannelInterface $channel, $count);
 
     /**
-     * @param mixed $id
-     * @param ChannelInterface $channel
-     *
-     * @return ProductInterface|null
-     */
-    public function findOneByIdAndChannel($id, ChannelInterface $channel = null);
-
-    /**
      * @param string $code
      * @param ChannelInterface $channel
-     * 
+     *
      * @return ProductInterface[]|null
      */
     public function findEnabledByTaxonCodeAndChannel($code, ChannelInterface $channel);
-
-    /**
-     * @param string $slug
-     * @param ChannelInterface $channel
-     *
-     * @return ProductInterface|null
-     */
-    public function findOneBySlugAndChannel($slug, ChannelInterface $channel);
 }

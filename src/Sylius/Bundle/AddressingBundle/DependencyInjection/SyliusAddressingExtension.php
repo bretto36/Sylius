@@ -22,7 +22,7 @@ use Symfony\Component\DependencyInjection\Reference;
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
  */
-class SyliusAddressingExtension extends AbstractResourceExtension
+final class SyliusAddressingExtension extends AbstractResourceExtension
 {
     /**
      * {@inheritdoc}
@@ -32,7 +32,7 @@ class SyliusAddressingExtension extends AbstractResourceExtension
         $config = $this->processConfiguration($this->getConfiguration($config, $container), $config);
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 
-        $loader->load(sprintf('driver/%s.xml', $config['driver']));
+        $loader->load(sprintf('services/integrations/%s.xml', $config['driver']));
 
         $this->registerResources('sylius', $config['driver'], $config['resources'], $container);
 

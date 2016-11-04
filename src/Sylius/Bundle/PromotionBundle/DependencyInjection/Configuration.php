@@ -11,23 +11,22 @@
 
 namespace Sylius\Bundle\PromotionBundle\DependencyInjection;
 
-use Sylius\Bundle\PromotionBundle\Controller\CouponController;
-use Sylius\Bundle\PromotionBundle\Form\Type\ActionType;
-use Sylius\Bundle\PromotionBundle\Form\Type\CouponType;
+use Sylius\Bundle\PromotionBundle\Controller\PromotionCouponController;
+use Sylius\Bundle\PromotionBundle\Form\Type\PromotionActionType;
+use Sylius\Bundle\PromotionBundle\Form\Type\PromotionCouponType;
 use Sylius\Bundle\PromotionBundle\Form\Type\PromotionType;
-use Sylius\Bundle\PromotionBundle\Form\Type\RuleType;
+use Sylius\Bundle\PromotionBundle\Form\Type\PromotionRuleType;
 use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
 use Sylius\Bundle\ResourceBundle\Form\Type\ResourceChoiceType;
 use Sylius\Bundle\ResourceBundle\SyliusResourceBundle;
-use Sylius\Component\Promotion\Factory\CouponFactory;
-use Sylius\Component\Promotion\Model\Action;
-use Sylius\Component\Promotion\Model\ActionInterface;
-use Sylius\Component\Promotion\Model\Coupon;
-use Sylius\Component\Promotion\Model\CouponInterface;
+use Sylius\Component\Promotion\Model\PromotionAction;
+use Sylius\Component\Promotion\Model\PromotionActionInterface;
+use Sylius\Component\Promotion\Model\PromotionCoupon;
+use Sylius\Component\Promotion\Model\PromotionCouponInterface;
 use Sylius\Component\Promotion\Model\Promotion;
 use Sylius\Component\Promotion\Model\PromotionInterface;
-use Sylius\Component\Promotion\Model\Rule;
-use Sylius\Component\Promotion\Model\RuleInterface;
+use Sylius\Component\Promotion\Model\PromotionRule;
+use Sylius\Component\Promotion\Model\PromotionRuleInterface;
 use Sylius\Component\Resource\Factory\Factory;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -120,15 +119,15 @@ final class Configuration implements ConfigurationInterface
                                 ->arrayNode('classes')
                                     ->addDefaultsIfNotSet()
                                     ->children()
-                                        ->scalarNode('model')->defaultValue(Rule::class)->cannotBeEmpty()->end()
-                                        ->scalarNode('interface')->defaultValue(RuleInterface::class)->cannotBeEmpty()->end()
+                                        ->scalarNode('model')->defaultValue(PromotionRule::class)->cannotBeEmpty()->end()
+                                        ->scalarNode('interface')->defaultValue(PromotionRuleInterface::class)->cannotBeEmpty()->end()
                                         ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
                                         ->scalarNode('repository')->cannotBeEmpty()->end()
                                         ->scalarNode('factory')->defaultValue(Factory::class)->end()
                                         ->arrayNode('form')
                                             ->addDefaultsIfNotSet()
                                             ->children()
-                                                ->scalarNode('default')->defaultValue(RuleType::class)->cannotBeEmpty()->end()
+                                                ->scalarNode('default')->defaultValue(PromotionRuleType::class)->cannotBeEmpty()->end()
                                             ->end()
                                         ->end()
                                     ->end()
@@ -151,15 +150,15 @@ final class Configuration implements ConfigurationInterface
                                 ->arrayNode('classes')
                                     ->addDefaultsIfNotSet()
                                     ->children()
-                                        ->scalarNode('model')->defaultValue(Action::class)->cannotBeEmpty()->end()
-                                        ->scalarNode('interface')->defaultValue(ActionInterface::class)->cannotBeEmpty()->end()
+                                        ->scalarNode('model')->defaultValue(PromotionAction::class)->cannotBeEmpty()->end()
+                                        ->scalarNode('interface')->defaultValue(PromotionActionInterface::class)->cannotBeEmpty()->end()
                                         ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
                                         ->scalarNode('repository')->cannotBeEmpty()->end()
                                         ->scalarNode('factory')->defaultValue(Factory::class)->end()
                                         ->arrayNode('form')
                                             ->addDefaultsIfNotSet()
                                             ->children()
-                                                ->scalarNode('default')->defaultValue(ActionType::class)->cannotBeEmpty()->end()
+                                                ->scalarNode('default')->defaultValue(PromotionActionType::class)->cannotBeEmpty()->end()
                                             ->end()
                                         ->end()
                                     ->end()
@@ -182,15 +181,15 @@ final class Configuration implements ConfigurationInterface
                                 ->arrayNode('classes')
                                     ->addDefaultsIfNotSet()
                                     ->children()
-                                        ->scalarNode('model')->defaultValue(Coupon::class)->cannotBeEmpty()->end()
-                                        ->scalarNode('interface')->defaultValue(CouponInterface::class)->cannotBeEmpty()->end()
-                                        ->scalarNode('controller')->defaultValue(CouponController::class)->cannotBeEmpty()->end()
+                                        ->scalarNode('model')->defaultValue(PromotionCoupon::class)->cannotBeEmpty()->end()
+                                        ->scalarNode('interface')->defaultValue(PromotionCouponInterface::class)->cannotBeEmpty()->end()
+                                        ->scalarNode('controller')->defaultValue(PromotionCouponController::class)->cannotBeEmpty()->end()
                                         ->scalarNode('repository')->cannotBeEmpty()->end()
-                                        ->scalarNode('factory')->defaultValue(CouponFactory::class)->end()
+                                        ->scalarNode('factory')->defaultValue(Factory::class)->end()
                                         ->arrayNode('form')
                                             ->addDefaultsIfNotSet()
                                             ->children()
-                                                ->scalarNode('default')->defaultValue(CouponType::class)->cannotBeEmpty()->end()
+                                                ->scalarNode('default')->defaultValue(PromotionCouponType::class)->cannotBeEmpty()->end()
                                             ->end()
                                         ->end()
                                     ->end()

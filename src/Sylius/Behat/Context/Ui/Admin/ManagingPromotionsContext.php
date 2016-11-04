@@ -91,6 +91,7 @@ final class ManagingPromotionsContext implements Context
 
     /**
      * @Given I want to browse promotions
+     * @When I browse promotions
      */
     public function iWantToBrowsePromotions()
     {
@@ -155,13 +156,12 @@ final class ManagingPromotionsContext implements Context
      * @Given I add the "Taxon" rule configured with :firstTaxon
      * @Given I add the "Taxon" rule configured with :firstTaxon and :secondTaxon
      */
-    public function iAddTheTaxonRuleConfiguredWith($firstTaxon, $secondTaxon = null)
+    public function iAddTheTaxonRuleConfiguredWith(...$taxons)
     {
         $this->createPage->addRule('Taxon');
-        $this->createPage->selectRuleOption('Taxons', $firstTaxon, true);
 
-        if (null !== $secondTaxon) {
-            $this->createPage->selectRuleOption('Taxons', $secondTaxon, true);
+        foreach ($taxons as $taxon) {
+            $this->createPage->selectRuleOption('Taxons', $taxon, true);
         }
     }
 
@@ -176,12 +176,56 @@ final class ManagingPromotionsContext implements Context
     }
 
     /**
-     * @Given I add the "Order fixed discount" action configured with $:amount
+     * @Given /^I add the "([^"]+)" action configured with amount of "(?:€|£|\$)([^"]+)"$/
      */
-    public function stepDefinition($amount)
+    public function iAddTheActionConfiguredWithAmount($actionType, $amount)
     {
-        $this->createPage->addAction('Order fixed discount');
+        $this->createPage->addAction($actionType);
         $this->createPage->fillActionOption('Amount', $amount);
+    }
+
+    /**
+     * @When /^I specify that this action should be applied to items with price greater then "(?:€|£|\$)([^"]+)"$/
+     */
+    public function iAddAMinPriceFilterRange($minimum)
+    {
+        $this->createPage->fillActionOption('Min', $minimum);
+    }
+
+    /**
+     * @When /^I specify that this action should be applied to items with price lesser then "(?:€|£|\$)([^"]+)"$/
+     */
+    public function iAddAMaxPriceFilterRange($maximum)
+    {
+        $this->createPage->fillActionOption('Max', $maximum);
+    }
+
+    /**
+     * @When /^I specify that this action should be applied to items with price between "(?:€|£|\$)([^"]+)" and "(?:€|£|\$)([^"]+)"$/
+     */
+    public function iAddAMinMaxPriceFilterRange($minimum, $maximum)
+    {
+        $this->iAddAMinPriceFilterRange($minimum);
+        $this->iAddAMaxPriceFilterRange($maximum);
+    }
+
+    /**
+     * @When I specify that this action should be applied to items from :taxonName category
+     */
+    public function iSpecifyThatThisActionShouldBeAppliedToItemsFromCategory($taxonName)
+    {
+        $this->createPage->selectFilterOption('Taxon', $taxonName);
+
+    }
+
+    /**
+     * @Given I add the :actionType action configured with a percentage value of :percentage%
+     * @Given I add the :actionType action configured without a percentage value
+     */
+    public function iAddTheActionConfiguredWithAPercentageValue($actionType, $percentage = null)
+    {
+        $this->createPage->addAction($actionType);
+        $this->createPage->fillActionOption('Percentage', $percentage);
     }
 
     /**
@@ -189,8 +233,8 @@ final class ManagingPromotionsContext implements Context
      */
     public function thereShouldBePromotion($number)
     {
-        Assert::eq(
-            $number,
+        Assert::same(
+            (int) $number,
             $this->indexPage->countItems(),
             'I should see %s promotions but i see only %2$s'
         );
@@ -224,6 +268,14 @@ final class ManagingPromotionsContext implements Context
     public function iShouldBeNotifiedThatIsRequired($element)
     {
         $this->assertFieldValidationMessage($element, sprintf('Please enter promotion %s.', $element));
+    }
+
+    /**
+     * @Then I should be notified that a :element value should be a numeric value
+     */
+    public function iShouldBeNotifiedThatAMinimalValueShouldBeNumeric($element)
+    {
+        $this->assertFieldValidationMessage($element, 'This value is not valid.');
     }
 
     /**
@@ -402,7 +454,7 @@ final class ManagingPromotionsContext implements Context
     public function iShouldBeNotifiedOfFailure()
     {
         $this->notificationChecker->checkNotification(
-            "Cannot delete, the promotion is in use.",
+            'Cannot delete, the promotion is in use.',
             NotificationType::failure()
         );
     }
@@ -445,6 +497,68 @@ final class ManagingPromotionsContext implements Context
         $currentPage = $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
 
         Assert::same($currentPage->getValidationMessage('ends_at'), 'End date cannot be set prior start date.');
+    }
+
+    /**
+     * @Then I should be notified that this value should not be blank
+     */
+    public function iShouldBeNotifiedThatThisValueShouldNotBeBlank()
+    {
+        Assert::same(
+            $this->createPage->getValidationMessageForAction(),
+            'This value should not be blank.'
+        );
+    }
+
+    /**
+     * @Then I should be notified that the maximum value of a percentage discount is 100%
+     */
+    public function iShouldBeNotifiedThatTheMaximumValueOfAPercentageDiscountIs100()
+    {
+        Assert::same(
+            $this->createPage->getValidationMessageForAction(),
+            'The maximum value of a percentage discount is 100%.'
+        );
+    }
+
+    /**
+     * @Then I should be notified that a percentage discount value must be at least 0%
+     */
+    public function iShouldBeNotifiedThatAPercentageDiscountValueMustBeAtLeast0()
+    {
+        Assert::same(
+            $this->createPage->getValidationMessageForAction(),
+            'The value of a percentage discount must be at least 0%.'
+        );
+    }
+
+    /**
+     * @Then the promotion :promotion should be used :usage time(s)
+     */
+    public function thePromotionShouldBeUsedTime(PromotionInterface $promotion, $usage)
+    {
+        Assert::same(
+            (int) $usage,
+            $this->indexPage->getUsageNumber($promotion),
+            'Promotion should be used %s times, but is %2$s.'
+        );
+    }
+
+    /**
+     * @When I add the "Contains product" rule configured with the :productName product
+     */
+    public function iAddTheRuleConfiguredWithTheProduct($productName)
+    {
+        $this->createPage->addRule('Contains product');
+        $this->createPage->selectRuleOption('Product', $productName);
+    }
+
+    /**
+     * @When I specify that this action should be applied to the :productName product
+     */
+    public function iSpecifyThatThisActionShouldBeAppliedToTheProduct($productName)
+    {
+        $this->createPage->selectFilterOption('Products', $productName);
     }
 
     /**

@@ -13,6 +13,7 @@ namespace spec\Sylius\Bundle\PaymentBundle\Form\Type;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use Sylius\Bundle\PaymentBundle\Form\Type\PaymentMethodType;
 use Sylius\Bundle\ResourceBundle\Form\EventSubscriber\AddCodeFormSubscriber;
 use Symfony\Component\Form\FormBuilder;
 use Symfony\Component\Form\FormTypeInterface;
@@ -27,6 +28,11 @@ final class PaymentMethodTypeSpec extends ObjectBehavior
     function let()
     {
         $this->beConstructedWith('PaymentMethod', ['sylius']);
+    }
+
+    function it_is_initializable()
+    {
+        $this->shouldHaveType(PaymentMethodType::class);
     }
 
     function it_is_a_form_type()

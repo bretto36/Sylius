@@ -19,8 +19,6 @@ use Sylius\Component\Grid\FieldTypes\FieldTypeInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * @mixin DatetimeFieldType
- *
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
  */
 final class DatetimeFieldTypeSpec extends ObjectBehavior
@@ -32,7 +30,7 @@ final class DatetimeFieldTypeSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Component\Grid\FieldTypes\DatetimeFieldType');
+        $this->shouldHaveType(DatetimeFieldType::class);
     }
 
     function it_is_a_grid_field_type()
@@ -65,8 +63,7 @@ final class DatetimeFieldTypeSpec extends ObjectBehavior
 
     function is_configures_options(
         OptionsResolver $resolver
-    )
-    {
+    ) {
         $resolver->setDefaults([
             'format' => 'Y:m:d H:i:s'
         ])->shouldBeCalled();

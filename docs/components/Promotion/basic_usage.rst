@@ -181,14 +181,14 @@ Below you can see how it works:
     <?php
 
     use Sylius\Component\Promotion\Model\Promotion;
-    use Sylius\Component\Promotion\Model\Rule;
-    use Sylius\Component\Promotion\Model\Action;
+    use Sylius\Component\Promotion\Model\PromotionAction;
+    use Sylius\Component\Promotion\Model\PromotionRule;
     use Sylius\Component\Promotion\Checker\CompositePromotionEligibilityChecker;
     use AppBundle\Entity\Ticket;
 
     $checkerRegistry = new ServiceRegistry('Sylius\Component\Promotion\Checker\RuleCheckerInterface');
-    $ruleRegistry = new ServiceRegistry('Sylius\Component\Promotion\Model\RuleInterface');
-    $actionRegistry = new ServiceRegistry('Sylius\Component\Promotion\Model\ActionInterface');
+    $actionRegistry = new ServiceRegistry('Sylius\Component\Promotion\Model\PromotionActionInterface');
+    $ruleRegistry = new ServiceRegistry('Sylius\Component\Promotion\Model\PromotionRuleInterface');
 
     $dispatcher = new EventDispatcher();
 
@@ -206,7 +206,7 @@ Below you can see how it works:
     $promotion->setName('Test');
 
     // And a new action for that promotion, that will give a fixed discount of 10
-    $action = new Action();
+    $action = new PromotionAction();
     $action->setType('fixed_discount');
     $action->setConfiguration(array('amount' => 10));
     $action->setPromotion($promotion);
@@ -214,7 +214,7 @@ Below you can see how it works:
     $actionRegistry->register('fixed_discount', $action);
 
     // That promotion will also have a rule - works for item amounts over 2
-    $rule = new Rule();
+    $rule = new PromotionRule();
     $rule->setType('item_count');
 
     $configuration = array('count' => 2);
@@ -250,13 +250,13 @@ which is able to apply and revert single promotions on a subject implementing th
 
     <?php
 
-    use Sylius\Component\Promotion\Action\PromotionApplicator;
+    use Sylius\Component\Promotion\PromotionAction\PromotionApplicator;
     use Sylius\Component\Promotion\Model\Promotion;
     use Sylius\Component\Registry\ServiceRegistry;
     use AppBundle\Entity\Ticket;
 
     // In order for the applicator to work properly you need to have your actions created and registered before.
-    $registry = new ServiceRegistry('Sylius\Component\Promotion\Model\ActionInterface');
+    $registry = new ServiceRegistry('Sylius\Component\Promotion\Model\PromotionActionInterface');
     $promotionApplicator = new PromotionApplicator($registry);
 
     $promotion = new Promotion();
@@ -274,8 +274,8 @@ which is able to apply and revert single promotions on a subject implementing th
 
 .. _component_promotion_generator_coupon-generator:
 
-CouponGenerator
----------------
+PromotionCouponGenerator
+------------------------
 
 In order to automate the process of coupon generation the component provides us with a Coupon Generator.
 
@@ -284,18 +284,18 @@ In order to automate the process of coupon generation the component provides us 
     <?php
 
     use Sylius\Component\Promotion\Model\Promotion;
-    use Sylius\Component\Promotion\Generator\Instruction;
-    use Sylius\Component\Promotion\Generator\CouponGenerator;
+    use Sylius\Component\Promotion\Generator\PromotionCouponGeneratorInstruction;
+    use Sylius\Component\Promotion\Generator\PromotionCouponGenerator;
 
     $promotion = new Promotion();
 
-    $instruction = new Instruction(); // $amount = 5 by default
+    $instruction = new PromotionCouponGeneratorInstruction(); // $amount = 5 by default
 
     /**
      * @param RepositoryInterface    $repository
      * @param EntityManagerInterface $manager
      */
-    $generator = new CouponGenerator($repository, $manager);
+    $generator = new PromotionCouponGenerator($repository, $manager);
 
     //This will generate and persist 5 coupons into the database
     //basing on the instruction provided for the given promotion object

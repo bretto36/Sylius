@@ -42,4 +42,8 @@ final class DefaultCalculators
      * Flexible prices for weight ranges.
      */
     const WEIGHT_BUCKETS_RATE = 'weight_buckets_rate';
+
+    private function __construct()
+    {
+    }
 }

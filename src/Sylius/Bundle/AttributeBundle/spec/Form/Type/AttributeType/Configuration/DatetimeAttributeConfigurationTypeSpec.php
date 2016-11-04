@@ -12,6 +12,7 @@
 namespace spec\Sylius\Bundle\AttributeBundle\Form\Type\AttributeType;
 
 use PhpSpec\ObjectBehavior;
+use Sylius\Bundle\AttributeBundle\Form\Type\AttributeType\Configuration\DatetimeAttributeConfigurationType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 
@@ -22,7 +23,7 @@ final class DatetimeAttributeConfigurationTypeSpec extends ObjectBehavior
 {
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\AttributeBundle\Form\Type\AttributeType\Configuration\DatetimeAttributeConfigurationType');
+        $this->shouldHaveType(DatetimeAttributeConfigurationType::class);
     }
 
     function it_is_abstract_type()

@@ -21,8 +21,6 @@ use Sylius\Component\Promotion\Processor\PromotionProcessorInterface;
 use Sylius\Component\Promotion\Provider\PreQualifiedPromotionsProviderInterface;
 
 /**
- * @mixin PromotionProcessor
- *
  * @author Saša Stamenković <umpirsky@gmail.com>
  */
 final class PromotionProcessorSpec extends ObjectBehavior
@@ -40,19 +38,19 @@ final class PromotionProcessorSpec extends ObjectBehavior
         $this->shouldHaveType(PromotionProcessor::class);
     }
 
-    function it_should_be_Sylius_promotion_processor()
+    function it_is_a_promotion_processor()
     {
         $this->shouldImplement(PromotionProcessorInterface::class);
     }
 
-    function it_should_not_apply_promotions_that_are_not_eligible(
+    function it_does_not_apply_promotions_that_are_not_eligible(
         PreQualifiedPromotionsProviderInterface $preQualifiedPromotionsProvider,
         PromotionEligibilityCheckerInterface $promotionEligibilityChecker,
         PromotionApplicatorInterface $promotionApplicator,
         PromotionSubjectInterface $subject,
         PromotionInterface $promotion
     ) {
-        $subject->getPromotions()->shouldBeCalled()->willReturn([]);
+        $subject->getPromotions()->willReturn([]);
         $preQualifiedPromotionsProvider->getPromotions($subject)->willReturn([$promotion]);
 
         $promotionEligibilityChecker->isEligible($subject, $promotion)->willReturn(false);
@@ -63,14 +61,14 @@ final class PromotionProcessorSpec extends ObjectBehavior
         $this->process($subject);
     }
 
-    function it_should_apply_promotions_that_are_eligible(
+    function it_applies_promotions_that_are_eligible(
         PreQualifiedPromotionsProviderInterface $preQualifiedPromotionsProvider,
         PromotionEligibilityCheckerInterface $promotionEligibilityChecker,
         PromotionApplicatorInterface $promotionApplicator,
         PromotionSubjectInterface $subject,
         PromotionInterface $promotion
     ) {
-        $subject->getPromotions()->shouldBeCalled()->willReturn([]);
+        $subject->getPromotions()->willReturn([]);
         $preQualifiedPromotionsProvider->getPromotions($subject)->willReturn([$promotion]);
 
         $promotionEligibilityChecker->isEligible($subject, $promotion)->willReturn(true);
@@ -81,7 +79,7 @@ final class PromotionProcessorSpec extends ObjectBehavior
         $this->process($subject);
     }
 
-    function it_should_apply_only_exclusive_promotion(
+    function it_applies_only_exclusive_promotion(
         PreQualifiedPromotionsProviderInterface $preQualifiedPromotionsProvider,
         PromotionEligibilityCheckerInterface $promotionEligibilityChecker,
         PromotionApplicatorInterface $promotionApplicator,
@@ -89,7 +87,7 @@ final class PromotionProcessorSpec extends ObjectBehavior
         PromotionInterface $promotion,
         PromotionInterface $exclusivePromotion
     ) {
-        $subject->getPromotions()->shouldBeCalled()->willReturn([]);
+        $subject->getPromotions()->willReturn([]);
         $preQualifiedPromotionsProvider->getPromotions($subject)->willReturn([$promotion, $exclusivePromotion]);
 
         $exclusivePromotion->isExclusive()->willReturn(true);
@@ -104,7 +102,7 @@ final class PromotionProcessorSpec extends ObjectBehavior
         $this->process($subject);
     }
 
-    function it_should_revert_promotions_that_are_not_eligible_anymore(
+    function it_reverts_promotions_that_are_not_eligible_anymore(
         PreQualifiedPromotionsProviderInterface $preQualifiedPromotionsProvider,
         PromotionEligibilityCheckerInterface $promotionEligibilityChecker,
         PromotionApplicatorInterface $promotionApplicator,

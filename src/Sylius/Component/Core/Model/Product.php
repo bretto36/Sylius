@@ -133,14 +133,6 @@ class Product extends BaseProduct implements ProductInterface, ReviewableProduct
     /**
      * {@inheritdoc}
      */
-    public function setTaxons(Collection $taxons)
-    {
-        $this->taxons = $taxons;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function addTaxon(BaseTaxonInterface $taxon)
     {
         if (!$this->hasTaxon($taxon)) {
@@ -188,14 +180,6 @@ class Product extends BaseProduct implements ProductInterface, ReviewableProduct
     public function getChannels()
     {
         return $this->channels;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setChannels(Collection $channels)
-    {
-        $this->channels = $channels;
     }
 
     /**
@@ -296,17 +280,17 @@ class Product extends BaseProduct implements ProductInterface, ReviewableProduct
     /**
      * {@inheritdoc}
      */
-    public function setAverageRating($averageRating)
+    public function getAverageRating()
     {
-        $this->averageRating = $averageRating;
+        return $this->averageRating;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getAverageRating()
+    public function setAverageRating($averageRating)
     {
-        return $this->averageRating;
+        $this->averageRating = $averageRating;
     }
 
     /**

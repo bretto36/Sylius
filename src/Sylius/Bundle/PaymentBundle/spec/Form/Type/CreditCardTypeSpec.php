@@ -13,6 +13,7 @@ namespace spec\Sylius\Bundle\PaymentBundle\Form\Type;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use Sylius\Bundle\PaymentBundle\Form\Type\CreditCardType;
 use Symfony\Component\Form\FormBuilder;
 use Symfony\Component\Form\FormTypeInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -25,6 +26,11 @@ final class CreditCardTypeSpec extends ObjectBehavior
     function let()
     {
         $this->beConstructedWith('CreditCard', ['sylius']);
+    }
+
+    function it_is_initializable()
+    {
+        $this->shouldHaveType(CreditCardType::class);
     }
 
     function it_is_a_form_type()

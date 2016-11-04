@@ -12,6 +12,7 @@
 namespace spec\Sylius\Bundle\PaymentBundle\Form\Type;
 
 use PhpSpec\ObjectBehavior;
+use Sylius\Bundle\PaymentBundle\Form\Type\PaymentGatewayChoiceType;
 use Symfony\Component\Form\FormTypeInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -27,7 +28,7 @@ final class PaymentGatewayChoiceTypeSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\PaymentBundle\Form\Type\PaymentGatewayChoiceType');
+        $this->shouldHaveType(PaymentGatewayChoiceType::class);
     }
 
     function it_is_a_form_type()

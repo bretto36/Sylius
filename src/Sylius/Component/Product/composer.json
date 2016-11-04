@@ -25,10 +25,11 @@
         "sylius/attribute": "^1.0",
         "sylius/association": "^1.0",
         "sylius/resource": "^1.0",
-        "symfony/polyfill-iconv": "~1.0"
+        "symfony/polyfill-iconv": "~1.0",
+        "webmozart/assert": "^1.0"
     },
     "require-dev": {
-        "phpspec/phpspec": "^3.0"
+        "phpspec/phpspec": "^3.1"
     },
     "suggest": {
         "ext-iconv": "For better performance than using Symfony Polyfill Component"

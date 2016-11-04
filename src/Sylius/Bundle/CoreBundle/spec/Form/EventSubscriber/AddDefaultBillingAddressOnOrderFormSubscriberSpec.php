@@ -18,15 +18,13 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 
 /**
- * @mixin AddDefaultBillingAddressOnOrderFormSubscriber
- *
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
  */
 final class AddDefaultBillingAddressOnOrderFormSubscriberSpec extends ObjectBehavior
 {
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\CoreBundle\Form\EventSubscriber\AddDefaultBillingAddressOnOrderFormSubscriber');
+        $this->shouldHaveType(AddDefaultBillingAddressOnOrderFormSubscriber::class);
     }
 
     function it_is_an_event_subscriber()

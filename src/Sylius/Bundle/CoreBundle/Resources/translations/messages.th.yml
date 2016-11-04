@@ -3,12 +3,6 @@
 
 sylius:
     form:
-        action:
-            add_product_configuration:
-                price: ราคาต่อหน่วย
-                quantity: จำนวน
-                variant: Variant
-            customer_group: กลุ่มลูกค้า
         block:
             body: Body
             id: ID
@@ -22,7 +16,11 @@ sylius:
             shipping_method: วิธีการจัดส่ง
         promotion:
             channels: ช่องทางจำหน่าย
-        coupon:
+        promotion_action:
+            add_product_configuration:
+                product: สินค้า
+            customer_group: กลุ่มลูกค้า
+        promotion_coupon:
             per_customer_usage_limit: จำกัดการใช้งานสำหรับลูกค้าแต่ละคน
         group:
             name: ชื่อ
@@ -128,27 +126,90 @@ sylius:
                 taxon: หมวดหมู่
                 count: จำนวน
             taxon:
-                taxons: หมวดหมู่
+                taxons: การจัดหมวดหมู่
+            product:
+                products: สินค้า
             total_of_items_from_taxon:
                 taxon: หมวดหมู่
-                amount: ยอดรวม
+                amount: ยอดเงิน
+    installer:
+        extensions:
+            header: ส่วนขยาย
+            accelerator:
+                header: ตัวเร่ง
+                help: เปิดใช้งาน Zend OpCache (แนะนำ)
+            apc: APC
+            ctype: Ctype
+            gd: GD
+            help: ติดตั้ง และเปิดใช้งาน extension %extension%
+            iconv: Iconv
+            exif: Exif
+            fileinfo: Fileinfo
+            icu: ICU
+            intl: Intl
+            json_encode: JSON
+            mbstring: Multibyte String
+            "off": false
+            "on": true
+            pcre: PCRE
+            pdo: PDO
+            php_xml: PHP-XML
+            session_start: Session
+            simplexml_import_dom: SimpleXML
+            token_get_all: Tokenizer
+        filesystem:
+            header: ระบบแฟ้ม
+            cache:
+                header: แคช
+                help: 'ตั้งค่า permissions run: sudo setfacl -R -m u:www-data:rwX -m u:`whoami`:rwX %path% && sudo setfacl -dR -m u:www-data:rwx -m u:`whoami`:rwx %path%'
+            exists: exists
+            logs:
+                header: บันทึก
+                help: 'ตั้งค่า permissions run: sudo setfacl -R -m u:www-data:rwX -m u:`whoami`:rwX %path% && sudo setfacl -dR -m u:www-data:rwx -m u:`whoami`:rwx %path%'
+            not_exists: not exists
+            not_writable: not writable
+            parameters:
+                header: parameters.yml
+                help: 'ตั้งค่า permissions run: sudo chmod a+w %path%'
+            vendors: vendors
+            writable: writable
+        settings:
+            header: รุ่นของ PHP และการตั้งค่า
+            any: any
+            detect_unicode: detect_unicode
+            magic_quotes_gpc: magic_quotes_gpc
+            non_deprecated: non deprecated
+            "off": false
+            "on": true
+            register_globals: register_globals
+            session:
+                auto_start: session.auto_start
+            short_open_tag: short_open_tag
+            timezone: timezone
+            timezone_deprecated:
+                header: เขตเวลาที่เลิกใช้งาน
+                help: 'Timezone %timezone% is deprecated. Fix your php.ini file (list of deprecated timezones http://php.net/manual/en/timezones.others.php).'
+            version: PHP เวอร์ชัน
+            version_recommended: PHP เวอร์ชันที่แนะนำ
     email:
         order_confirmation:
-            name: ยืนยันการสั่งซื้อ
+            name: รายละเอียดใบสั่งซื้อ
+            content: ได้รับหมายเลขใบสั่งซื้อของคุณ %number% เรียบร้อยแล้ว <br/> <br/> ขอบคุณสำหรับการช้อปปิ้งที่ร้านของเรา
         order_comment:
             name: ความเห็นเกี่ยวกับการสั่งซื้อ
         shipment_confirmation:
-            name: ยืนยันการจัดส่ง
+            name: รายละเอียดการจัดส่ง
+            content: หมายเลขใบสั่งของคุณ %number% ถูกจัดส่งด้วย %method% <br/> คุณสามารถตรวจสอบสถานะการจัดส่งโดยใช้รหัสติดตามการจัดส่งนี้ "%tracking%" <br/> <br/> ขอบคุณที่ใช้บริการ
         user_confirmation:
             name: ยืนยันการสั่งซื้อ
             subject: ยินดีต้อนรับสู่ร้านของเรา
-            content: 'ยินดีต้อนรับสู่ร้าน <br/> <br/> คุณได้ทำการลงทะเบียนสำเร็จแล้ว <br/> ขอบคุณ %username%'
+            content: ยินดีต้อนรับสู่ร้าน <br/> <br/> คุณได้ทำการลงทะเบียนสำเร็จแล้ว <br/> ขอบคุณ %username%
         password_reset:
             name: ตั้งรหัสผ่านใหม่
-            content: '<h3>สวัสดี %username%</h3> รีเซ็ตรหัสผ่าน - กดลิ้งค์ %url% <br/> <br/> ขอแสดงความนับถือ'
+            content: <h3>สวัสดี %username%</h3> รีเซ็ตรหัสผ่าน - กดลิ้งค์ %url% <br/> <br/> ขอแสดงความนับถือ
         verification:
             name: ยืนยันอีเมล
-            content: 'ยืนยันอีเมลของคุณ - กดลิ้งค์ %url%'
+            content: ยืนยันอีเมลของคุณ - กดลิ้งค์ %url%
     payum_gateway:
         cash_on_delivery: ชำระด้วยเงินสด
         offline: ออฟไลน์

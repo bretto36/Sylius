@@ -14,26 +14,46 @@ namespace Sylius\Bundle\CoreBundle\Installer\Requirement;
 use ArrayIterator;
 use IteratorAggregate;
 
-class RequirementCollection implements IteratorAggregate
+abstract class RequirementCollection implements IteratorAggregate
 {
+    /**
+     * @var string
+     */
     protected $label;
+
+    /**
+     * @var Requirement[]
+     */
     protected $requirements = [];
 
+    /**
+     * @param string $label
+     */
     public function __construct($label)
     {
         $this->label = $label;
     }
 
+    /**
+     * @return string
+     */
     public function getLabel()
     {
         return $this->label;
     }
 
+    /**
+     * @return ArrayIterator
+     */
     public function getIterator()
     {
         return new ArrayIterator($this->requirements);
     }
 
+    /**
+     * @param Requirement $requirement
+     * @return RequirementCollection
+     */
     public function add(Requirement $requirement)
     {
         $this->requirements[] = $requirement;

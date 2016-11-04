@@ -3,5 +3,19 @@
 
 sylius:
     form:
+        promotion:
+            channels: Kanavat
+        product:
+            channels: Kanavat
         guest:
             email: Sähköpostiosoite
+        promotion_rule:
+            product:
+                products: Tuotteet
+    installer:
+        extensions:
+            "off": false
+            "on": true
+        settings:
+            "off": false
+            "on": true

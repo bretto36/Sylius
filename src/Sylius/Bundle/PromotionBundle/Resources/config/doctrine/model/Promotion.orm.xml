@@ -32,17 +32,17 @@
         <field name="startsAt" column="starts_at" type="datetime" nullable="true"/>
         <field name="endsAt" column="ends_at" type="datetime" nullable="true"/>
 
-        <one-to-many field="coupons" target-entity="Sylius\Component\Promotion\Model\CouponInterface" mapped-by="promotion">
+        <one-to-many field="coupons" target-entity="Sylius\Component\Promotion\Model\PromotionCouponInterface" mapped-by="promotion">
             <cascade>
                 <cascade-all />
             </cascade>
         </one-to-many>
-        <one-to-many field="rules" target-entity="Sylius\Component\Promotion\Model\RuleInterface" mapped-by="promotion" orphan-removal="true">
+        <one-to-many field="rules" target-entity="Sylius\Component\Promotion\Model\PromotionRuleInterface" mapped-by="promotion" orphan-removal="true">
             <cascade>
                 <cascade-all />
             </cascade>
         </one-to-many>
-        <one-to-many field="actions" target-entity="Sylius\Component\Promotion\Model\ActionInterface" mapped-by="promotion" orphan-removal="true">
+        <one-to-many field="actions" target-entity="Sylius\Component\Promotion\Model\PromotionActionInterface" mapped-by="promotion" orphan-removal="true">
             <cascade>
                 <cascade-all />
             </cascade>

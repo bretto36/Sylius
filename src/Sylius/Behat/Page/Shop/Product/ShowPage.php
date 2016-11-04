@@ -11,9 +11,12 @@
 
 namespace Sylius\Behat\Page\Shop\Product;
 
-use Sylius\Component\Product\Model\ProductOptionInterface;
-use Sylius\Component\Product\Model\ProductInterface;
+use Behat\Mink\Driver\Selenium2Driver;
+use Behat\Mink\Exception\ElementNotFoundException;
 use Sylius\Behat\Page\SymfonyPage;
+use Sylius\Component\Product\Model\ProductInterface;
+use Sylius\Component\Product\Model\ProductOptionInterface;
+use Webmozart\Assert\Assert;
 
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
@@ -21,6 +24,14 @@ use Sylius\Behat\Page\SymfonyPage;
  */
 class ShowPage extends SymfonyPage implements ShowPageInterface
 {
+    /**
+     * {@inheritdoc}
+     */
+    public function getRouteName()
+    {
+        return 'sylius_shop_product_show';
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -43,10 +54,7 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
      */
     public function addToCartWithVariant($variant)
     {
-        $item = $this->getDocument()->find('css', sprintf('#sylius-product-variants tbody tr:contains("%s")', $variant));
-        $radio = $item->find('css', 'input');
-
-        $this->getDocument()->fillField($radio->getAttribute('name'), $radio->getAttribute('value'));
+        $this->selectVariant($variant);
 
         $this->getDocument()->pressButton('Add to cart');
     }
@@ -135,6 +143,56 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
     /**
      * {@inheritdoc}
      */
+    public function countReviews()
+    {
+        return count($this->getElement('reviews')->findAll('css', '.comment'));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasReviewTitled($title)
+    {
+        return null !== $this->getElement('reviews')->find('css', sprintf('.comment:contains("%s")', $title));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAverageRating()
+    {
+        return (float) $this->getElement('average_rating')->getAttribute('data-average-rating');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function selectOption($optionName, $optionValue)
+    {
+        $optionElement = $this->getElement('option_select', ['%option-name%' => strtoupper($optionName)]);
+        $optionElement->selectOption($optionValue);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function selectVariant($variantName)
+    {
+        $variantRadio = $this->getElement('variant_radio', ['%variant-name%' => $variantName]);
+
+        $driver = $this->getDriver();
+        if ($driver instanceof Selenium2Driver) {
+            $variantRadio->click();
+
+            return;
+        }
+
+        $this->getDocument()->fillField($variantRadio->getAttribute('name'), $variantRadio->getAttribute('value'));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function isOutOfStock()
     {
         return $this->hasElement('out_of_stock');
@@ -146,14 +204,6 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
     public function hasAddToCartButton()
     {
         return $this->getDocument()->hasButton('Add to cart');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getRouteName()
-    {
-        return 'sylius_shop_product_show';
     }
 
     /**
@@ -178,16 +228,42 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
     /**
      * {@inheritdoc}
      */
+    public function hasAssociation($productAssociationName)
+    {
+        return $this->hasElement('association', ['%association-name%' => $productAssociationName]);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasProductInAssociation($productName, $productAssociationName)
+    {
+        $associationHeader = $this->getElement('association', ['%association-name%' => $productAssociationName]);
+        $associations = $associationHeader->getParent()->find('css', '.four');
+
+        Assert::notNull($associations);
+
+        return null !== $associations->find('css', sprintf('.sylius-product-name:contains("%s")', $productName));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function getDefinedElements()
     {
         return array_merge(parent::getDefinedElements(), [
+            'association' => 'h4:contains("%association-name%")',
             'attributes' => '#sylius-product-attributes',
+            'average_rating' => '#average-rating',
             'main_image' => '#main-image',
             'name' => '#sylius-product-name',
+            'option_select' => '#sylius_cart_item_variant_%option-name%',
             'out_of_stock' => '#sylius-product-out-of-stock',
             'product_price' => '#product-price',
+            'reviews' => '[data-tab="reviews"] .comments',
             'selecting_variants' => "#sylius-product-selecting-variant",
             'validation_errors' => '.sylius-validation-error',
+            'variant_radio' => '#sylius-product-variants tbody tr:contains("%variant-name%") input',
         ]);
     }
 }

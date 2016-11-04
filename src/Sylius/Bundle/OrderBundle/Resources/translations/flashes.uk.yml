@@ -3,9 +3,6 @@
 
 sylius:
     cart:
-        cart_save_completed: Кошик було успішно оновлено.
-        cart_clear_completed: Кошик було успішно очищено.
-        item_add_completed: Елемент був доданий в кошик.
-        item_remove_completed: Елемент видалено з кошика.
-        item_add_error: Сталася помилка під час додавання елемента в кошик.
-        item_remove_error: Сталася помилка під час видалення елемента з кошику.
+        cart_save_completed: Кошик був успішно оновлений.
+        item_add_completed: Товар був доданий в кошик.
+        item_remove_completed: Товар був видалений з кошика.

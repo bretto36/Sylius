@@ -13,6 +13,7 @@ namespace spec\Sylius\Component\Addressing\Model;
 
 use Doctrine\Common\Collections\Collection;
 use PhpSpec\ObjectBehavior;
+use Sylius\Component\Addressing\Model\Country;
 use Sylius\Component\Addressing\Model\CountryInterface;
 use Sylius\Component\Addressing\Model\ProvinceInterface;
 use Sylius\Component\Resource\Model\CodeAwareInterface;
@@ -27,7 +28,7 @@ final class CountrySpec extends ObjectBehavior
 {
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Component\Addressing\Model\Country');
+        $this->shouldHaveType(Country::class);
     }
 
     function it_implements_Sylius_country_interface()
@@ -78,12 +79,6 @@ final class CountrySpec extends ObjectBehavior
     function it_has_no_provinces_by_default()
     {
         $this->hasProvinces()->shouldReturn(false);
-    }
-
-    function its_provinces_are_mutable(Collection $provinces)
-    {
-        $this->setProvinces($provinces);
-        $this->getProvinces()->shouldReturn($provinces);
     }
 
     function it_adds_province(ProvinceInterface $province)

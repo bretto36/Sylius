@@ -18,6 +18,7 @@ use Sylius\Behat\Page\Admin\Channel\IndexPageInterface;
 use Sylius\Behat\Page\Admin\Channel\UpdatePageInterface;
 use Sylius\Behat\Service\Resolver\CurrentPageResolverInterface;
 use Sylius\Behat\Service\NotificationCheckerInterface;
+use Sylius\Component\Core\Formatter\StringInflector;
 use Sylius\Component\Core\Model\ChannelInterface;
 use Webmozart\Assert\Assert;
 
@@ -136,7 +137,7 @@ final class ManagingChannelsContext implements Context
         $this->iWantToBrowseChannels();
 
         Assert::true($this->indexPage->isSingleResourceOnPage(
-            ['name' => $channelName]),
+            ['nameAndDescription' => $channelName]),
             sprintf('Channel with name %s has not been found.', $channelName)
         );
     }
@@ -224,7 +225,7 @@ final class ManagingChannelsContext implements Context
         $currentPage = $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
 
         Assert::same(
-            $currentPage->getValidationMessage($this->getNormalizedElementName($element)),
+            $currentPage->getValidationMessage(StringInflector::nameToCode($element)),
             sprintf('Please enter channel %s.', $element)
         );
     }
@@ -250,7 +251,7 @@ final class ManagingChannelsContext implements Context
             $this->indexPage->isSingleResourceOnPage(
                 [
                     'code' => $channel->getCode(),
-                    'name' => $channelName,
+                    'nameAndDescription' => $channelName,
                 ]
             ),
             sprintf('Channel name %s has not been assigned properly.', $channelName)
@@ -343,7 +344,7 @@ final class ManagingChannelsContext implements Context
     public function iDeleteChannel(ChannelInterface $channel)
     {
         $this->indexPage->open();
-        $this->indexPage->deleteResourceOnPage(['name' => $channel->getName()]);
+        $this->indexPage->deleteResourceOnPage(['nameAndDescription' => $channel->getName()]);
     }
 
     /**
@@ -352,7 +353,7 @@ final class ManagingChannelsContext implements Context
     public function thisChannelShouldNoLongerExistInTheRegistry($channelName)
     {
         Assert::false(
-            $this->indexPage->isSingleResourceOnPage(['name' => $channelName]),
+            $this->indexPage->isSingleResourceOnPage(['nameAndDescription' => $channelName]),
             sprintf('Channel with name %s exists but should not.', $channelName)
         );
     }
@@ -538,20 +539,10 @@ final class ManagingChannelsContext implements Context
         Assert::true(
             $this->indexPage->isSingleResourceOnPage(
                 [
-                    'name' => $channel->getName(),
+                    'nameAndDescription' => $channel->getName(),
                     'enabled' => $state,
                 ]
             ), sprintf('Channel with name %s and state %s has not been found.', $channel->getName(), $state)
         );
-    }
-
-    /**
-     * @param string $elementName
-     *
-     * @return string
-     */
-    private function getNormalizedElementName($elementName)
-    {
-        return str_replace(' ', '_', $elementName);
     }
 }

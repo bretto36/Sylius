@@ -32,7 +32,6 @@ final class SyliusCoreExtension extends AbstractResourceExtension implements Pre
      */
     private static $bundles = [
         'sylius_addressing',
-        'sylius_api',
         'sylius_attribute',
         'sylius_channel',
         'sylius_currency',
@@ -81,7 +80,8 @@ final class SyliusCoreExtension extends AbstractResourceExtension implements Pre
      */
     public function prepend(ContainerBuilder $container)
     {
-        $config = $this->processConfiguration(new Configuration(), $container->getExtensionConfig($this->getAlias()));
+        $config = $container->getExtensionConfig($this->getAlias());
+        $config = $this->processConfiguration($this->getConfiguration($config, $container), $config);
 
         foreach ($container->getExtensions() as $name => $extension) {
             if (in_array($name, self::$bundles, true)) {
@@ -117,6 +117,6 @@ final class SyliusCoreExtension extends AbstractResourceExtension implements Pre
             return;
         }
 
-        $loader->load('integration/hwi_oauth.xml');
+        $loader->load('services/integrations/hwi_oauth.xml');
     }
 }

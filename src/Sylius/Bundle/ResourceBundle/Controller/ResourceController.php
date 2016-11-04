@@ -249,6 +249,10 @@ class ResourceController extends Controller
                 return $this->redirectHandler->redirectToIndex($configuration, $newResource);
             }
 
+            if ($configuration->hasStateMachine()) {
+                $this->stateMachine->apply($configuration, $newResource);
+            }
+
             $this->repository->add($newResource);
             $this->eventDispatcher->dispatchPostEvent(ResourceActions::CREATE, $configuration, $newResource);
 
@@ -415,105 +419,6 @@ class ResourceController extends Controller
         $this->flashHelper->addSuccessFlash($configuration, ResourceActions::UPDATE, $resource);
 
         return $this->redirectHandler->redirectToResource($configuration, $resource);
-    }
-
-    /**
-     * @param Request $request
-     *
-     * @return RedirectResponse
-     */
-    public function enableAction(Request $request)
-    {
-        return $this->toggle($request, true);
-    }
-    /**
-     * @param Request $request
-     *
-     * @return RedirectResponse
-     */
-    public function disableAction(Request $request)
-    {
-        return $this->toggle($request, false);
-    }
-
-    /**
-     * @param Request $request
-     * @param $enabled
-     *
-     * @return RedirectResponse
-     */
-    protected function toggle(Request $request, $enabled)
-    {
-        $configuration = $this->requestConfigurationFactory->create($this->metadata, $request);
-
-        $this->isGrantedOr403($configuration, ResourceActions::UPDATE);
-
-        $resource = $this->findOr404($configuration);
-        $resource->setEnabled($enabled);
-
-        $this->eventDispatcher->dispatchPreEvent(ResourceActions::UPDATE, $configuration, $resource);
-        $this->manager->flush();
-        $this->eventDispatcher->dispatchPostEvent(ResourceActions::UPDATE, $configuration, $resource);
-
-        if (!$configuration->isHtmlRequest()) {
-            return $this->viewHandler->handle($configuration, View::create(null, Response::HTTP_NO_CONTENT));
-        }
-
-        $this->flashHelper->addSuccessFlash($configuration, $enabled ? 'enable' : 'disable', $resource);
-
-        return $this->redirectHandler->redirectToIndex($configuration, $resource);
-    }
-
-    /**
-     * @param Request $request
-     *
-     * @return Response
-     */
-    public function moveUpAction(Request $request)
-    {
-        return $this->move($request, 1);
-    }
-
-    /**
-     * @param Request $request
-     *
-     * @return Response
-     */
-    public function moveDownAction(Request $request)
-    {
-        return $this->move($request, -1);
-    }
-
-    /**
-     * @param Request $request
-     * @param int $movement
-     *
-     * @return RedirectResponse
-     */
-    protected function move(Request $request, $movement)
-    {
-        $configuration = $this->requestConfigurationFactory->create($this->metadata, $request);
-        $resource = $this->findOr404($configuration);
-
-        $position = $configuration->getSortablePosition();
-        $accessor = PropertyAccess::createPropertyAccessor();
-        $accessor->setValue(
-            $resource,
-            $position,
-            $accessor->getValue($resource, $position) + $movement
-        );
-
-        $this->eventDispatcher->dispatchPreEvent(ResourceActions::UPDATE, $configuration, $resource);
-        $this->manager->flush();
-        $this->eventDispatcher->dispatchPostEvent(ResourceActions::UPDATE, $configuration, $resource);
-
-        if (!$configuration->isHtmlRequest()) {
-            return $this->viewHandler->handle($configuration, View::create(null, Response::HTTP_NO_CONTENT));
-        }
-
-        $this->flashHelper->addSuccessFlash($configuration, 'move', $resource);
-
-        return $this->redirectHandler->redirectToIndex($configuration, $resource);
     }
 
     /**

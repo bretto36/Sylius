@@ -124,8 +124,6 @@ class Zone implements ZoneInterface
     }
 
     /**
-     * Returns all zone types available.
-     *
      * @return array of self::TYPE_*
      */
     public static function getTypes()
@@ -155,14 +153,6 @@ class Zone implements ZoneInterface
     public function getMembers()
     {
         return $this->members;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setMembers(Collection $members)
-    {
-        $this->members = $members;
     }
 
     /**

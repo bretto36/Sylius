@@ -25,8 +25,6 @@ use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * @mixin TwigGridRenderer
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
 final class TwigGridRendererSpec extends ObjectBehavior
@@ -46,7 +44,7 @@ final class TwigGridRendererSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\GridBundle\Renderer\TwigGridRenderer');
+        $this->shouldHaveType(TwigGridRenderer::class);
     }
 
     function it_is_a_grid_renderer()

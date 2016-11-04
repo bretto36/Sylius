@@ -16,6 +16,7 @@
         <service id="sylius.behat.context.transform.addressing" class="Sylius\Behat\Context\Transform\AddressingContext" scope="scenario">
             <argument type="service" id="sylius.factory.address" container="symfony" />
             <argument type="service" id="sylius.converter.country_name" container="symfony" />
+            <argument type="service" id="sylius.repository.address" container="symfony" />
             <tag name="sylius.behat.context" />
         </service>
 
@@ -36,7 +37,7 @@
         </service>
 
         <service id="sylius.behat.context.transform.currency" class="Sylius\Behat\Context\Transform\CurrencyContext" scope="scenario">
-            <argument type="service" id="sylius.converter.currency_name" container="symfony" />
+            <argument type="service" id="sylius.currency_name_converter" container="symfony" />
             <argument type="service" id="sylius.repository.currency" container="symfony" />
             <tag name="sylius.behat.context" />
         </service>
@@ -45,6 +46,11 @@
             <argument type="service" id="sylius.repository.customer" container="symfony" />
             <argument type="service" id="sylius.factory.customer" container="symfony" />
             <argument type="service" id="sylius.behat.shared_storage" />
+            <tag name="sylius.behat.context" />
+        </service>
+
+        <service id="sylius.behat.context.transform.customer_group" class="Sylius\Behat\Context\Transform\CustomerGroupContext" scope="scenario">
+            <argument type="service" id="sylius.repository.customer_group" container="symfony" />
             <tag name="sylius.behat.context" />
         </service>
 
@@ -57,7 +63,7 @@
         </service>
 
         <service id="sylius.behat.context.transform.locale" class="Sylius\Behat\Context\Transform\LocaleContext" scope="scenario">
-            <argument type="service" id="sylius.converter.locale" container="symfony" />
+            <argument type="service" id="sylius.locale_converter" container="symfony" />
             <tag name="sylius.behat.context" />
         </service>
 
@@ -77,8 +83,18 @@
             <tag name="sylius.behat.context" />
         </service>
 
+        <service id="sylius.behat.context.transform.product_association_type" class="Sylius\Behat\Context\Transform\ProductAssociationTypeContext" scope="scenario">
+            <argument type="service" id="sylius.repository.product_association_type" container="symfony" />
+            <tag name="sylius.behat.context" />
+        </service>
+
         <service id="sylius.behat.context.transform.product_option" class="Sylius\Behat\Context\Transform\ProductOptionContext" scope="scenario">
             <argument type="service" id="sylius.repository.product_option" container="symfony" />
+            <tag name="sylius.behat.context" />
+        </service>
+
+        <service id="sylius.behat.context.transform.product_review" class="Sylius\Behat\Context\Transform\ProductReviewContext" scope="scenario">
+            <argument type="service" id="sylius.repository.product_review" container="symfony" />
             <tag name="sylius.behat.context" />
         </service>
 
@@ -129,6 +145,11 @@
         </service>
 
         <service id="sylius.behat.context.transform.user" class="Sylius\Behat\Context\Transform\UserContext" scope="scenario">
+            <argument type="service" id="sylius.behat.shared_storage" />
+            <tag name="sylius.behat.context" />
+        </service>
+
+        <service id="sylius.behat.context.transform.admin" class="Sylius\Behat\Context\Transform\AdminUserContext" scope="scenario">
             <argument type="service" id="sylius.behat.shared_storage" />
             <tag name="sylius.behat.context" />
         </service>

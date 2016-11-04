@@ -14,12 +14,13 @@ namespace Sylius\Behat\Context\Ui\Admin;
 use Behat\Behat\Context\Context;
 use Sylius\Behat\NotificationType;
 use Sylius\Behat\Page\Admin\Crud\CreatePageInterface;
-use Sylius\Behat\Page\Admin\Crud\IndexPageInterface;
 use Sylius\Behat\Page\Admin\Crud\UpdatePageInterface;
 use Sylius\Behat\Page\Admin\Product\CreateConfigurableProductPageInterface;
 use Sylius\Behat\Page\Admin\Product\CreateSimpleProductPageInterface;
+use Sylius\Behat\Page\Admin\Product\IndexPageInterface;
 use Sylius\Behat\Page\Admin\Product\UpdateConfigurableProductPageInterface;
 use Sylius\Behat\Page\Admin\Product\UpdateSimpleProductPageInterface;
+use Sylius\Behat\Page\Admin\ProductReview\IndexPageInterface as ProductReviewIndexPageInterface;
 use Sylius\Behat\Service\NotificationCheckerInterface;
 use Sylius\Behat\Service\Resolver\CurrentProductPageResolverInterface;
 use Sylius\Component\Core\Model\ProductInterface;
@@ -65,6 +66,11 @@ final class ManagingProductsContext implements Context
     private $updateConfigurableProductPage;
 
     /**
+     * @var ProductReviewIndexPageInterface
+     */
+    private $productReviewIndexPage;
+
+    /**
      * @var CurrentProductPageResolverInterface
      */
     private $currentPageResolver;
@@ -81,6 +87,7 @@ final class ManagingProductsContext implements Context
      * @param IndexPageInterface $indexPage
      * @param UpdateSimpleProductPageInterface $updateSimpleProductPage
      * @param UpdateConfigurableProductPageInterface $updateConfigurableProductPage
+     * @param ProductReviewIndexPageInterface $productReviewIndexPage
      * @param CurrentProductPageResolverInterface $currentPageResolver
      * @param NotificationCheckerInterface $notificationChecker
      */
@@ -91,6 +98,7 @@ final class ManagingProductsContext implements Context
         IndexPageInterface $indexPage,
         UpdateSimpleProductPageInterface $updateSimpleProductPage,
         UpdateConfigurableProductPageInterface $updateConfigurableProductPage,
+        ProductReviewIndexPageInterface $productReviewIndexPage,
         CurrentProductPageResolverInterface $currentPageResolver,
         NotificationCheckerInterface $notificationChecker
     ) {
@@ -100,6 +108,7 @@ final class ManagingProductsContext implements Context
         $this->indexPage = $indexPage;
         $this->updateSimpleProductPage = $updateSimpleProductPage;
         $this->updateConfigurableProductPage = $updateConfigurableProductPage;
+        $this->productReviewIndexPage = $productReviewIndexPage;
         $this->currentPageResolver = $currentPageResolver;
         $this->notificationChecker = $notificationChecker;
     }
@@ -202,9 +211,9 @@ final class ManagingProductsContext implements Context
     }
 
     /**
-     * @Given the product :productName should appear in the shop
-     * @Given the product :productName should be in the shop
-     * @Given this product should still be named :productName
+     * @Then the product :productName should appear in the shop
+     * @Then the product :productName should be in the shop
+     * @Then this product should still be named :productName
      */
     public function theProductShouldAppearInTheShop($productName)
     {
@@ -217,11 +226,66 @@ final class ManagingProductsContext implements Context
     }
 
     /**
+     * @Given I am browsing products
      * @When I want to browse products
      */
     public function iWantToBrowseProducts()
     {
         $this->indexPage->open();
+    }
+
+    /**
+     * @When I filter them by :taxonName taxon
+     */
+    public function iFilterThemByTaxon($taxonName)
+    {
+        $this->indexPage->filterByTaxon($taxonName);
+    }
+
+    /**
+     * @Then I should( still) see a product with :field :value
+     */
+    public function iShouldSeeProductWith($field, $value)
+    {
+        Assert::true(
+            $this->indexPage->isSingleResourceOnPage([$field => $value]),
+            sprintf('The product with %s "%s" has not been found.', $field, $value)
+        );
+    }
+
+    /**
+     * @Then I should not see any product with :field :value
+     */
+    public function iShouldNotSeeAnyProductWith($field, $value)
+    {
+        Assert::false(
+            $this->indexPage->isSingleResourceOnPage([$field => $value]),
+            sprintf('The product with %s "%s" has been found.', $field, $value)
+        );
+    }
+
+    /**
+     * @Then the first product on the list should have :field :value
+     */
+    public function theFirstProductOnTheListShouldHave($field, $value)
+    {
+        $actualValue = $this->indexPage->getColumnFields($field)[0];
+
+        Assert::same(
+            $actualValue,
+            $value,
+            sprintf('Expected first product\'s %s to be "%s", but it is "%s".', $field, $value, $actualValue)
+        );
+    }
+
+    /**
+     * @When I switch the way products are sorted by :field
+     * @When I start sorting products by :field
+     * @Given the products are already sorted by :field
+     */
+    public function iSortProductsBy($field)
+    {
+        $this->indexPage->sortBy($field);
     }
 
     /**
@@ -231,8 +295,8 @@ final class ManagingProductsContext implements Context
     {
         $foundRows = $this->indexPage->countItems();
 
-        Assert::eq(
-            $numberOfProducts,
+        Assert::same(
+            (int) $numberOfProducts,
             $foundRows,
             '%s rows with products should appear on page, %s rows has been found'
         );
@@ -463,8 +527,8 @@ final class ManagingProductsContext implements Context
     public function theOptionFieldShouldBeDisabled()
     {
         Assert::true(
-            $this->updateConfigurableProductPage->isCodeDisabled(),
-            'Option should be immutable, but it does not.'
+            $this->updateConfigurableProductPage->isProductOptionsDisabled(),
+            'Options field should be immutable, but it does not.'
         );
     }
 
@@ -550,7 +614,7 @@ final class ManagingProductsContext implements Context
     {
         $this->sharedStorage->set('product', $product);
 
-        /** @var UpdatePageInterface $currentPage */
+        /** @var UpdateSimpleProductPageInterface|UpdateConfigurableProductPageInterface $currentPage */
         $currentPage = $this->currentPageResolver->getCurrentPageWithForm([
             $this->updateSimpleProductPage,
             $this->updateConfigurableProductPage,
@@ -559,6 +623,23 @@ final class ManagingProductsContext implements Context
         Assert::true(
             $currentPage->isImageWithCodeDisplayed($code),
             sprintf('Image with a code %s should have been displayed.', $code)
+        );
+    }
+
+    /**
+     * @Then /^(this product) should not have(?:| also) an image with a code "([^"]*)"$/
+     */
+    public function thisProductShouldNotHaveAnImageWithCode(ProductInterface $product, $code)
+    {
+        /** @var UpdateSimpleProductPageInterface|UpdateConfigurableProductPageInterface $currentPage */
+        $currentPage = $this->currentPageResolver->getCurrentPageWithForm([
+            $this->updateSimpleProductPage,
+            $this->updateConfigurableProductPage,
+        ], $product);
+
+        Assert::false(
+            $currentPage->isImageWithCodeDisplayed($code),
+            sprintf('Image with a code %s should not have been displayed.', $code)
         );
     }
 
@@ -574,6 +655,110 @@ final class ManagingProductsContext implements Context
         ], $this->sharedStorage->get('product'));
 
         $currentPage->changeImageWithCode($code, $path);
+    }
+
+    /**
+     * @When /^I remove(?:| also) an image with a code "([^"]*)"$/
+     */
+    public function iRemoveAnImageWithACode($code)
+    {
+        /** @var UpdateSimpleProductPageInterface|UpdateConfigurableProductPageInterface $currentPage */
+        $currentPage = $this->currentPageResolver->getCurrentPageWithForm([
+            $this->updateSimpleProductPage,
+            $this->updateConfigurableProductPage,
+        ], $this->sharedStorage->get('product'));
+
+        $currentPage->removeImageWithCode($code);
+    }
+
+    /**
+     * @When I remove the first image
+     */
+    public function iRemoveTheFirstImage()
+    {
+        /** @var UpdateSimpleProductPageInterface|UpdateConfigurableProductPageInterface $currentPage */
+        $currentPage = $this->currentPageResolver->getCurrentPageWithForm([
+            $this->updateSimpleProductPage,
+            $this->updateConfigurableProductPage,
+        ], $this->sharedStorage->get('product'));
+
+        $currentPage->removeFirstImage();
+    }
+
+    /**
+     * @Then this product should not have images
+     */
+    public function thisProductShouldNotHaveImages()
+    {
+        /** @var UpdateSimpleProductPageInterface|UpdateConfigurableProductPageInterface $currentPage */
+        $currentPage = $this->currentPageResolver->getCurrentPageWithForm([
+            $this->updateSimpleProductPage,
+            $this->updateConfigurableProductPage,
+        ], $this->sharedStorage->get('product'));
+
+        Assert::same(
+            0,
+            $currentPage->countImages(),
+            'This product has %2$s, but it should not have.'
+        );
+    }
+
+    /**
+     * @Then the image code field should be disabled
+     */
+    public function theImageCodeFieldShouldBeDisabled()
+    {
+        /** @var UpdateSimpleProductPageInterface|UpdateConfigurableProductPageInterface $currentPage */
+        $currentPage = $this->currentPageResolver->getCurrentPageWithForm([
+            $this->updateSimpleProductPage,
+            $this->updateConfigurableProductPage,
+        ], $this->sharedStorage->get('product'));
+
+        Assert::true(
+            $currentPage->isImageCodeDisabled(),
+            'Image code field should be disabled but it is not.'
+        );
+    }
+
+    /**
+     * @Then I should be notified that the image with this code already exists
+     */
+    public function iShouldBeNotifiedThatTheImageWithThisCodeAlreadyExists()
+    {
+        Assert::same($this->updateSimpleProductPage->getValidationMessageForImage('code'), 'Image code must be unique within this product.');
+    }
+
+    /**
+     * @Then there should still be only one image in the :product product
+     */
+    public function thereShouldStillBeOnlyOneImageInThisTaxon(ProductInterface $product)
+    {
+        $this->iWantToModifyAProduct($product);
+
+        /** @var UpdateSimpleProductPageInterface|UpdateConfigurableProductPageInterface $currentPage */
+        $currentPage = $this->currentPageResolver->getCurrentPageWithForm([
+            $this->updateSimpleProductPage,
+            $this->updateConfigurableProductPage,
+        ], $product);
+
+        Assert::same(
+            1,
+            $currentPage->countImages(),
+            'This product has %2$s images, but it should have only one.'
+        );
+    }
+
+    /**
+     * @Then /^there should be no reviews of (this product)$/
+     */
+    public function thereAreNoProductReviews(ProductInterface $product)
+    {
+        $this->productReviewIndexPage->open();
+
+        Assert::false(
+            $this->productReviewIndexPage->isSingleResourceOnPage(['reviewSubject' => $product->getName()]),
+            sprintf('There should be no reviews of %s.', $product->getName())
+        );
     }
 
     /**

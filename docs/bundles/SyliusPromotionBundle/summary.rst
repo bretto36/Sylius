@@ -24,35 +24,35 @@ Summary
                     default: [ sylius ]
             promotion_rule:
                 classes:
-                    model:      Sylius\Component\Promotion\Model\Rule
-                    interface:  Sylius\Component\Promotion\Model\RuleInterface
+                    model:      Sylius\Component\Promotion\Model\PromotionRule
+                    interface:  Sylius\Component\Promotion\Model\PromotionRuleInterface
                     controller: Sylius\Bundle\ResourceBundle\Controller\ResourceController
                     repository: ~
                     factory:    Sylius\Component\Resource\Factory\Factory
                     form:
-                        default: Sylius\Bundle\PromotionBundle\Form\Type\RuleType
+                        default: Sylius\Bundle\PromotionBundle\Form\Type\PromotionRuleType
                 validation_groups:
                     default: [ sylius ]
             promotion_action:
                 classes:
-                    model:      Sylius\Component\Promotion\Model\Action
-                    interface:  Sylius\Component\Promotion\Model\ActionInterface
+                    model:      Sylius\Component\Promotion\Model\PromotionAction
+                    interface:  Sylius\Component\Promotion\Model\PromotionActionInterface
                     controller: Sylius\Bundle\ResourceBundle\Controller\ResourceController
                     repository: ~
                     factory:    Sylius\Component\Resource\Factory\Factory
                     form:
-                        default: Sylius\Bundle\PromotionBundle\Form\Type\ActionType
+                        default: Sylius\Bundle\PromotionBundle\Form\Type\PromotionActionType
                 validation_groups:
                     default: [ sylius ]
             promotion_coupon:
                 classes:
                     model:      Sylius\Component\Promotion\Model\Coupon
                     interface:  Sylius\Component\Promotion\Model\CouponInterface
-                    controller: Sylius\Bundle\PromotionBundle\Controller\CouponController
+                    controller: Sylius\Bundle\PromotionBundle\Controller\PromotionCouponController
                     repository: ~
                     factory:    Sylius\Component\Resource\Factory\Factory
                     form:
-                        default: Sylius\Bundle\PromotionsBundle\Form\Type\CouponType
+                        default: Sylius\Bundle\PromotionsBundle\Form\Type\PromotionCouponType
                 validation_groups:
                     default: [ sylius ]
 

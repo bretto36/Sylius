@@ -18,8 +18,6 @@ use Sylius\Component\Currency\Context\CurrencyContextInterface;
 use Symfony\Component\Templating\Helper\HelperInterface;
 
 /**
- * @mixin PriceHelper
- *
  * @author Kamil Kokot <kamil.kokot@lakion.com>
  */
 final class PriceHelperSpec extends ObjectBehavior
@@ -31,7 +29,7 @@ final class PriceHelperSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\CoreBundle\Templating\Helper\PriceHelper');
+        $this->shouldHaveType(PriceHelper::class);
     }
 
     function it_is_a_templating_helper()

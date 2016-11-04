@@ -74,26 +74,21 @@ class GridView
     /**
      * @param string $fieldName
      *
-     * @return bool
-     */
-    public function isSortableBy($fieldName)
-    {
-        $this->assertFieldExists($fieldName);
-
-        return array_key_exists($fieldName, $this->getDefinition()->getSorting());
-    }
-
-    /**
-     * @param string $fieldName
-     *
      * @return string
      */
     public function getSortingOrder($fieldName)
     {
-        $this->assertFieldExists($fieldName);
-        Assert::true($this->isSortableBy($fieldName), sprintf('Field "%s" is not sortable.', $fieldName));
+        $this->assertFieldIsSortable($fieldName);
 
-        return $this->getCurrentlySortedBy()[$fieldName]['direction'];
+        $currentSorting = $this->getCurrentlySortedBy();
+
+        if (array_key_exists($fieldName, $currentSorting)) {
+            return $currentSorting[$fieldName];
+        }
+
+        $definedSorting = $this->definition->getSorting();
+
+        return reset($definedSorting) ?: null;
     }
 
     /**
@@ -103,8 +98,7 @@ class GridView
      */
     public function isSortedBy($fieldName)
     {
-        $this->assertFieldExists($fieldName);
-        Assert::true($this->isSortableBy($fieldName), sprintf('Field "%s" is not sortable.', $fieldName));
+        $this->assertFieldIsSortable($fieldName);
 
         if ($this->parameters->has('sorting')) {
             return array_key_exists($fieldName, $this->parameters->get('sorting'));
@@ -132,8 +126,12 @@ class GridView
      *
      * @throws \InvalidArgumentException
      */
-    private function assertFieldExists($fieldName)
+    private function assertFieldIsSortable($fieldName)
     {
         Assert::true($this->definition->hasField($fieldName), sprintf('Field "%s" does not exist.', $fieldName));
+        Assert::true(
+            $this->definition->getField($fieldName)->isSortable(),
+            sprintf('Field "%s" is not sortable.', $fieldName)
+        );
     }
 }

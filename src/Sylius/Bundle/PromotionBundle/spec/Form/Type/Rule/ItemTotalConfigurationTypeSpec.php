@@ -13,8 +13,9 @@ namespace spec\Sylius\Bundle\PromotionBundle\Form\Type\Rule;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use Sylius\Bundle\PromotionBundle\Form\Type\Rule\ItemTotalConfigurationType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\FormBuilder;
+use Symfony\Component\Form\FormBuilderInterface;
 
 /**
  * @author Saša Stamenković <umpirsky@gmail.com>
@@ -23,15 +24,15 @@ final class ItemTotalConfigurationTypeSpec extends ObjectBehavior
 {
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\PromotionBundle\Form\Type\Rule\ItemTotalConfigurationType');
+        $this->shouldHaveType(ItemTotalConfigurationType::class);
     }
 
-    function it_should_be_a_form_type()
+    function it_is_a_form_type()
     {
         $this->shouldHaveType(AbstractType::class);
     }
 
-    function it_should_build_form_with_amount_field_and_equals_checkbox(FormBuilder $builder)
+    function it_builds_a_form_with_amount_field_and_equals_checkbox(FormBuilderInterface $builder)
     {
         $builder
             ->add('amount', 'sylius_money', Argument::any())

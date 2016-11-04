@@ -2,26 +2,24 @@
     {% import 'SyliusUiBundle:Macro:sorting.html.twig' as sorting %}
 
     {% for field in definition.fields %}
-        {% if grid.isSortableBy(field.name) %}
-            {% set sortingDirection = grid.getSortingOrder(field.name) %}
-
-            {% if grid.isSortedBy(field.name) %}
-                {{ sorting.sortedHeader(definition, field, requestAttributes, sortingDirection) }}
+        {% if field.enabled %}
+            {% if field.isSortable %}
+                {{ sorting.tableHeader(grid, field, requestAttributes) }}
             {% else %}
-                {{ sorting.sortableHeader(definition, field, requestAttributes, sortingDirection) }}
+                <th class="sylius-table-column-{{ field.name }}">{{ field.label|trans }}</th>
             {% endif %}
-        {% else %}
-            <th>{{ field.label|trans }}</th>
         {% endif %}
     {% endfor %}
     {% if definition.actionGroups.item is defined and definition.getActions('item')|length > 0 %}
-        <th>{{ 'sylius.ui.actions'|trans }}</th>
+        <th class="sylius-table-column-actions">{{ 'sylius.ui.actions'|trans }}</th>
     {% endif %}
 {% endmacro %}
 
 {% macro row(grid, definition, row) %}
     {% for field in definition.fields %}
-        <td>{{ sylius_grid_render_field(grid, field, row) }}</td>
+        {% if field.enabled %}
+            <td>{{ sylius_grid_render_field(grid, field, row) }}</td>
+        {% endif %}
     {% endfor %}
     {% if definition.actionGroups.item is defined and definition.getActions('item')|length > 0 %}
         <td>

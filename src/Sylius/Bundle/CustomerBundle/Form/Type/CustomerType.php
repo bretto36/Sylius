@@ -11,9 +11,8 @@
 
 namespace Sylius\Bundle\CustomerBundle\Form\Type;
 
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
@@ -28,17 +27,16 @@ class CustomerType extends CustomerProfileType
         parent::buildForm($builder, $options);
 
         $builder
-            ->add('firstName', 'text', [
+            ->add('firstName', TextType::class, [
                 'label' => 'sylius.form.customer.first_name',
                 'required' => false,
             ])
-            ->add('lastName', 'text', [
+            ->add('lastName', TextType::class, [
                 'label' => 'sylius.form.customer.last_name',
                 'required' => false,
             ])
-            ->add('groups', 'sylius_group_choice', [
-                'label' => 'sylius.form.customer.groups',
-                'multiple' => true,
+            ->add('group', 'sylius_customer_group_choice', [
+                'label' => 'sylius.form.customer.group',
                 'required' => false,
             ])
         ;

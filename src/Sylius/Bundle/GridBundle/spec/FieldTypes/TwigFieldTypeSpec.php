@@ -12,7 +12,6 @@
 namespace spec\Sylius\Bundle\GridBundle\FieldTypes;
 
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 use Sylius\Bundle\GridBundle\FieldTypes\TwigFieldType;
 use Sylius\Component\Grid\DataExtractor\DataExtractorInterface;
 use Sylius\Component\Grid\Definition\Field;
@@ -20,8 +19,6 @@ use Sylius\Component\Grid\FieldTypes\FieldTypeInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * @mixin TwigFieldType
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
 final class TwigFieldTypeSpec extends ObjectBehavior
@@ -33,7 +30,7 @@ final class TwigFieldTypeSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\GridBundle\FieldTypes\TwigFieldType');
+        $this->shouldHaveType(TwigFieldType::class);
     }
 
     function it_is_a_grid_field_type()

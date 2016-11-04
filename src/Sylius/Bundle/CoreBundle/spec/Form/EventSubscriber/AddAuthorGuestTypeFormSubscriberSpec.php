@@ -23,15 +23,13 @@ use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
 
 /**
- * @mixin AddAuthorGuestTypeFormSubscriber
- *
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
  */
 final class AddAuthorGuestTypeFormSubscriberSpec extends ObjectBehavior
 {
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\CoreBundle\Form\EventSubscriber\AddAuthorGuestTypeFormSubscriber');
+        $this->shouldHaveType(AddAuthorGuestTypeFormSubscriber::class);
     }
 
     function it_is_an_event_subscriber()
@@ -41,7 +39,7 @@ final class AddAuthorGuestTypeFormSubscriberSpec extends ObjectBehavior
 
     function it_listens_on_pre_set_data_event()
     {
-        $this->getSubscribedEvents()->shouldReturn([FormEvents::PRE_SET_DATA => 'preSetData',]);
+        $this->getSubscribedEvents()->shouldReturn([FormEvents::PRE_SET_DATA => 'preSetData']);
     }
 
     function it_adds_author_guest_form_type_if_user_is_not_logged_in_and_review_subject_does_not_have_author(

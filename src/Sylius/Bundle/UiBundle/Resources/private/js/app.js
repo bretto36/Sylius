@@ -54,6 +54,7 @@
     $('.ui.checkbox').checkbox();
     $('.ui.accordion').accordion();
     $('.ui.menu .dropdown').dropdown({action: 'hide'});
+    $('.ui.inline.dropdown').dropdown();
     $('.link.ui.dropdown').dropdown({action: 'hide'});
     $('.button.ui.dropdown').dropdown({action: 'hide'});
     $('.ui.fluid.search.selection.ui.dropdown').dropdown();
@@ -82,32 +83,6 @@
 
     $('.special.cards .image').dimmer({
       on: 'hover'
-    });
-
-    var email = $('#sylius_checkout_address_customer_email');
-    email.apiToggle({
-      action: 'user check',
-      dataType: 'json',
-      method: 'GET',
-      throttle: 1500,
-
-      beforeSend: function (settings) {
-        settings.data = {
-          email: email.val()
-        };
-
-        return settings;
-      },
-
-      successTest: function (response) {
-        return email.val() === response.username;
-      }
-    }, $('#sylius-api-login-form'));
-
-    $('#sylius-api-login').apiLogin({
-      action: 'login check',
-      method: 'POST',
-      throttle: 500
     });
   });
 })(jQuery);

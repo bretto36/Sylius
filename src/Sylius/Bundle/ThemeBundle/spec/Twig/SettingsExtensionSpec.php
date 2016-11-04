@@ -12,7 +12,6 @@
 namespace spec\Sylius\Bundle\ThemeBundle\Twig;
 
 use PhpSpec\ObjectBehavior;
-use Prophecy\Argument;
 use Sylius\Bundle\SettingsBundle\Model\SettingsInterface;
 use Sylius\Bundle\ThemeBundle\Context\ThemeContextInterface;
 use Sylius\Bundle\ThemeBundle\Model\ThemeInterface;
@@ -20,8 +19,6 @@ use Sylius\Bundle\ThemeBundle\Settings\ThemeSettingsManagerInterface;
 use Sylius\Bundle\ThemeBundle\Twig\SettingsExtension;
 
 /**
- * @mixin SettingsExtension
- *
  * @author Kamil Kokot <kamil.kokot@lakion.com>
  */
 final class SettingsExtensionSpec extends ObjectBehavior
@@ -33,7 +30,7 @@ final class SettingsExtensionSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\ThemeBundle\Twig\SettingsExtension');
+        $this->shouldHaveType(SettingsExtension::class);
     }
 
     function it_is_a_Twig_extension()

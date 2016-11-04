@@ -6,16 +6,16 @@ sylius_grid:
                 options:
                     class: "%sylius.model.tax_rate.class%"
             sorting:
-                name:
-                    path: name
-                    direction: asc
+                name: asc
             fields:
                 code:
                     type: string
                     label: sylius.ui.code
+                    sortable: ~
                 name:
                     type: string
                     label: sylius.ui.name
+                    sortable: ~
                 zone:
                     type: string
                     label: sylius.ui.zone
@@ -26,7 +26,7 @@ sylius_grid:
                     type: twig
                     label: sylius.ui.amount
                     options:
-                        template: SyliusAdminBundle:TaxRate/Field:amount.html.twig
+                        template: "@SyliusAdmin/TaxRate/Grid/Field/amount.html.twig"
             filters:
                 name:
                     type: string

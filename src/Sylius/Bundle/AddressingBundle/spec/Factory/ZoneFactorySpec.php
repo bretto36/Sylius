@@ -12,6 +12,7 @@
 namespace spec\Sylius\Bundle\AddressingBundle\Factory;
 
 use PhpSpec\ObjectBehavior;
+use Sylius\Bundle\AddressingBundle\Factory\ZoneFactory;
 use Sylius\Bundle\AddressingBundle\Factory\ZoneFactoryInterface;
 use Sylius\Component\Addressing\Model\ZoneInterface;
 use Sylius\Component\Addressing\Model\ZoneMemberInterface;
@@ -29,7 +30,7 @@ final class ZoneFactorySpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\AddressingBundle\Factory\ZoneFactory');
+        $this->shouldHaveType(ZoneFactory::class);
     }
 
     function it_implements_factory_interface()

@@ -12,7 +12,9 @@
 namespace spec\Sylius\Bundle\PricingBundle\Templating\Helper;
 
 use PhpSpec\ObjectBehavior;
+use Sylius\Bundle\PricingBundle\Templating\Helper\PricingHelper;
 use Sylius\Component\Pricing\Calculator\DelegatingCalculatorInterface;
+use Sylius\Component\Pricing\Model\PriceableInterface;
 use Symfony\Component\Templating\Helper\Helper;
 
 /**
@@ -27,11 +29,18 @@ final class PricingHelperSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\PricingBundle\Templating\Helper\PricingHelper');
+        $this->shouldHaveType(PricingHelper::class);
     }
 
     function it_is_a_templating_helper()
     {
         $this->shouldHaveType(Helper::class);
+    }
+
+    function it_calculates_price(DelegatingCalculatorInterface $calculator, PriceableInterface $priceable)
+    {
+        $calculator->calculate($priceable, [])->willReturn(10);
+
+        $this->calculatePrice($priceable)->shouldReturn(10);
     }
 }

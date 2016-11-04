@@ -12,6 +12,7 @@
 namespace spec\Sylius\Bundle\MoneyBundle\Form\Type;
 
 use PhpSpec\ObjectBehavior;
+use Sylius\Bundle\MoneyBundle\Form\Type\MoneyType;
 use Symfony\Component\Form\FormTypeInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -27,7 +28,7 @@ final class MoneyTypeSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\MoneyBundle\Form\Type\MoneyType');
+        $this->shouldHaveType(MoneyType::class);
     }
 
     function it_is_a_form_type()
@@ -47,7 +48,8 @@ final class MoneyTypeSpec extends ObjectBehavior
                 'currency' => 'PLN',
                 'divisor' => 100, ]
             )
-            ->shouldBeCalled();
+            ->shouldBeCalled()
+        ;
 
         $this->configureOptions($resolver);
     }

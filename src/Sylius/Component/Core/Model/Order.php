@@ -20,7 +20,7 @@ use Sylius\Component\Core\OrderShippingStates;
 use Sylius\Component\Customer\Model\CustomerInterface as BaseCustomerInterface;
 use Sylius\Component\Order\Model\Order as BaseOrder;
 use Sylius\Component\Payment\Model\PaymentInterface as BasePaymentInterface;
-use Sylius\Component\Promotion\Model\CouponInterface as BaseCouponInterface;
+use Sylius\Component\Promotion\Model\PromotionCouponInterface as BaseCouponInterface;
 use Sylius\Component\Promotion\Model\PromotionInterface as BasePromotionInterface;
 use Webmozart\Assert\Assert;
 
@@ -91,8 +91,6 @@ class Order extends BaseOrder implements OrderInterface
     protected $paymentState = OrderPaymentStates::STATE_CART;
 
     /**
-     * It depends on the status of all order shipments.
-     *
      * @var string
      */
     protected $shippingState = OrderShippingStates::STATE_CART;
@@ -101,6 +99,11 @@ class Order extends BaseOrder implements OrderInterface
      * @var Collection|BasePromotionInterface[]
      */
     protected $promotions;
+
+    /**
+     * @var string
+     */
+    protected $tokenValue;
 
     public function __construct()
     {
@@ -297,14 +300,14 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function getLastPayment($state = BasePaymentInterface::STATE_NEW)
+    public function getLastNewPayment()
     {
         if ($this->payments->isEmpty()) {
             return null;
         }
 
-        $payment = $this->payments->filter(function (BasePaymentInterface $payment) use ($state) {
-            return $payment->getState() === $state;
+        $payment = $this->payments->filter(function (BasePaymentInterface $payment) {
+            return $payment->getState() === BasePaymentInterface::STATE_NEW;
         })->last();
 
         return $payment !== false ? $payment : null;
@@ -488,18 +491,6 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function isInvoiceAvailable()
-    {
-        if (false !== $lastShipment = $this->getLastShipment()) {
-            return in_array($lastShipment->getState(), [ShipmentInterface::STATE_RETURNED, ShipmentInterface::STATE_SHIPPED]);
-        }
-
-        return false;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function hasPromotion(BasePromotionInterface $promotion)
     {
         return $this->promotions->contains($promotion);
@@ -580,5 +571,21 @@ class Order extends BaseOrder implements OrderInterface
         }
 
         return $orderPromotionTotal;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setTokenValue($tokenValue)
+    {
+        $this->tokenValue = $tokenValue;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getTokenValue()
+    {
+        return $this->tokenValue;
     }
 }

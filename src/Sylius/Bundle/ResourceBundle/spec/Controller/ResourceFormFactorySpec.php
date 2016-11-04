@@ -14,6 +14,7 @@ namespace spec\Sylius\Bundle\ResourceBundle\Controller;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Sylius\Bundle\ResourceBundle\Controller\RequestConfiguration;
+use Sylius\Bundle\ResourceBundle\Controller\ResourceFormFactory;
 use Sylius\Bundle\ResourceBundle\Controller\ResourceFormFactoryInterface;
 use Sylius\Component\Resource\Model\ResourceInterface;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -32,7 +33,7 @@ final class ResourceFormFactorySpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\ResourceBundle\Controller\ResourceFormFactory');
+        $this->shouldHaveType(ResourceFormFactory::class);
     }
 
     function it_implements_resource_form_factory_interface()

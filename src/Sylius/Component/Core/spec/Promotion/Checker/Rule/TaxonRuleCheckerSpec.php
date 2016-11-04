@@ -23,8 +23,6 @@ use Sylius\Component\Promotion\Exception\UnsupportedTypeException;
 use Sylius\Component\Promotion\Model\PromotionSubjectInterface;
 
 /**
- * @mixin TaxonRuleChecker
- *
  * @author Joseph Bielawski <stloyd@gmail.com>
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
  */
@@ -35,12 +33,12 @@ final class TaxonRuleCheckerSpec extends ObjectBehavior
         $this->shouldHaveType(TaxonRuleChecker::class);
     }
 
-    function it_is_rule_checker()
+    function it_is_a_rule_checker()
     {
         $this->shouldImplement(RuleCheckerInterface::class);
     }
 
-    function it_recognizes_subject_as_eligible_if_product_taxon_is_matched(
+    function it_recognizes_a_subject_as_eligible_if_product_taxon_is_matched(
         OrderInterface $subject,
         OrderItemInterface $item,
         ProductInterface $bastardSword,
@@ -56,7 +54,7 @@ final class TaxonRuleCheckerSpec extends ObjectBehavior
         $this->isEligible($subject, $configuration)->shouldReturn(true);
     }
 
-    function it_recognizes_subject_as_eligible_if_product_taxon_is_matched_to_one_of_required_taxons(
+    function it_recognizes_a_subject_as_eligible_if_a_product_taxon_is_matched_to_one_of_required_taxons(
         OrderInterface $subject,
         OrderItemInterface $item,
         ProductInterface $bastardSword,
@@ -72,7 +70,7 @@ final class TaxonRuleCheckerSpec extends ObjectBehavior
         $this->isEligible($subject, $configuration)->shouldReturn(true);
     }
 
-    function it_recognizes_subject_as_not_eligible_if_product_taxon_is_not_matched(
+    function it_recognizes_a_subject_as_not_eligible_if_a_product_taxon_is_not_matched(
         OrderInterface $subject,
         OrderItemInterface $item,
         ProductInterface $reflexBow,
@@ -88,14 +86,14 @@ final class TaxonRuleCheckerSpec extends ObjectBehavior
         $this->isEligible($subject, $configuration)->shouldReturn(false);
     }
 
-    function it_does_nothing_if_configuration_is_invalid(OrderInterface $subject)
+    function it_does_nothing_if_a_configuration_is_invalid(OrderInterface $subject)
     {
         $subject->getItems()->shouldNotBeCalled();
 
         $this->isEligible($subject, []);
     }
 
-    function it_throws_exception_if_promotion_subject_is_not_order(
+    function it_throws_an_exception_if_promotion_subject_is_not_order(
         Collection $taxonsCollection,
         PromotionSubjectInterface $subject
     ) {

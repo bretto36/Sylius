@@ -11,26 +11,25 @@
 
 namespace Sylius\Component\Core\Promotion\Filter;
 
-use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Core\Model\ProductInterface;
 
 /**
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
  */
-class TaxonFilter implements FilterInterface
+final class TaxonFilter implements FilterInterface
 {
     /**
      * {@inheritdoc}
      */
     public function filter(array $items, array $configuration)
     {
-        if (!isset($configuration['filters']['taxons'])) {
+        if (!isset($configuration['filters']['taxons_filter']) || empty($configuration['filters']['taxons_filter']['taxons'])) {
             return $items;
         }
 
         $filteredItems = [];
         foreach ($items as $item) {
-            if ($this->hasProductValidTaxon($item->getProduct(), $configuration['filters']['taxons'])) {
+            if ($this->hasProductValidTaxon($item->getProduct(), $configuration['filters']['taxons_filter']['taxons'])) {
                 $filteredItems[] = $item;
             }
         }

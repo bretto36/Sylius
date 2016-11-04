@@ -20,12 +20,15 @@
         <import resource="admin/country.xml" />
         <import resource="admin/currency.xml" />
         <import resource="admin/customer.xml" />
+        <import resource="admin/customer_group.xml" />
         <import resource="admin/locale.xml" />
         <import resource="admin/order.xml" />
         <import resource="admin/payment_method.xml" />
         <import resource="admin/product.xml" />
+        <import resource="admin/product_association_type.xml" />
         <import resource="admin/product_attribute.xml" />
         <import resource="admin/product_option.xml" />
+        <import resource="admin/product_review.xml" />
         <import resource="admin/product_variant.xml" />
         <import resource="admin/promotion.xml" />
         <import resource="admin/promotion_coupon.xml" />

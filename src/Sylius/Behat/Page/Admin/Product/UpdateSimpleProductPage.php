@@ -13,6 +13,7 @@ namespace Sylius\Behat\Page\Admin\Product;
 
 use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Element\NodeElement;
+use Behat\Mink\Exception\ElementNotFoundException;
 use Sylius\Behat\Behaviour\ChecksCodeImmutability;
 use Sylius\Behat\Page\Admin\Crud\UpdatePage as BaseUpdatePage;
 use Sylius\Component\Core\Model\TaxonInterface;
@@ -168,6 +169,58 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
     /**
      * {@inheritdoc}
      */
+    public function removeImageWithCode($code)
+    {
+        $this->clickTabIfItsNotActive('media');
+
+        $imageElement = $this->getImageElementByCode($code);
+        $imageElement->clickLink('Delete');
+    }
+
+    public function removeFirstImage()
+    {
+        $imageElement = $this->getFirstImageElement();
+        $imageElement->clickLink('Delete');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function countImages()
+    {
+        $imageElements = $this->getImageElements();
+
+        return count($imageElements);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isImageCodeDisabled()
+    {
+        return 'disabled' === $this->getLastImageElement()->findField('Code')->getAttribute('disabled');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getValidationMessageForImage()
+    {
+        $this->clickTabIfItsNotActive('media');
+
+        $imageForm = $this->getLastImageElement();
+
+        $foundElement = $imageForm->find('css', '.sylius-validation-error');
+        if (null === $foundElement) {
+            throw new ElementNotFoundException($this->getSession(), 'Tag', 'css', '.sylius-validation-error');
+        }
+
+        return $foundElement->getText();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function getDefinedElements()
     {
         return array_merge(parent::getDefinedElements(), [
@@ -218,15 +271,36 @@ class UpdateSimpleProductPage extends BaseUpdatePage implements UpdateSimpleProd
     }
 
     /**
+     * @return NodeElement[]
+     */
+    private function getImageElements()
+    {
+        $images = $this->getElement('images');
+
+        return $images->findAll('css', 'div[data-form-collection="item"]');
+    }
+
+    /**
      * @return NodeElement
      */
     private function getLastImageElement()
     {
-        $images = $this->getElement('images');
-        $items = $images->findAll('css', 'div[data-form-collection="item"]');
+        $imageElements = $this->getImageElements();
 
-        Assert::notEmpty($items);
+        Assert::notEmpty($imageElements);
 
-        return end($items);
+        return end($imageElements);
+    }
+
+    /**
+     * @return NodeElement
+     */
+    private function getFirstImageElement()
+    {
+        $imageElements = $this->getImageElements();
+
+        Assert::notEmpty($imageElements);
+
+        return reset($imageElements);
     }
 }

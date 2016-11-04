@@ -13,6 +13,7 @@ namespace spec\Sylius\Bundle\AttributeBundle\Form\Type;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use Sylius\Bundle\AttributeBundle\Form\Type\AttributeTranslationType;
 use Symfony\Component\Form\FormBuilder;
 use Symfony\Component\Form\FormTypeInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -29,7 +30,7 @@ final class AttributeTranslationTypeSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\AttributeBundle\Form\Type\AttributeTranslationType');
+        $this->shouldHaveType(AttributeTranslationType::class);
     }
 
     function it_is_a_form_type()
@@ -50,12 +51,15 @@ final class AttributeTranslationTypeSpec extends ObjectBehavior
 
     function it_defines_assigned_data_class(OptionsResolver $resolver)
     {
-        $resolver->setDefaults(['data_class' => 'ProductAttributeTranslation', 'validation_groups' => ['sylius']])->shouldBeCalled();
+        $resolver
+            ->setDefaults(['data_class' => 'ProductAttributeTranslation', 'validation_groups' => ['sylius']])
+            ->shouldBeCalled()
+        ;
 
         $this->configureOptions($resolver);
     }
 
-    function it_has_valid_name()
+    function it_has_name()
     {
         $this->getName()->shouldReturn('sylius_server_attribute_translation');
     }

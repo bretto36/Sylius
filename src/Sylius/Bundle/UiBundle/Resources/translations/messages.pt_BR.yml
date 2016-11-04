@@ -53,7 +53,6 @@ sylius:
         admin_users: Administradores
         all: Todos(as)
         all_your_addresses: Todos os seus endereços
-        amount: Quantidade
         an_error_occurred: Um erro ocorreu
         api: API
         apply_coupon: Aplicar cupom
@@ -122,7 +121,6 @@ sylius:
         contact_us: Contate-nos
         contain_variants: Contêm variantes
         contains: Contém
-        content: Conteúdo
         countries: Países
         country: País
         country_details: Detalhes do país
@@ -137,7 +135,6 @@ sylius:
         create_country: Criar país
         create_currency: Criar moeda
         create_customer: Criar cliente
-        create_group: Cria grupo
         create_imagine_block: Criar bloco imaginário
         create_locale: Criar a localidade
         create_menu: Criar menu
@@ -187,7 +184,6 @@ sylius:
         current_promotions: Promoções existentes
         current_stock: Estoque atual
         customer: Cliente
-        customer_can_login_to_the_store: Cliente pode acessar a loja
         customer_care: Atendimento ao cliente
         customer_details: Detalhes do Cliente
         customer_id: ID Cliente
@@ -197,7 +193,7 @@ sylius:
         customer_orders: Pedidos dos Clientes
         customer_since: 'Cliente desde: %s'
         customers: Clientes
-        customers_list_of_all_customers_in_store: 'Clientes a <small>lista de todos os clientes na loja</small>'
+        customers_list_of_all_customers_in_store: Clientes a <small>lista de todos os clientes na loja</small>
         customize_default_metadata: Personalizar os metadados padrão
         customize_metadata: Personalizar metadados
         customize_products_metadata: Personalizar os metadados padrão
@@ -227,7 +223,6 @@ sylius:
         edit_coupon: Editar cupom
         edit_currency: Editar moeda
         edit_customer: Editar cliente
-        edit_group: Editar grupo
         edit_locale: Editar a localidade
         edit_my_address: Editar meu endereço
         edit_payment_method: Edite o método de pagamento
@@ -298,16 +293,13 @@ sylius:
         exclusive: Exclusivo
         existing_customer: Cliente cadastrado
         expiration_and_usage_limits: Expiração e limite de uso
-        expires_at: Expira em
         extra_information: Informações extras
         extra_notes: Notas extra
         failed: Falhou
         faqs: Perguntas freqüentes
         female: Feminino
-        filter: Filtrar
         filters: Filtros
         first_name: Nome
-        forgot_password: Esqueceu a senha
         fulfill: Completar
         fulfilled: Completado
         gateway: Gateway
@@ -320,12 +312,10 @@ sylius:
         go: Prosseguir
         go_to_dashboard: Ir para o painel
         grand_total: Total
-        groups: Grupos
         guest: Visitante
         guest_customer: Usuário visitante
-        have_an_account_already: Já tem uma conta
         hello: Olá
-        hello_name: 'Oi <b>% nome %</b>'
+        hello_name: Oi <b>% nome %</b>
         hide_deleted: Ocultar excluídos
         home: Home
         hostname: Nome do host
@@ -342,7 +332,7 @@ sylius:
         info: Informações
         information: Info
         inventory: Estoque
-        inventory_here_you_can_see_current_stock_levels: 'Estoque <small>Aqui você pode ver os nível do estoque atual</small>'
+        inventory_here_you_can_see_current_stock_levels: Estoque <small>Aqui você pode ver os nível do estoque atual</small>
         inventory_index: Estoque
         inventory_state: Situação do estoque
         inventory_tracking: Controle de estoque
@@ -352,7 +342,6 @@ sylius:
         items: Produtos
         items_total: Total de itens
         jump_to_page: Ir para a página
-        label: Rótulo
         last_login: Último login
         last_name: Sobrenome
         last_update: Data de atualização
@@ -369,10 +358,10 @@ sylius:
         locales: Localidades
         lock: Trancar
         locked: Fechado
-        logged_in_as: 'Logado como %username%'
+        logged_in_as: Logado como %username%
         login: Login
         login_button: Login
-        login_sylius_store: 'Logon <small>Sylius armazenar</small>'
+        login_sylius_store: Logon <small>Sylius armazenar</small>
         logout: Sair
         main_taxon: Táxon principal
         male: Masculino
@@ -479,8 +468,8 @@ sylius:
         no_shipping_category: Sem categoria de expedição
         no_shipping_charges: Nenhuma taxa de entrega foi aplicada
         no_shipping_methods_available: Atualmente não existem métodos de transporte disponível para seu endereço de envio
-        no_short_description: '<i>Sem resumo</i>'
-        no_sku: '<i>Sem SKU</i>'
+        no_short_description: <i>Sem resumo</i>
+        no_sku: <i>Sem SKU</i>
         no_tax_category: Nenhuma categoria de imposto
         no_taxes: Nenhuma taxa foi aplicada
         no_theme: Sem tema
@@ -555,15 +544,14 @@ sylius:
         product_association_types: Tipos de associação de produtos
         product_associations: Associações de produto
         product_attributes: Atributos de produto
-        product_details_viewing_product_product: 'Detalhes de produto <small>Visualizando produto "<strong>%product%</strong>"</small>'
+        product_details_viewing_product_product: Detalhes de produto <small>Visualizando produto "<strong>%product%</strong>"</small>
         product_options: Opções do produto
         product_review: Revisão do produto
         product_reviews: Comentários de produtos
         product_variants: Variantes de produto
-        products: Produtos
-        products_categorized_as_name: 'Produtos categorizados como "%name%"'
-        products_categorized_under_taxon_taxon: 'Produtos <small>Categorizado na táxon "%taxon%"</small>'
-        products_index_of_all_products_in_your_store: 'Produtos <small>Lista de todos os produtos em sua loja</small>'
+        products_categorized_as_name: Produtos categorizados como "%name%"
+        products_categorized_under_taxon_taxon: Produtos <small>Categorizado na táxon "%taxon%"</small>
+        products_index_of_all_products_in_your_store: Produtos <small>Lista de todos os produtos em sua loja</small>
         profile: Perfil
         promotion_configuration: Configuração de promoção
         promotion_coupons: Cupons
@@ -590,8 +578,9 @@ sylius:
         register_button: Registre-se
         register_in_the_store: Cadastre-se na loja
         registered_customers: Clientes cadastrados
-        registration_create_an_account_in_store: 'Registo de <small>criar uma conta na loja</small>'
+        registration_create_an_account_in_store: Registo de <small>criar uma conta na loja</small>
         registration_date: Data de registo
+        rejected: Rejeitado
         release_inventory: Inventário de lançamento
         remember_me: Lembrar
         remove_attribute: Remover o atributo
@@ -653,7 +642,7 @@ sylius:
         show_metadata: Mostrar metadados
         sign_in: Entre
         sign_in_here: Acesse aqui
-        sign_in_to_the_store_or_create_new_account: 'Cadastre-se na loja <small>ou crie uma nova conta</small>'
+        sign_in_to_the_store_or_create_new_account: Cadastre-se na loja <small>ou crie uma nova conta</small>
         sign_out: Desconectar
         simple_blocks: Blocos simples
         simple_product: Produto simples
@@ -669,7 +658,6 @@ sylius:
         street: Rua
         string_blocks: Blocos de texto
         subject: Assunto
-        subscribed_to_newsletter: Increver-se ao newsletter
         subtotal: Subtotal
         success: Sucesso
         summary: Resumo
@@ -685,11 +673,10 @@ sylius:
         taxation_settings: Configurações de taxas
         taxes: Taxas
         taxonomy: Taxonomia
-        taxons: Taxas
         terms_and_conditions: Termos e condições
         thank_you: Obrigado!
         thank_you_for_your_order: Obrigado pelo seu pedido
-        theme:  Tema
+        theme: ' Tema'
         there_are_no_attributes_configured: Não há atributos configurados
         there_are_no_blocks_to_display: Não há blocos para exibir
         there_are_no_channels_configured: Não existem canais configurados
@@ -698,7 +685,6 @@ sylius:
         there_are_no_currencies_to_display: Não há nenhuma moeda para exibir
         there_are_no_customers_to_display: Não há nenhum cliente para exibir
         there_are_no_emails_configured: Não há nenhum email configurado
-        there_are_no_groups_to_display: Não há nenhum grupo para exibir
         there_are_no_images_for_this_product: Não há imagens para este produto
         there_are_no_inventory_items_to_display: Não há itens no estoque
         there_are_no_inventory_units_to_display: Não há itens no estoque para exibir
@@ -758,7 +744,7 @@ sylius:
         user_confirmation_name: Confirmação do usuário
         user_details: Detalhes do usuários
         username: Login
-        users_list_of_all_users_registered_in_store: 'Usuários <small>Lista de todos os usuários cadastros na loja</small>'
+        users_list_of_all_users_registered_in_store: Usuários <small>Lista de todos os usuários cadastros na loja</small>
         values: Valores
         variant: Variante
         variant_selection_method: Método de seleção da variação
@@ -768,7 +754,7 @@ sylius:
         view: Ver
         view_and_edit_cart: Visualizar e editar carrinho
         view_more: Ver mais
-        view_product_details: 'Ver os detalhes do %product%'
+        view_product_details: Ver os detalhes do %product%
         void: Vazio
         volume_based_pricing: Taxa de volume com base
         warning: Aviso

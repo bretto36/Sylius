@@ -32,46 +32,48 @@ final class ProductVariantToProductOptionsTransformerSpec extends ObjectBehavior
         $this->shouldHaveType(ProductVariantToProductOptionsTransformer::class);
     }
 
-    function it_is_a_form_data_transformer()
+    function it_is_a_data_transformer()
     {
         $this->shouldImplement(DataTransformerInterface::class);
     }
 
-    function it_should_transform_null_into_array()
+    function it_transforms_null_to_array()
     {
         $this->transform(null)->shouldReturn([]);
     }
 
-    function it_should_not_transform_not_supported_data_and_throw_exception()
+    function it_does_not_transform_not_supported_data_and_throw_exception()
     {
         $this->shouldThrow(UnexpectedTypeException::class)->duringTransform([]);
     }
 
-    function it_should_transform_variant_into_variant_options(ProductVariantInterface $variant, Collection $options)
+    function it_transforms_variant_into_variant_options(ProductVariantInterface $variant, Collection $optionValues)
     {
-        $variant->getOptions()->willReturn($options);
-        $options->toArray()->willReturn([]);
+        $variant->getOptionValues()->willReturn($optionValues);
+        $optionValues->toArray()->willReturn([]);
 
         $this->transform($variant)->shouldReturn([]);
     }
 
-    function it_should_reverse_transform_null_into_null()
+    function it_reverse_transforms_null_into_null()
     {
         $this->reverseTransform(null)->shouldReturn(null);
     }
 
-    function it_should_reverse_transform_empty_string_into_null()
+    function it_reverse_transforms_empty_string_into_null()
     {
         $this->reverseTransform('')->shouldReturn(null);
     }
 
-    function it_should_not_reverse_transform_not_supported_data_and_throw_exception()
+    function it_does_not_reverse_transform_not_supported_data_and_throw_exception()
     {
-        $this->shouldThrow(UnexpectedTypeException::class)
-            ->duringReverseTransform(new \stdClass());
+        $this
+            ->shouldThrow(UnexpectedTypeException::class)
+            ->duringReverseTransform(new \stdClass())
+        ;
     }
 
-    function it_should_reverse_transform_variable_without_variants_into_null(
+    function it_reverse_transforms_variable_without_variants_into_null(
         ProductInterface $variable,
         ProductOptionValueInterface $optionValue
     ) {
@@ -80,31 +82,31 @@ final class ProductVariantToProductOptionsTransformerSpec extends ObjectBehavior
         $this->reverseTransform([$optionValue])->shouldReturn(null);
     }
 
-    function it_should_reverse_transform_variable_with_variants_if_options_match(
+    function it_reverse_transforms_variable_with_variants_if_options_match(
         ProductInterface $variable,
         ProductVariantInterface $variant,
         ProductOptionValueInterface $optionValue
     ) {
         $variable->getVariants()->willReturn([$variant]);
 
-        $variant->hasOption($optionValue)->willReturn(true);
+        $variant->hasOptionValue($optionValue)->willReturn(true);
 
         $this->reverseTransform([$optionValue])->shouldReturn($variant);
     }
 
-    function it_should_not_reverse_transform_variable_with_variants_if_options_not_match(
+    function it_does_not_reverse_transform_variable_with_variants_if_options_not_match(
         ProductInterface $variable,
         ProductVariantInterface $variant,
         ProductOptionValueInterface $optionValue
     ) {
         $variable->getVariants()->willReturn([$variant]);
 
-        $variant->hasOption($optionValue)->willReturn(false);
+        $variant->hasOptionValue($optionValue)->willReturn(false);
 
         $this->reverseTransform([$optionValue])->shouldReturn(null);
     }
 
-    function it_should_not_reverse_transform_variable_with_variants_if_options_are_missing(
+    function it_does_not_reverse_transform_variable_with_variants_if_options_are_missing(
         ProductInterface $variable,
         ProductVariantInterface $variant
     ) {

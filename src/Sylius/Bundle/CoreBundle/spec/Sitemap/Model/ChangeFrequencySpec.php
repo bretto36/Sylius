@@ -12,6 +12,7 @@
 namespace spec\Sylius\Bundle\CoreBundle\Sitemap\Model;
 
 use PhpSpec\ObjectBehavior;
+use Sylius\Bundle\CoreBundle\Sitemap\Model\ChangeFrequency;
 
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>

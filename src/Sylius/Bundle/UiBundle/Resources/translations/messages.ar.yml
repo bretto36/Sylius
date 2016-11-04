@@ -14,10 +14,10 @@ sylius:
         color: اللون
         company: الشركة
         countries: البلدان
+        country: البلد
         email: البريد الإلكتروني
         exchange_rate: سعر الصرف
         first_name: الاسم الأول
-        label: ملصق
         last_name: اسم العائلة
         lastname: اسم العائلة
         members: الأعضاء
@@ -36,3 +36,4 @@ sylius:
         scope: نطاق
         street: الشارع
         topic: الموضوع
+        type: نوع

@@ -14,6 +14,7 @@ namespace spec\Sylius\Bundle\TaxationBundle\Form\Type;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Sylius\Bundle\ResourceBundle\Form\EventSubscriber\AddCodeFormSubscriber;
+use Sylius\Bundle\TaxationBundle\Form\Type\TaxRateType;
 use Symfony\Component\Form\FormBuilder;
 use Symfony\Component\Form\FormTypeInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -30,7 +31,7 @@ final class TaxRateTypeSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\TaxationBundle\Form\Type\TaxRateType');
+        $this->shouldHaveType(TaxRateType::class);
     }
 
     function it_is_a_form_type()

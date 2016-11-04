@@ -15,6 +15,7 @@ use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Association\Model\AssociableInterface;
 use Sylius\Component\Attribute\Model\AttributeSubjectInterface;
 use Sylius\Component\Resource\Model\CodeAwareInterface;
+use Sylius\Component\Resource\Model\ResourceInterface;
 use Sylius\Component\Resource\Model\SlugAwareInterface;
 use Sylius\Component\Resource\Model\TimestampableInterface;
 use Sylius\Component\Resource\Model\ToggleableInterface;
@@ -25,15 +26,55 @@ use Sylius\Component\Resource\Model\TranslatableInterface;
  * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
  */
 interface ProductInterface extends
+    AssociableInterface,
     AttributeSubjectInterface,
+    CodeAwareInterface,
+    ResourceInterface,
     SlugAwareInterface,
     TimestampableInterface,
     ToggleableInterface,
-    ProductTranslationInterface,
-    AssociableInterface,
-    CodeAwareInterface,
     TranslatableInterface
 {
+    /**
+     * @return string
+     */
+    public function getName();
+
+    /**
+     * @param string $name
+     */
+    public function setName($name);
+
+    /**
+     * @return string
+     */
+    public function getDescription();
+
+    /**
+     * @param string $description
+     */
+    public function setDescription($description);
+
+    /**
+     * @return string
+     */
+    public function getMetaKeywords();
+
+    /**
+     * @param string $metaKeywords
+     */
+    public function setMetaKeywords($metaKeywords);
+
+    /**
+     * @return string
+     */
+    public function getMetaDescription();
+
+    /**
+     * @param string $metaDescription
+     */
+    public function setMetaDescription($metaDescription);
+
     /**
      * @return bool
      */
@@ -99,7 +140,7 @@ interface ProductInterface extends
     public function getAvailableOn();
 
     /**
-     * @param null|\DateTime $availableOn
+     * @param \DateTime|null $availableOn
      */
     public function setAvailableOn(\DateTime $availableOn = null);
 
@@ -109,7 +150,7 @@ interface ProductInterface extends
     public function getAvailableUntil();
 
     /**
-     * @param null|\DateTime $availableUntil
+     * @param \DateTime|null $availableUntil
      */
     public function setAvailableUntil(\DateTime $availableUntil = null);
 
@@ -132,4 +173,9 @@ interface ProductInterface extends
      * @return bool
      */
     public function isSimple();
+
+    /**
+     * @return bool
+     */
+    public function isConfigurable();
 }

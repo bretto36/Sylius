@@ -14,7 +14,6 @@ namespace Sylius\Component\Promotion\Checker\Eligibility;
 use Sylius\Component\Promotion\Model\PromotionInterface;
 use Sylius\Component\Promotion\Model\PromotionSubjectInterface;
 use Webmozart\Assert\Assert;
-use Zend\Stdlib\PriorityQueue;
 
 /**
  * @author Kamil Kokot <kamil.kokot@lakion.com>
@@ -42,17 +41,12 @@ final class CompositePromotionEligibilityChecker implements PromotionEligibility
      */
     public function isEligible(PromotionSubjectInterface $promotionSubject, PromotionInterface $promotion)
     {
-        $result = false;
         foreach ($this->promotionEligibilityCheckers as $promotionEligibilityChecker) {
-            try {
-                if (!$promotionEligibilityChecker->isEligible($promotionSubject, $promotion)) {
-                    return false;
-                }
-
-                $result = true;
-            } catch (UnsupportedPromotionException $exception) {}
+            if (!$promotionEligibilityChecker->isEligible($promotionSubject, $promotion)) {
+                return false;
+            }
         }
 
-        return $result;
+        return true;
     }
 }

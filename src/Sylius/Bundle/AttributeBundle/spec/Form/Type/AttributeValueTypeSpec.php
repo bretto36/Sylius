@@ -13,6 +13,7 @@ namespace spec\Sylius\Bundle\AttributeBundle\Form\Type;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use Sylius\Bundle\AttributeBundle\Form\Type\AttributeValueType;
 use Sylius\Bundle\ResourceBundle\Doctrine\ORM\EntityRepository;
 use Symfony\Component\Form\FormBuilder;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -32,7 +33,7 @@ final class AttributeValueTypeSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\AttributeBundle\Form\Type\AttributeValueType');
+        $this->shouldHaveType(AttributeValueType::class);
     }
 
     function it_is_a_form_type()
@@ -40,10 +41,8 @@ final class AttributeValueTypeSpec extends ObjectBehavior
         $this->shouldImplement(FormTypeInterface::class);
     }
 
-    function it_builds_attribute_types_prototype_and_passes_it_as_argument(
-        FormBuilder $builder,
-        FormFactoryInterface $formFactory
-    ) {
+    function it_builds_attribute_types_prototype_and_passes_it_as_argument(FormBuilder $builder)
+    {
         $builder->add('attribute', 'sylius_server_attribute_choice', Argument::any())->willReturn($builder);
 
         $builder

@@ -20,8 +20,6 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @mixin RequestConfiguration
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  * @author Arnaud Langade <arn0d.dev@gmail.com>
  */
@@ -34,7 +32,7 @@ final class RequestConfigurationSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\ResourceBundle\Controller\RequestConfiguration');
+        $this->shouldHaveType(RequestConfiguration::class);
     }
 
     function it_has_request(Request $request)

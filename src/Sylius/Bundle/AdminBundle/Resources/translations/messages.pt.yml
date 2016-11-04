@@ -6,6 +6,7 @@ sylius:
         admin:
             main:
                 catalog:
+                    association_types: Tipos de associação
                     attributes: Atributos
                     header: Catálogo
                     options: Opções
@@ -25,9 +26,11 @@ sylius:
                     zones: Zonas
                 marketing:
                     header: Marketing
+                    product_reviews: Críticas do produto
                     promotions: Promoções
                 customers:
                     customers: Clientes
+                    groups: Grupos
                     header: Cliente
                 sales:
                     header: Vendas

@@ -3,12 +3,6 @@
 
 sylius:
     form:
-        action:
-            add_product_configuration:
-                price: Egységár
-                quantity: Mennyiség
-                variant: Változat
-            customer_group: Felhasználói csoport
         block:
             body: Törzs
             id: Azonosító
@@ -22,8 +16,9 @@ sylius:
             shipping_method: Szállítási mód
         promotion:
             channels: Csatornák
-        coupon:
-            per_customer_usage_limit: Felhasználókénti felhasználási korlát
+        promotion_action:
+            add_product_configuration:
+                product: Termék
         group:
             name: Név
             roles: Szerepek
@@ -49,8 +44,8 @@ sylius:
             created_at_from: Ez után készítve
             created_at_to: Ez előtt készítve
             number: Szám
-            total_from: -tól
-            total_to: -ig
+            total_from: '-tól'
+            total_to: '-ig'
             payment_state: Fizetés állapota
             channel: Minden csatorna
         page:
@@ -72,14 +67,14 @@ sylius:
         product_variant:
             tax_category: ÁFA-kategória
         shipment_filter:
-            created_at_from: -tól
-            created_at_to: -ig
+            created_at_from: '-tól'
+            created_at_to: '-ig'
             number: Rendelés azonosítója
             shipping_address: Szállítás erre a névre
             channel: Minden csatorna
         payment_filter:
-            created_at_from: -tól
-            created_at_to: -ig
+            created_at_from: '-tól'
+            created_at_to: '-ig'
             number: Rendelés azonosítója
             billing_address: Számlázási név
             channel: Minden csatorna
@@ -127,11 +122,64 @@ sylius:
             contains_taxon:
                 taxon: Taxonómia
                 count: Mennyiség
-            taxon:
-                taxons: Taxonok
             total_of_items_from_taxon:
                 taxon: Taxonómia
-                amount: Összeg
+    installer:
+        extensions:
+            header: kiegészítők
+            accelerator:
+                header: Gyorsító
+                help: Zend OpCache Engedélyezése (erősen ajánlott).
+            apc: APC
+            ctype: Ctype
+            gd: GD
+            help: Telepítsd és engedélyezd a(z) %extension% kiegészítőt.
+            iconv: Iconv
+            exif: Exif
+            fileinfo: Fájl infó
+            icu: ICU
+            intl: Intl
+            json_encode: JSON
+            mbstring: Multibyte String
+            "off": false
+            "on": true
+            pcre: PCRE
+            pdo: PDO
+            php_xml: PHP-XML
+            session_start: Munkamenet
+            simplexml_import_dom: SimpleXML
+            token_get_all: Tokenizer
+        filesystem:
+            header: fájlrendszer
+            cache:
+                header: gyorsítótár
+            exists: létezik
+            logs:
+                header: naplók
+            not_exists: nem létezik
+            not_writable: nem írható
+            parameters:
+                header: parameters.yml
+            vendors: vendors
+            writable: írható
+        settings:
+            header: PHP verzió és beállítások
+            any: bármely
+            detect_unicode: detect_unicode
+            magic_quotes_gpc: magic_quotes_gpc
+            non_deprecated: nem elavult
+            "off": false
+            "on": true
+            register_globals: register_globals
+            session:
+                auto_start: session.auto_start
+            short_open_tag: short_open_tag
+            timezone: időzóna
+            timezone_deprecated:
+                header: Elavult időzóna
+                help: 'Ez az időzóna %timezone% elavult. Javítsd ki a php.ini fájlban (a támogatott időzónákat itt találod a PHP súgójában: http://php.net/manual/en/timezones.others.php).'
+            version: PHP verzió
+            version_recommended: Ajánlott PHP-verzió
     email:
         order_confirmation:
             name: Rendelés visszaigazolás
@@ -142,10 +190,10 @@ sylius:
         user_confirmation:
             name: Felhasználói megerősítés
             subject: Üdvözöljük áruházunkban
-            content: 'Üdvözlünk áruházunkban!<br/><br/>Sikeresen regisztráltál.<br/>Köszönjük %username%.'
+            content: Üdvözlünk áruházunkban!<br/><br/>Sikeresen regisztráltál.<br/>Köszönjük %username%.
         password_reset:
             name: Jelszó visszaállítás
-            content: '<h3>Szia %username%</h3>A jelszavad megváltoztatásához, kérlek látogass ide %url%<br/><br/>Üdvözlettel, a csapat.'
+            content: <h3>Szia %username%</h3>A jelszavad megváltoztatásához, kérlek látogass ide %url%<br/><br/>Üdvözlettel, a csapat.
         verification:
             name: Email cím hitelesítése
             content: 'Email címed megerősítéséhez kérlek látogass ide: %url%'

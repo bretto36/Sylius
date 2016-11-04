@@ -13,7 +13,8 @@ namespace spec\Sylius\Bundle\TaxonomyBundle\Form\Type;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
-use Symfony\Component\Form\FormBuilder;
+use Sylius\Bundle\TaxonomyBundle\Form\Type\TaxonTranslationType;
+use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormTypeInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -30,7 +31,7 @@ final class TaxonTranslationTypeSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\TaxonomyBundle\Form\Type\TaxonTranslationType');
+        $this->shouldHaveType(TaxonTranslationType::class);
     }
 
     function it_is_a_form_type()
@@ -39,23 +40,26 @@ final class TaxonTranslationTypeSpec extends ObjectBehavior
     }
 
     function it_builds_form_with_proper_fields(
-        FormBuilder $builder,
+        FormBuilderInterface $builder,
         FormFactoryInterface $factory
     ) {
         $builder->getFormFactory()->willReturn($factory);
 
         $builder
             ->add('name', 'text', Argument::any())
+            ->shouldBeCalled()
             ->willReturn($builder)
         ;
 
         $builder
             ->add('permalink', 'text', Argument::any())
+            ->shouldBeCalled()
             ->willReturn($builder)
         ;
 
         $builder
             ->add('description', 'textarea', Argument::any())
+            ->shouldBeCalled()
             ->willReturn($builder)
         ;
 

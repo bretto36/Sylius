@@ -17,8 +17,6 @@ use Sylius\Component\Inventory\Model\InventoryUnitInterface;
 use Sylius\Component\Inventory\Model\StockableInterface;
 
 /**
- * @mixin InventoryUnit
- *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
 final class InventoryUnitSpec extends ObjectBehavior
@@ -28,7 +26,7 @@ final class InventoryUnitSpec extends ObjectBehavior
         $this->shouldHaveType(InventoryUnit::class);
     }
 
-    function it_implements_Sylius_inventory_unit_interface()
+    function it_implements_inventory_unit_interface()
     {
         $this->shouldImplement(InventoryUnitInterface::class);
     }

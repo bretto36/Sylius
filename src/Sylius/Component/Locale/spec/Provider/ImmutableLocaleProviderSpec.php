@@ -16,8 +16,6 @@ use Sylius\Component\Locale\Provider\ImmutableLocaleProvider;
 use Sylius\Component\Locale\Provider\LocaleProviderInterface;
 
 /**
- * @mixin ImmutableLocaleProvider
- *
  * @author Kamil Kokot <kamil.kokot@lakion.com>
  */
 final class ImmutableLocaleProviderSpec extends ObjectBehavior
@@ -26,7 +24,7 @@ final class ImmutableLocaleProviderSpec extends ObjectBehavior
     {
         $locales = [
             'pl_PL' => true,
-            'en_US' => false
+            'en_US' => false,
         ];
 
         $this->beConstructedWith($locales, 'pl_PL');

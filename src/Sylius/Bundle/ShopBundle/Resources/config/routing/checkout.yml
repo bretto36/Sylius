@@ -39,10 +39,7 @@ sylius_shop_checkout_select_shipping:
             event: select_shipping
             flash: false
             template: SyliusShopBundle:Checkout:selectShipping.html.twig
-            form:
-                type: sylius_checkout_select_shipping
-                options:
-                    validation_groups: sylius_checkout_select_shipping
+            form: sylius_checkout_select_shipping
             repository:
                 method: find
                 arguments: [expr:service('sylius.context.cart').getCart()]
@@ -88,7 +85,10 @@ sylius_shop_checkout_complete:
             state_machine:
                 graph: sylius_order_checkout
                 transition: complete
-            redirect: sylius_shop_thank_you
+            redirect:
+                route: sylius_shop_order_pay
+                parameters:
+                    paymentId: expr:service('sylius.context.cart').getCart().getLastNewPayment().getId()
             form:
                 type: sylius_checkout_complete
                 options:

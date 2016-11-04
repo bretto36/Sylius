@@ -17,6 +17,7 @@ use Sylius\Bundle\CoreBundle\Doctrine\ORM\ProductRepository;
 use Sylius\Bundle\CoreBundle\Sitemap\Factory\SitemapUrlFactoryInterface;
 use Sylius\Bundle\CoreBundle\Sitemap\Model\ChangeFrequency;
 use Sylius\Bundle\CoreBundle\Sitemap\Model\SitemapUrlInterface;
+use Sylius\Bundle\CoreBundle\Sitemap\Provider\ProductUrlProvider;
 use Sylius\Bundle\CoreBundle\Sitemap\Provider\UrlProviderInterface;
 use Sylius\Component\Core\Model\ProductInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -33,7 +34,7 @@ final class ProductUrlProviderSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\CoreBundle\Sitemap\Provider\ProductUrlProvider');
+        $this->shouldHaveType(ProductUrlProvider::class);
     }
 
     function it_implements_provider_interface()

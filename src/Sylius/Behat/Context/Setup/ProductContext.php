@@ -20,6 +20,7 @@ use Sylius\Component\Core\Formatter\StringInflector;
 use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\ImageInterface;
 use Sylius\Component\Core\Model\ProductInterface;
+use Sylius\Component\Core\Model\ProductTranslationInterface;
 use Sylius\Component\Core\Model\ProductVariantInterface;
 use Sylius\Component\Core\Repository\ProductRepositoryInterface;
 use Sylius\Behat\Service\SharedStorageInterface;
@@ -55,6 +56,11 @@ final class ProductContext implements Context
      * @var ProductFactoryInterface
      */
     private $productFactory;
+
+    /**
+     * @var FactoryInterface
+     */
+    private $productTranslationFactory;
 
     /**
      * @var AttributeFactoryInterface
@@ -110,6 +116,7 @@ final class ProductContext implements Context
      * @param SharedStorageInterface $sharedStorage
      * @param ProductRepositoryInterface $productRepository
      * @param ProductFactoryInterface $productFactory
+     * @param FactoryInterface $productTranslationFactory
      * @param AttributeFactoryInterface $productAttributeFactory
      * @param FactoryInterface $productVariantFactory
      * @param FactoryInterface $attributeValueFactory
@@ -125,6 +132,7 @@ final class ProductContext implements Context
         SharedStorageInterface $sharedStorage,
         ProductRepositoryInterface $productRepository,
         ProductFactoryInterface $productFactory,
+        FactoryInterface $productTranslationFactory,
         AttributeFactoryInterface $productAttributeFactory,
         FactoryInterface $attributeValueFactory,
         FactoryInterface $productVariantFactory,
@@ -139,6 +147,7 @@ final class ProductContext implements Context
         $this->sharedStorage = $sharedStorage;
         $this->productRepository = $productRepository;
         $this->productFactory = $productFactory;
+        $this->productTranslationFactory = $productTranslationFactory;
         $this->productAttributeFactory = $productAttributeFactory;
         $this->attributeValueFactory = $attributeValueFactory;
         $this->productVariantFactory = $productVariantFactory;
@@ -163,6 +172,57 @@ final class ProductContext implements Context
         $product->setDescription('Awesome '.$productName);
 
         if ($this->sharedStorage->has('channel')) {
+            $product->addChannel($this->sharedStorage->get('channel'));
+        }
+
+        $this->saveProduct($product);
+    }
+
+    /**
+     * @Given the store( also) has a product :productName with code :code
+     * @Given the store( also) has a product :productName with code :code, created at :date
+     */
+    public function storeHasProductWithCode($productName, $code, $date = null)
+    {
+        $product = $this->createProduct($productName, 0, $date);
+
+        $product->setCode($code);
+
+        if ($this->sharedStorage->has('channel')) {
+            $product->addChannel($this->sharedStorage->get('channel'));
+        }
+
+        $this->saveProduct($product);
+    }
+
+    /**
+     * @Given /^(this product) is named "([^"]+)" (in the "([^"]+)" locale)$/
+     */
+    public function thisProductIsNamedIn(ProductInterface $product, $name, $locale)
+    {
+        /** @var ProductTranslationInterface $translation */
+        $translation = $this->productTranslationFactory->createNew();
+        $translation->setLocale($locale);
+        $translation->setName($name);
+
+        $product->addTranslation($translation);
+
+        $this->objectManager->flush();
+    }
+
+    /**
+     * @Given the store has a :productName configurable product
+     */
+    public function storeHasAConfigurableProduct($productName)
+    {
+        /** @var ProductInterface $product */
+        $product = $this->productFactory->createNew();
+
+        $product->setName($productName);
+        $product->setCode(StringInflector::nameToUppercaseCode($productName));
+        $product->setDescription('Awesome '.$productName);
+
+        if ($this->sharedStorage->has('channel')) {
             $channel = $this->sharedStorage->get('channel');
             $product->addChannel($channel);
         }
@@ -171,21 +231,7 @@ final class ProductContext implements Context
     }
 
     /**
-     * @Given the store has a :productName configurable product
-     */
-    public function storeHasAConfigurableProduct($productName)
-    {
-        $product = $this->productFactory->createNew();
-
-        $product->setName($productName);
-        $product->setCode($this->convertToCode($productName));
-        $product->setDescription('Awesome '.$productName);
-
-        $this->saveProduct($product);
-    }
-
-    /**
-     * @Given the store has :firstProductName and :secondProductName products
+     * @Given the store has( also) :firstProductName and :secondProductName products
      */
     public function theStoreHasAProductAnd($firstProductName, $secondProductName)
     {
@@ -199,11 +245,13 @@ final class ProductContext implements Context
      */
     public function theProductHasVariantPricedAt(ProductInterface $product, $productVariantName, $price)
     {
+        $product->setVariantSelectionMethod(ProductInterface::VARIANT_SELECTION_CHOICE);
+
         /** @var ProductVariantInterface $variant */
         $variant = $this->productVariantFactory->createNew();
 
         $variant->setName($productVariantName);
-        $variant->setCode($this->convertToCode($productVariantName));
+        $variant->setCode(StringInflector::nameToUppercaseCode($productVariantName));
         $variant->setPrice($price);
         $variant->setProduct($product);
         $product->addVariant($variant);
@@ -232,8 +280,10 @@ final class ProductContext implements Context
      */
     public function productBelongsToTaxCategory(ProductInterface $product, TaxCategoryInterface $taxCategory)
     {
+        /** @var ProductVariantInterface $variant */
         $variant = $this->defaultVariantResolver->getVariant($product);
         $variant->setTaxCategory($taxCategory);
+
         $this->objectManager->flush();
     }
 
@@ -247,7 +297,7 @@ final class ProductContext implements Context
             $variant = $this->productVariantFactory->createNew();
 
             $variant->setName($variantHash['name']);
-            $variant->setCode($this->convertToCode($variantHash['name']));
+            $variant->setCode(StringInflector::nameToUppercaseCode($variantHash['name']));
             $variant->setPrice($this->getPriceFromString(str_replace(['$', '€', '£'], '', $variantHash['price'])));
             $variant->setProduct($product);
             $product->addVariant($variant);
@@ -319,62 +369,54 @@ final class ProductContext implements Context
 
     /**
      * @Given /^(this product) has option "([^"]+)" with values "([^"]+)" and "([^"]+)"$/
+     * @Given /^(this product) has option "([^"]+)" with values "([^"]+)", "([^"]+)" and "([^"]+)"$/
      */
-    public function thisProductHasOptionWithValues(ProductInterface $product, $optionName, $firstValue, $secondValue)
+    public function thisProductHasOptionWithValues(ProductInterface $product, $optionName, ...$values)
     {
-        /** @var ProductOptionInterface $variant */
+        /** @var ProductOptionInterface $option */
         $option = $this->productOptionFactory->createNew();
 
         $option->setName($optionName);
-        $option->setCode('PO1');
+        $option->setCode(StringInflector::nameToUppercaseCode($optionName));
 
-        /** @var ProductOptionValueInterface $optionValue */
-        $firstOptionValue = $this->productOptionValueFactory->createNew();
+        $this->sharedStorage->set(sprintf('%s_option', $optionName), $option);
 
-        $firstOptionValue->setValue($firstValue);
-        $firstOptionValue->setCode('POV1');
-        $firstOptionValue->setOption($option);
-
-        /** @var ProductOptionValueInterface $optionValue */
-        $secondOptionValue = $this->productOptionValueFactory->createNew();
-
-        $secondOptionValue->setValue($secondValue);
-        $secondOptionValue->setCode('POV2');
-        $secondOptionValue->setOption($option);
-
-        $option->addValue($firstOptionValue);
-        $option->addValue($secondOptionValue);
+        foreach ($values as $key => $value) {
+            $optionValue = $this->addProductOption($option, $value, StringInflector::nameToUppercaseCode($value));
+            $this->sharedStorage->set(sprintf('%s_option_%s_value', $value, strtolower($optionName)), $optionValue);
+        }
 
         $product->addOption($option);
         $product->setVariantSelectionMethod(ProductInterface::VARIANT_SELECTION_MATCH);
 
-        $this->sharedStorage->set(sprintf('%s_option',$optionName), $option);
-        $this->sharedStorage->set(sprintf('%s_option_value',$firstValue), $firstOptionValue);
-        $this->sharedStorage->set(sprintf('%s_option_value',$secondValue), $secondOptionValue);
-
         $this->objectManager->persist($option);
-        $this->objectManager->persist($firstOptionValue);
-        $this->objectManager->persist($secondOptionValue);
         $this->objectManager->flush();
     }
 
     /**
-     * @Given /^there (?:is|are) (\d+) (?:item|unit)(?:|s) of (product "([^"]+)") available in the inventory$/
+     * @Given /^there (?:is|are) (\d+) unit(?:|s) of (product "([^"]+)") available in the inventory$/
      * @When product :product quantity is changed to :quantity
      */
     public function thereIsQuantityOfProducts($quantity, ProductInterface $product)
     {
-        $this->setProductsQuantity($product, $quantity);
+        /** @var ProductVariantInterface $productVariant */
+        $productVariant = $this->defaultVariantResolver->getVariant($product);
+        $productVariant->setOnHand($quantity);
+
+        $this->objectManager->flush();
     }
 
     /**
      * @Given /^the (product "([^"]+)") is out of stock$/
      */
-    public function theProductIsNotAvailable(ProductInterface $product)
+    public function theProductIsOutOfStock(ProductInterface $product)
     {
-        $product->getFirstVariant()->setTracked(true);
+        /** @var ProductVariantInterface $productVariant */
+        $productVariant = $this->defaultVariantResolver->getVariant($product);
+        $productVariant->setTracked(true);
+        $productVariant->setOnHand(0);
 
-        $this->setProductsQuantity($product, 0);
+        $this->objectManager->flush();
     }
 
     /**
@@ -384,34 +426,35 @@ final class ProductContext implements Context
     {
         /** @var ProductVariantInterface $productVariant */
         $productVariant = $this->defaultVariantResolver->getVariant($product);
-        $productQuantity = $productVariant->getOnHand() - $quantity;
-
-        $this->setProductsQuantity($product, $productQuantity);
-    }
-
-    /**
-     * @Given /^(this product) is tracked by the inventory$/
-     * @Given /^("[^"]+" product) is(?:| also) tracked by the inventory$/
-     */
-    public function thisProductIsTrackedByTheInventory(ProductInterface $product)
-    {
-        $variant = $this->defaultVariantResolver->getVariant($product);
-        $variant->setTracked(true);
+        $productVariant->setOnHand($productVariant->getOnHand() - $quantity);
 
         $this->objectManager->flush();
     }
 
     /**
-     * @Given /^(this product) is available in "([^"]+)" size priced at ("[^"]+")$/
+     * @Given /^(this product) is tracked by the inventory$/
+     * @Given /^(?:|the )("[^"]+" product) is(?:| also) tracked by the inventory$/
      */
-    public function thisProductIsAvailableInSize(ProductInterface $product, $optionValueName, $price)
+    public function thisProductIsTrackedByTheInventory(ProductInterface $product)
+    {
+        /** @var ProductVariantInterface $productVariant */
+        $productVariant = $this->defaultVariantResolver->getVariant($product);
+        $productVariant->setTracked(true);
+
+        $this->objectManager->flush();
+    }
+
+    /**
+     * @Given /^(this product) is available in "([^"]+)" ([^"]+) priced at ("[^"]+")$/
+     */
+    public function thisProductIsAvailableInSize(ProductInterface $product, $optionValueName, $optionName, $price)
     {
         /** @var ProductVariantInterface $variant */
         $variant = $this->productVariantFactory->createNew();
 
-        $optionValue = $this->sharedStorage->get(sprintf('%s_option_value',$optionValueName));
+        $optionValue = $this->sharedStorage->get(sprintf('%s_option_%s_value', $optionValueName, $optionName));
 
-        $variant->addOption($optionValue);
+        $variant->addOptionValue($optionValue);
         $variant->setPrice($price);
         $variant->setCode(sprintf("%s_%s", $product->getCode(), $optionValueName));
 
@@ -432,23 +475,12 @@ final class ProductContext implements Context
     }
 
     /**
-     * @Given /^there are ([^"]+) items of ("[^"]+" variant of product "[^"]+") available in the inventory$/
+     * @Given /^there are ([^"]+) units of ("[^"]+" variant of product "[^"]+") available in the inventory$/
      */
     public function thereAreItemsOfProductInVariantAvailableInTheInventory($quantity, ProductVariantInterface $productVariant)
     {
         $productVariant->setTracked(true);
         $productVariant->setOnHand($quantity);
-
-        $this->objectManager->flush();
-    }
-
-    /**
-     * @Given /^the ("[^"]+" product) is tracked by the inventory$/
-     */
-    public function theProductIsTrackedByTheInventory(ProductInterface $product)
-    {
-        $productVariant = $this->defaultVariantResolver->getVariant($product);
-        $productVariant->setTracked(true);
 
         $this->objectManager->flush();
     }
@@ -464,17 +496,21 @@ final class ProductContext implements Context
     }
 
     /**
+     * @Given /^(this product)'s price is ("[^"]+")$/
      * @Given /^the (product "[^"]+") changed its price to ("[^"]+")$/
      */
     public function theProductChangedItsPriceTo(ProductInterface $product, $price)
     {
-        $product->getFirstVariant()->setPrice($price);
+        /** @var ProductVariantInterface $productVariant */
+        $productVariant = $this->defaultVariantResolver->getVariant($product);
+        $productVariant->setPrice($price);
 
         $this->objectManager->flush();
     }
 
     /**
      * @Given /^(this product) has(?:| also) an image "([^"]+)" with a code "([^"]+)"$/
+     * @Given /^the ("[^"]+" product) has(?:| also) an image "([^"]+)" with a code "([^"]+)"$/
      */
     public function thisProductHasAnImageWithACode(ProductInterface $product, $imagePath, $imageCode)
     {
@@ -542,30 +578,42 @@ final class ProductContext implements Context
      *
      * @return ProductInterface
      */
-    private function createProduct($productName, $price = 0)
+    private function createProduct($productName, $price = 0, $date = null)
     {
         /** @var ProductInterface $product */
         $product = $this->productFactory->createWithVariant();
 
         $product->setName($productName);
-        $product->setCode($this->convertToCode($productName));
+        $product->setCode(StringInflector::nameToUppercaseCode($productName));
+        $product->setCreatedAt(new \DateTime($date));
 
-        $variant = $this->defaultVariantResolver->getVariant($product);
-        $variant->setPrice($price);
-        $variant->setCode($product->getCode());
+        /** @var ProductVariantInterface $productVariant */
+        $productVariant = $this->defaultVariantResolver->getVariant($product);
+        $productVariant->setPrice($price);
+        $productVariant->setCode($product->getCode());
 
         return $product;
     }
 
     /**
-     * @param ProductInterface $product
-     * @param int $quantity
+     * @param ProductOptionInterface $option
+     * @param string $value
+     * @param string $code
+     *
+     * @return ProductOptionValueInterface
      */
-    private function setProductsQuantity(ProductInterface $product, $quantity)
+    private function addProductOption(ProductOptionInterface $option, $value, $code)
     {
-        $product->getFirstVariant()->setOnHand($quantity);
+        /** @var ProductOptionValueInterface $optionValue */
+        $optionValue = $this->productOptionValueFactory->createNew();
 
-        $this->saveProduct($product);
+        $optionValue->setValue($value);
+        $optionValue->setCode($code);
+        $optionValue->setOption($option);
+
+        $option->addValue($optionValue);
+
+        return $optionValue;
     }
 
     /**
@@ -575,16 +623,6 @@ final class ProductContext implements Context
     {
         $this->productRepository->add($product);
         $this->sharedStorage->set('product', $product);
-    }
-
-    /**
-     * @param string $productName
-     *
-     * @return string
-     */
-    private function convertToCode($productName)
-    {
-        return StringInflector::nameToUppercaseCode($productName);
     }
 
     /**

@@ -12,6 +12,7 @@
 namespace spec\Sylius\Bundle\AddressingBundle\Form\Type;
 
 use PhpSpec\ObjectBehavior;
+use Sylius\Bundle\AddressingBundle\Form\Type\ZoneTypeChoiceType;
 use Symfony\Component\Form\FormTypeInterface;
 
 final class ZoneTypeChoiceTypeSpec extends ObjectBehavior
@@ -23,7 +24,7 @@ final class ZoneTypeChoiceTypeSpec extends ObjectBehavior
 
     function it_is_initializable()
     {
-        $this->shouldHaveType('Sylius\Bundle\AddressingBundle\Form\Type\ZoneTypeChoiceType');
+        $this->shouldHaveType(ZoneTypeChoiceType::class);
     }
 
     function it_is_a_form_type()

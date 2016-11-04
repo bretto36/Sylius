@@ -23,15 +23,10 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 /**
- * This class contains the configuration information for the bundle.
- *
- * This information is solely responsible for how the different configuration
- * sections are normalized, and merged.
- *
  * @author Daniel Richter <nexyz9@gmail.com>
  * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
  */
-class Configuration implements ConfigurationInterface
+final class Configuration implements ConfigurationInterface
 {
     /**
      * {@inheritdoc}
@@ -90,10 +85,6 @@ class Configuration implements ConfigurationInterface
                                     ->children()
                                         ->arrayNode('default')
                                             ->prototype('scalar')->end()
-                                            ->defaultValue(['sylius', 'sylius_review'])
-                                        ->end()
-                                        ->arrayNode('admin')
-                                            ->prototype('scalar')->end()
                                             ->defaultValue(['sylius'])
                                         ->end()
                                     ->end()
@@ -116,10 +107,6 @@ class Configuration implements ConfigurationInterface
                                     ->addDefaultsIfNotSet()
                                     ->children()
                                         ->arrayNode('default')
-                                            ->prototype('scalar')->end()
-                                            ->defaultValue(['sylius', 'sylius_review'])
-                                        ->end()
-                                        ->arrayNode('admin')
                                             ->prototype('scalar')->end()
                                             ->defaultValue(['sylius'])
                                         ->end()
