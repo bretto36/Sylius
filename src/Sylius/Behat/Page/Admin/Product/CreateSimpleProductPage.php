@@ -27,11 +27,29 @@ class CreateSimpleProductPage extends BaseCreatePage implements CreateSimpleProd
     /**
      * {@inheritdoc}
      */
+    public function getRouteName()
+    {
+        return parent::getRouteName() . '_simple';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function nameItIn($name, $localeCode)
     {
         $this->getDocument()->fillField(
             sprintf('sylius_product_translations_%s_name', $localeCode), $name
         );
+
+        $this->waitForSlugGenerationIfNecessary();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function specifySlug($slug)
+    {
+        $this->getDocument()->fillField('Slug', $slug);
     }
 
     /**
@@ -71,7 +89,7 @@ class CreateSimpleProductPage extends BaseCreatePage implements CreateSimpleProd
     /**
      * {@inheritdoc}
      */
-    public function attachImageWithCode($code, $path)
+    public function attachImage($path, $code = null)
     {
         $this->clickTabIfItsNotActive('media');
 
@@ -80,16 +98,16 @@ class CreateSimpleProductPage extends BaseCreatePage implements CreateSimpleProd
         $this->getDocument()->clickLink('Add');
 
         $imageForm = $this->getLastImageElement();
-        $imageForm->fillField('Code', $code);
+        if (null !== $code) {
+            $imageForm->fillField('Code', $code);
+        }
+
         $imageForm->find('css', 'input[type="file"]')->attachFile($filesPath.$path);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getRouteName()
+    public function enableSlugModification()
     {
-        return parent::getRouteName() . '_simple';
+        $this->getElement('toggle_slug_modification_button')->press();
     }
 
     /**
@@ -106,7 +124,9 @@ class CreateSimpleProductPage extends BaseCreatePage implements CreateSimpleProd
             'images' => '#sylius_product_images',
             'name' => '#sylius_product_translations_en_US_name',
             'price' => '#sylius_product_variant_price',
+            'slug' => '#sylius_product_translations_en_US_slug',
             'tab' => '.menu [data-tab="%name%"]',
+            'toggle_slug_modification_button' => '#toggle-slug-modification',
         ]);
     }
 
@@ -156,5 +176,14 @@ class CreateSimpleProductPage extends BaseCreatePage implements CreateSimpleProd
         Assert::notEmpty($items);
 
         return end($items);
+    }
+
+    private function waitForSlugGenerationIfNecessary()
+    {
+        if ($this->getDriver() instanceof Selenium2Driver) {
+            $this->getDocument()->waitFor(10, function () {
+                return '' !== $this->getElement('slug')->getValue();
+            });
+        }
     }
 }

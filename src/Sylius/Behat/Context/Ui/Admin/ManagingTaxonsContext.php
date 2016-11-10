@@ -12,9 +12,12 @@
 namespace Sylius\Behat\Context\Ui\Admin;
 
 use Behat\Behat\Context\Context;
+use Sylius\Behat\Page\Admin\Taxon\CreateForParentPageInterface;
 use Sylius\Behat\Page\Admin\Taxon\CreatePageInterface;
 use Sylius\Behat\Page\Admin\Taxon\UpdatePageInterface;
 use Sylius\Behat\Service\Resolver\CurrentPageResolverInterface;
+use Sylius\Behat\Service\SharedStorageInterface;
+use Sylius\Component\Core\Model\Taxon;
 use Sylius\Component\Core\Model\TaxonInterface;
 use Webmozart\Assert\Assert;
 
@@ -24,9 +27,19 @@ use Webmozart\Assert\Assert;
 final class ManagingTaxonsContext implements Context
 {
     /**
+     * @var SharedStorageInterface
+     */
+    private $sharedStorage;
+
+    /**
      * @var CreatePageInterface
      */
     private $createPage;
+
+    /**
+     * @var CreateForParentPageInterface
+     */
+    private $createForParentPage;
 
     /**
      * @var UpdatePageInterface
@@ -39,16 +52,22 @@ final class ManagingTaxonsContext implements Context
     private $currentPageResolver;
 
     /**
+     * @param SharedStorageInterface $sharedStorage
      * @param CreatePageInterface $createPage
+     * @param CreateForParentPageInterface $createForParentPage
      * @param UpdatePageInterface $updatePage
      * @param CurrentPageResolverInterface $currentPageResolver
      */
     public function __construct(
+        SharedStorageInterface $sharedStorage,
         CreatePageInterface $createPage,
+        CreateForParentPageInterface $createForParentPage,
         UpdatePageInterface $updatePage,
         CurrentPageResolverInterface $currentPageResolver
     ) {
+        $this->sharedStorage = $sharedStorage;
         $this->createPage = $createPage;
+        $this->createForParentPage = $createForParentPage;
         $this->updatePage = $updatePage;
         $this->currentPageResolver = $currentPageResolver;
     }
@@ -63,10 +82,20 @@ final class ManagingTaxonsContext implements Context
     }
 
     /**
+     * @Given I want to create a new taxon for :taxon
+     */
+    public function iWantToCreateANewTaxonForParent(TaxonInterface $taxon)
+    {
+        $this->createForParentPage->open(['id' => $taxon->getId()]);
+    }
+
+    /**
      * @Given /^I want to modify the ("[^"]+" taxon)$/
      */
     public function iWantToModifyATaxon(TaxonInterface $taxon)
     {
+        $this->sharedStorage->set('taxon', $taxon);
+
         $this->updatePage->open(['id' => $taxon->getId()]);
     }
 
@@ -95,6 +124,40 @@ final class ManagingTaxonsContext implements Context
     }
 
     /**
+     * @When I set its slug to :slug
+     */
+    public function iSetItsSlugTo($slug)
+    {
+        /** @var CreatePageInterface|UpdatePageInterface $currentPage */
+        $currentPage = $this->currentPageResolver->getCurrentPageWithForm([
+            $this->createPage,
+            $this->createForParentPage,
+            $this->updatePage,
+        ]);
+
+        $currentPage->specifySlug($slug);
+    }
+
+    /**
+     * @Then the slug field should not be editable
+     */
+    public function theSlugFieldShouldNotBeEditable()
+    {
+        Assert::true(
+            $this->updatePage->isSlugReadOnly(),
+            'Slug should be immutable, but it does not.'
+        );
+    }
+
+    /**
+     * @When I enable slug modification
+     */
+    public function iEnableSlugModification()
+    {
+        $this->updatePage->enableSlugModification();
+    }
+
+    /**
      * @When I change its description to :description in :language
      */
     public function iChangeItsDescriptionToIn($description, $language)
@@ -103,27 +166,27 @@ final class ManagingTaxonsContext implements Context
     }
 
     /**
-     * @When I specify its permalink as :permalink in :language
-     */
-    public function iSpecifyItsPermalinkAs($permalink, $language)
-    {
-        $this->createPage->specifyPermalink($permalink, $language);
-    }
-
-    /**
-     * @When I change its permalink to :permalink in :language
-     */
-    public function iChangeItsPermalinkToIn($permalink, $language)
-    {
-        $this->updatePage->specifyPermalink($permalink, $language);
-    }
-
-    /**
      * @When I describe it as :description in :language
      */
     public function iDescribeItAs($description, $language)
     {
         $this->createPage->describeItAs($description, $language);
+    }
+
+    /**
+     * @When /^I move up ("[^"]+" taxon)$/
+     */
+    public function iWantToMoveUpTaxon(TaxonInterface $taxon)
+    {
+        $this->createPage->moveUp($taxon);
+    }
+
+    /**
+     * @When /^I move ("[^"]+" taxon) before ("[^"]+" taxon)$/
+     */
+    public function iMoveTaxonBeforeTaxon(TaxonInterface $taxonToMove, TaxonInterface $targetTaxon)
+    {
+        $this->createPage->insertBefore($taxonToMove, $targetTaxon);
     }
 
     /**
@@ -220,6 +283,19 @@ final class ManagingTaxonsContext implements Context
     }
 
     /**
+     * @Then /^the slug of the ("[^"]+" taxon) should(?:| still) be "([^"]+)"$/
+     */
+    public function productSlugShouldBe(TaxonInterface $taxon, $slug)
+    {
+        $this->updatePage->open(['id' => $taxon->getId()]);
+
+        Assert::true(
+            $this->updatePage->hasResourceValues(['slug' => $slug]),
+            sprintf('Taxon\'s slug should be %s.', $slug)
+        );
+    }
+
+    /**
      * @Then /^this taxon should (belongs to "[^"]+")$/
      */
     public function thisTaxonShouldBelongsTo(TaxonInterface $taxon)
@@ -227,6 +303,19 @@ final class ManagingTaxonsContext implements Context
         Assert::true(
             $this->updatePage->hasResourceValues(['parent' => $taxon->getId()]),
             sprintf('Current taxon should have %s parent taxon.', $taxon->getName())
+        );
+    }
+
+    /**
+     * @Given it should not belong to any other taxon
+     */
+    public function itShouldNotBelongToAnyOtherTaxon()
+    {
+        $parent = $this->updatePage->getParent();
+
+        Assert::isEmpty(
+            $parent,
+            sprintf('Current taxon should not belong to any other, but it does belong to "%s"', $parent)
         );
     }
 
@@ -310,7 +399,15 @@ final class ManagingTaxonsContext implements Context
         /** @var CreatePageInterface|UpdatePageInterface $currentPage */
         $currentPage = $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
 
-        $currentPage->attachImageWithCode($code, $path);
+        $currentPage->attachImage($path, $code);
+    }
+
+    /**
+     * @When I attach the :path image without a code
+     */
+    public function iAttachImageWithoutACode($path)
+    {
+        $this->updatePage->attachImage($path);
     }
 
     /**
@@ -352,10 +449,12 @@ final class ManagingTaxonsContext implements Context
     }
 
     /**
-     * @Then this taxon should not have images
+     * @Then /^(this taxon) should not have any images$/
      */
-    public function thisTaxonShouldNotHaveImages()
+    public function thisTaxonShouldNotHaveImages(TaxonInterface $taxon)
     {
+        $this->iWantToModifyATaxon($taxon);
+
         Assert::eq(
             0,
             $this->updatePage->countImages(),
@@ -377,6 +476,17 @@ final class ManagingTaxonsContext implements Context
     public function iShouldBeNotifiedThatTheImageWithThisCodeAlreadyExists()
     {
         Assert::same($this->updatePage->getValidationMessageForImage(), 'Image code must be unique within this taxon.');
+    }
+
+    /**
+     * @Then I should be notified that an image code is required
+     */
+    public function iShouldBeNotifiedThatAnImageCodeIsRequired()
+    {
+        Assert::same(
+            $this->updatePage->getValidationMessageForImage(),
+            'Please enter an image code.'
+        );
     }
 
     /**
@@ -415,5 +525,33 @@ final class ManagingTaxonsContext implements Context
             $this->updatePage->getValidationMessageForImageAtPlace(((int) $matches[0][0]) - 1),
             'Image code must be unique within this taxon.'
         );
+    }
+
+    /**
+     * @Then the first taxon on the list should be :taxon
+     */
+    public function theFirstTaxonOnTheListShouldBe(TaxonInterface $taxon)
+    {
+        Assert::same(
+            $this->createPage->getFirstLeafName(),
+            $taxon->getName(),
+            sprintf(
+                'Expected %s as a first taxon, but got %s.',
+                $taxon->getName(),
+                $this->createPage->getFirstLeafName()
+            )
+        );
+    }
+
+    /**
+     * @Then they should have order like :firstTaxonName, :secondTaxonName, :thirdTaxonName and :fourthTaxonName
+     */
+    public function theyShouldHaveOrderLikeAnd(...$taxonsNames)
+    {
+        $leaves = $this->createPage->getLeaves();
+
+        foreach ($leaves as $key => $leaf) {
+            Assert::contains($taxonsNames[$key], $leaf->getText());
+        }
     }
 }

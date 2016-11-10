@@ -24,6 +24,11 @@ interface UpdateSimpleProductPageInterface extends BaseUpdatePageInterface
      * @return bool
      */
     public function isCodeDisabled();
+
+    /**
+     * @return bool
+     */
+    public function isSlugReadOnly();
     
     /**
      * @param int $price
@@ -79,10 +84,10 @@ interface UpdateSimpleProductPageInterface extends BaseUpdatePageInterface
     public function isImageWithCodeDisplayed($code);
 
     /**
-     * @param string $code
      * @param string $path
+     * @param string $code
      */
-    public function attachImageWithCode($code, $path);
+    public function attachImage($path, $code = null);
 
     /**
      * @param string $code

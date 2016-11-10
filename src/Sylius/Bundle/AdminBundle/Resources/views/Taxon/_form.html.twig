@@ -2,7 +2,11 @@
     {{ form_errors(form) }}
     <div class="two fields">
         {{ form_row(form.code) }}
-        {{ form_row(form.parent) }}
+        {% if taxon.id != null %}
+            {{ form_row(form.parent) }}
+        {% else %}
+            {{ form_widget(form.parent, {'attr': {'style': 'display: none;'}}) }}
+        {% endif %}
     </div>
 </div>
 <div class="ui styled fluid accordion">
@@ -13,7 +17,7 @@
         </div>
         <div class="content{% if 0 == loop.index0 %} active{% endif %}">
             {{ form_row(translationForm.name) }}
-            {{ form_row(translationForm.permalink) }}
+            {% include '@SyliusAdmin/Taxon/_slugField.html.twig' with { 'slugField': translationForm.slug } %}
             {{ form_row(translationForm.description) }}
         </div>
     {% endfor %}

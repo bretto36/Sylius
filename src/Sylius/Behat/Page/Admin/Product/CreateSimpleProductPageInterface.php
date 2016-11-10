@@ -35,6 +35,11 @@ interface CreateSimpleProductPageInterface extends BaseCreatePageInterface
     public function nameItIn($name, $localeCode);
 
     /**
+     * @param string $slug
+     */
+    public function specifySlug($slug);
+
+    /**
      * @param string $attribute
      * @param string $value
      */
@@ -46,8 +51,10 @@ interface CreateSimpleProductPageInterface extends BaseCreatePageInterface
     public function removeAttribute($attribute);
 
     /**
-     * @param string $code
      * @param string $path
+     * @param string $code
      */
-    public function attachImageWithCode($code, $path);
+    public function attachImage($path, $code = null);
+
+    public function enableSlugModification();
 }

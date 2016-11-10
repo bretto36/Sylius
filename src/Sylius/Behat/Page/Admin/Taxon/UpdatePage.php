@@ -11,6 +11,7 @@
 
 namespace Sylius\Behat\Page\Admin\Taxon;
 
+use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Sylius\Behat\Behaviour\ChecksCodeImmutability;
@@ -47,27 +48,32 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
     public function nameIt($name, $languageCode)
     {
         $this->getDocument()->fillField(sprintf('sylius_taxon_translations_%s_name', $languageCode), $name);
+
+        $this->waitForSlugGenerationIfNecessary();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function specifyPermalink($permalink, $languageCode)
+    public function specifySlug($slug)
     {
-        $this->getDocument()->fillField(sprintf('sylius_taxon_translations_%s_permalink', $languageCode), $permalink);
+        $this->getDocument()->fillField('Slug', $slug);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function attachImageWithCode($code, $path)
+    public function attachImage($path, $code = null)
     {
         $filesPath = $this->getParameter('files_path');
 
-        $this->getDocument()->clickLink('Add');
+        $this->getDocument()->find('css', '[data-form-collection="add"]')->click();
 
         $imageForm = $this->getLastImageElement();
-        $imageForm->fillField('Code', $code);
+        if (null !== $code) {
+            $imageForm->fillField('Code', $code);
+        }
+
         $imageForm->find('css', 'input[type="file"]')->attachFile($filesPath.$path);
     }
 
@@ -93,6 +99,14 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
     /**
      * {@inheritdoc}
      */
+    public function isSlugReadOnly()
+    {
+        return 'readonly' === $this->getElement('slug')->getAttribute('readonly');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function removeImageWithCode($code)
     {
         $imageElement = $this->getImageElementByCode($code);
@@ -103,6 +117,11 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
     {
         $imageElement = $this->getFirstImageElement();
         $imageElement->clickLink('Delete');
+    }
+
+    public function enableSlugModification()
+    {
+        $this->getElement('toggle_taxon_slug_modification_button')->press();
     }
 
     /**
@@ -124,6 +143,14 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
 
         $imageForm = $this->getImageElementByCode($code);
         $imageForm->find('css', 'input[type="file"]')->attachFile($filesPath.$path);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getParent()
+    {
+        return $this->getElement('parent')->getValue();
     }
 
     /**
@@ -183,7 +210,8 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
             'images' => '#sylius_taxon_images',
             'name' => '#sylius_taxon_translations_en_US_name',
             'parent' => '#sylius_taxon_parent',
-            'permalink' => '#sylius_taxon_translations_en_US_permalink',
+            'slug' => '#sylius_taxon_translations_en_US_slug',
+            'toggle_taxon_slug_modification_button' => '#toggle-taxon-slug-modification',
         ]);
     }
 
@@ -234,5 +262,22 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
         }
 
         return $inputCode->getParent()->getParent()->getParent();
+    }
+
+    private function waitForSlugGenerationIfNecessary()
+    {
+        if (!$this->getDriver() instanceof Selenium2Driver) {
+            return;
+        }
+
+        $slugElement = $this->getElement('slug');
+        if ($slugElement->hasAttribute('readonly')) {
+            return;
+        }
+
+        $value = $slugElement->getValue();
+        $this->getDocument()->waitFor(10, function () use ($slugElement, $value) {
+            return $value !== $slugElement->getValue();
+        });
     }
 }

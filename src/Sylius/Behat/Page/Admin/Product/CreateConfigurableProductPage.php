@@ -11,6 +11,7 @@
 
 namespace Sylius\Behat\Page\Admin\Product;
 
+use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Element\NodeElement;
 use Sylius\Behat\Behaviour\SpecifiesItsCode;
 use Sylius\Behat\Page\Admin\Crud\CreatePage as BaseCreatePage;
@@ -31,6 +32,8 @@ class CreateConfigurableProductPage extends BaseCreatePage implements CreateConf
         $this->getDocument()->fillField(
             sprintf('sylius_product_translations_%s_name', $localeCode), $name
         );
+
+        $this->waitForSlugGenerationIfNecessary();
     }
 
     /**
@@ -44,7 +47,7 @@ class CreateConfigurableProductPage extends BaseCreatePage implements CreateConf
     /**
      * {@inheritdoc}
      */
-    public function attachImageWithCode($code, $path)
+    public function attachImage($path, $code = null)
     {
         $this->clickTabIfItsNotActive('media');
 
@@ -53,7 +56,10 @@ class CreateConfigurableProductPage extends BaseCreatePage implements CreateConf
         $this->getDocument()->clickLink('Add');
 
         $imageForm = $this->getLastImageElement();
-        $imageForm->fillField('Code', $code);
+        if (null !== $code) {
+            $imageForm->fillField('Code', $code);
+        }
+
         $imageForm->find('css', 'input[type="file"]')->attachFile($filesPath.$path);
     }
 
@@ -66,6 +72,7 @@ class CreateConfigurableProductPage extends BaseCreatePage implements CreateConf
             'code' => '#sylius_product_code',
             'images' => '#sylius_product_images',
             'name' => '#sylius_product_translations_en_US_name',
+            'slug' => '#sylius_product_translations_en_US_slug',
             'tab' => '.menu [data-tab="%name%"]',
         ]);
     }
@@ -92,5 +99,14 @@ class CreateConfigurableProductPage extends BaseCreatePage implements CreateConf
         Assert::notEmpty($items);
 
         return end($items);
+    }
+
+    private function waitForSlugGenerationIfNecessary()
+    {
+        if ($this->getDriver() instanceof Selenium2Driver) {
+            $this->getDocument()->waitFor(10, function () {
+                return '' !== $this->getElement('slug')->getValue();
+            });
+        }
     }
 }
