@@ -7,6 +7,7 @@ sylius:
             main:
                 catalog:
                     association_types: Tipovi poveznica
+                    inventory: Skladište
                     options: Opcije
                 configuration:
                     channels: Kanali
@@ -28,5 +29,3 @@ sylius:
                 sales:
                     header: Prodaja
                     orders: Narudžbe
-                content:
-                    routes: Rute

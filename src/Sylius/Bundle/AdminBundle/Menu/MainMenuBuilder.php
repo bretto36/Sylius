@@ -11,20 +11,44 @@
 
 namespace Sylius\Bundle\AdminBundle\Menu;
 
+use Knp\Menu\FactoryInterface;
 use Knp\Menu\ItemInterface;
 use Sylius\Bundle\UiBundle\Menu\Event\MenuBuilderEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-final class MainMenuBuilder extends AbstractAdminMenuBuilder
+final class MainMenuBuilder
 {
     const EVENT_NAME = 'sylius.menu.admin.main';
 
     /**
+     * @var FactoryInterface
+     */
+    private $factory;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    /**
+     * @param FactoryInterface $factory
+     * @param EventDispatcherInterface $eventDispatcher
+     */
+    public function __construct(FactoryInterface $factory, EventDispatcherInterface $eventDispatcher)
+    {
+        $this->factory = $factory;
+        $this->eventDispatcher = $eventDispatcher;
+    }
+
+    /**
+     * @param array $options
+     *
      * @return ItemInterface
      */
-    public function createMenu()
+    public function createMenu(array $options)
     {
         $menu = $this->factory->createItem('root');
 
@@ -32,7 +56,6 @@ final class MainMenuBuilder extends AbstractAdminMenuBuilder
         $this->addSalesSubMenu($menu);
         $this->addCustomersSubMenu($menu);
         $this->addMarketingSubMenu($menu);
-        $this->addContentSubMenu($menu);
         $this->addConfigurationSubMenu($menu);
 
         $this->eventDispatcher->dispatch(self::EVENT_NAME, new MenuBuilderEvent($this->factory, $menu));
@@ -60,6 +83,12 @@ final class MainMenuBuilder extends AbstractAdminMenuBuilder
             ->addChild('products', ['route' => 'sylius_admin_product_index'])
             ->setLabel('sylius.menu.admin.main.catalog.products')
             ->setLabelAttribute('icon', 'cube')
+        ;
+
+        $catalog
+            ->addChild('inventory', ['route' => 'sylius_admin_inventory_index'])
+            ->setLabel('sylius.menu.admin.main.catalog.inventory')
+            ->setLabelAttribute('icon', 'history')
         ;
 
         $catalog
@@ -130,29 +159,6 @@ final class MainMenuBuilder extends AbstractAdminMenuBuilder
     /**
      * @param ItemInterface $menu
      */
-    private function addContentSubMenu(ItemInterface $menu)
-    {
-        $content = $menu
-            ->addChild('content')
-            ->setLabel('sylius.menu.admin.main.content.header')
-        ;
-
-        $content
-            ->addChild('static_contents', ['route' => 'sylius_admin_static_content_index'])
-            ->setLabel('sylius.menu.admin.main.content.static_contents')
-            ->setLabelAttribute('icon', 'file')
-        ;
-
-        $content
-            ->addChild('routes', ['route' => 'sylius_admin_route_index'])
-            ->setLabel('sylius.menu.admin.main.content.routes')
-            ->setLabelAttribute('icon', 'sitemap')
-        ;
-    }
-
-    /**
-     * @param ItemInterface $menu
-     */
     private function addSalesSubMenu(ItemInterface $menu)
     {
         $sales = $menu
@@ -180,7 +186,7 @@ final class MainMenuBuilder extends AbstractAdminMenuBuilder
         $configuration
             ->addChild('channels', ['route' => 'sylius_admin_channel_index'])
             ->setLabel('sylius.menu.admin.main.configuration.channels')
-            ->setLabelAttribute('icon', 'share alternate')
+            ->setLabelAttribute('icon', 'random')
         ;
 
         $configuration
@@ -202,6 +208,12 @@ final class MainMenuBuilder extends AbstractAdminMenuBuilder
         ;
 
         $configuration
+            ->addChild('exchange_rates', ['route' => 'sylius_admin_exchange_rate_index'])
+            ->setLabel('sylius.menu.admin.main.configuration.exchange_rates')
+            ->setLabelAttribute('icon', 'sliders')
+        ;
+
+        $configuration
             ->addChild('locales', ['route' => 'sylius_admin_locale_index'])
             ->setLabel('sylius.menu.admin.main.configuration.locales')
             ->setLabelAttribute('icon', 'translate')
@@ -220,6 +232,12 @@ final class MainMenuBuilder extends AbstractAdminMenuBuilder
         ;
 
         $configuration
+            ->addChild('shipping_categories', ['route' => 'sylius_admin_shipping_category_index'])
+            ->setLabel('sylius.menu.admin.main.configuration.shipping_categories')
+            ->setLabelAttribute('icon', 'list layout')
+        ;
+
+        $configuration
             ->addChild('tax_categories', ['route' => 'sylius_admin_tax_category_index'])
             ->setLabel('sylius.menu.admin.main.configuration.tax_categories')
             ->setLabelAttribute('icon', 'tags')
@@ -229,12 +247,6 @@ final class MainMenuBuilder extends AbstractAdminMenuBuilder
             ->addChild('tax_rates', ['route' => 'sylius_admin_tax_rate_index'])
             ->setLabel('sylius.menu.admin.main.configuration.tax_rates')
             ->setLabelAttribute('icon', 'money')
-        ;
-
-        $configuration
-            ->addChild('channels', ['route' => 'sylius_admin_channel_index'])
-            ->setLabel('sylius.menu.admin.main.configuration.channels')
-            ->setLabelAttribute('icon', 'random')
         ;
 
         $configuration

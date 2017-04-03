@@ -3,6 +3,6 @@
 
 sylius:
     cart:
-        cart_save_completed: Der Warenkorb wurde erfolgreich gespeichert.
-        item_add_completed: Artikel wurde dem Warenkorb hinzugefügt.
-        item_remove_completed: Artikel wurde aus dem Warenkorb entfernt.
+        add_item: 'Artikel wurde dem Warenkorb hinzugefügt'
+        remove_item: 'Artikel wurde aus dem Warenkorb entfernt'
+        save: 'Der Warenkorb wurde erfolgreich aktualisiert'

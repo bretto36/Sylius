@@ -13,14 +13,17 @@ namespace Sylius\Bundle\TaxonomyBundle\Form\Type;
 
 use Sylius\Bundle\ResourceBundle\Form\EventSubscriber\AddCodeFormSubscriber;
 use Sylius\Bundle\ResourceBundle\Form\Type\AbstractResourceType;
-use Sylius\Bundle\TaxonomyBundle\Form\EventListener\BuildTaxonFormSubscriber;
+use Sylius\Bundle\ResourceBundle\Form\Type\ResourceAutocompleteChoiceType;
+use Sylius\Bundle\ResourceBundle\Form\Type\ResourceTranslationsType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
  */
-class TaxonType extends AbstractResourceType
+final class TaxonType extends AbstractResourceType
 {
     /**
      * {@inheritdoc}
@@ -28,19 +31,28 @@ class TaxonType extends AbstractResourceType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('translations', 'sylius_translations', [
-                'type' => 'sylius_taxon_translation',
+            ->add('translations', ResourceTranslationsType::class, [
+                'entry_type' => TaxonTranslationType::class,
                 'label' => 'sylius.form.taxon.name',
             ])
             ->addEventSubscriber(new AddCodeFormSubscriber())
-            ->addEventSubscriber(new BuildTaxonFormSubscriber($builder->getFormFactory()))
+            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
+                if (null === $event->getData()) {
+                    return;
+                }
+
+                $event->getForm()->add('parent', TaxonAutocompleteChoiceType::class, [
+                    'label' => 'sylius.form.taxon.parent',
+                    'required' => false,
+                ]);
+            })
         ;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'sylius_taxon';
     }

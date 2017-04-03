@@ -4,7 +4,11 @@
             {% set result = 'negative' %}
             {% set icon = 'remove' %}
         {% endif %}
-        <div class="ui icon {{ result|default('positive') }} message">
+        {% if 'info' == type %}
+            {% set result = 'info' %}
+            {% set icon = 'info' %}
+        {% endif %}
+        <div class="ui icon {{ result|default('positive') }} message" id="sylius-flash-messages">
             <i class="close icon"></i>
             <i class="{{ icon|default('checkmark') }} icon"></i>
             <div class="content">

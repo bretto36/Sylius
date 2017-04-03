@@ -15,6 +15,7 @@ use Sylius\Bundle\ResourceBundle\Event\ResourceControllerEvent;
 use Sylius\Component\Resource\Model\ResourceInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Translation\TranslatorBagInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
@@ -28,7 +29,7 @@ final class FlashHelper implements FlashHelperInterface
     private $session;
 
     /**
-     * @var TranslatorBagInterface
+     * @var TranslatorInterface
      */
     private $translator;
 
@@ -39,10 +40,10 @@ final class FlashHelper implements FlashHelperInterface
 
     /**
      * @param SessionInterface $session
-     * @param TranslatorBagInterface $translator
+     * @param TranslatorInterface $translator
      * @param string $defaultLocale
      */
-    public function __construct(SessionInterface $session, TranslatorBagInterface $translator, $defaultLocale)
+    public function __construct(SessionInterface $session, TranslatorInterface $translator, $defaultLocale)
     {
         $this->session = $session;
         $this->translator = $translator;
@@ -54,25 +55,15 @@ final class FlashHelper implements FlashHelperInterface
      */
     public function addSuccessFlash(RequestConfiguration $requestConfiguration, $actionName, ResourceInterface $resource = null)
     {
-        $metadata = $requestConfiguration->getMetadata();
-        $metadataName = $metadata->getHumanizedName();
+        $this->addFlashWithType($requestConfiguration, $actionName, 'success');
+    }
 
-        $message = $requestConfiguration->getFlashMessage($actionName);
-        if (false === $message) {
-            return;
-        }
-
-        if ($this->isTranslationDefined($message, $this->defaultLocale)) {
-            $this->addFlash('success', $message);
-
-            return;
-        }
-
-        $this->addFlash(
-            'success',
-            $this->getResourceMessage($actionName),
-            ['%resource%' => ucfirst($metadataName)]
-        );
+    /**
+     * {@inheritdoc}
+     */
+    public function addErrorFlash(RequestConfiguration $requestConfiguration, $actionName)
+    {
+        $this->addFlashWithType($requestConfiguration, $actionName, 'error');
     }
 
     /**
@@ -81,6 +72,41 @@ final class FlashHelper implements FlashHelperInterface
     public function addFlashFromEvent(RequestConfiguration $requestConfiguration, ResourceControllerEvent $event)
     {
         $this->addFlash($event->getMessageType(), $event->getMessage(), $event->getMessageParameters());
+    }
+
+    /**
+     * @param RequestConfiguration $requestConfiguration
+     * @param string $actionName
+     * @param string $type
+     */
+    private function addFlashWithType(RequestConfiguration $requestConfiguration, $actionName, $type)
+    {
+        $metadata = $requestConfiguration->getMetadata();
+        $metadataName = ucfirst($metadata->getHumanizedName());
+        $parameters = ['%resource%' => $metadataName];
+
+        $message = $requestConfiguration->getFlashMessage($actionName);
+        if (false === $message) {
+            return;
+        }
+
+        if ($this->isTranslationDefined($message, $this->defaultLocale, $parameters)) {
+            if (!$this->translator instanceof TranslatorBagInterface) {
+                $this->addFlash($type, $message, $parameters);
+
+                return;
+            }
+
+            $this->addFlash($type, $message);
+
+            return;
+        }
+
+        $this->addFlash(
+            $type,
+            $this->getResourceMessage($actionName),
+            $parameters
+        );
     }
 
     /**
@@ -124,13 +150,18 @@ final class FlashHelper implements FlashHelperInterface
     /**
      * @param string $message
      * @param string $locale
+     * @param array $parameters
      *
      * @return bool
      */
-    private function isTranslationDefined($message, $locale)
+    private function isTranslationDefined($message, $locale, array $parameters)
     {
-        $defaultCatalogue = $this->translator->getCatalogue($locale);
+        if ($this->translator instanceof TranslatorBagInterface) {
+            $defaultCatalogue = $this->translator->getCatalogue($locale);
 
-        return $defaultCatalogue->has($message, 'flashes');
+            return $defaultCatalogue->has($message, 'flashes');
+        }
+
+        return $message !== $this->translator->trans($message, $parameters,'flashes');
     }
 }

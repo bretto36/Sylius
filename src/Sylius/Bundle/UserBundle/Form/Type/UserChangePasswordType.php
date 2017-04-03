@@ -11,37 +11,16 @@
 
 namespace Sylius\Bundle\UserBundle\Form\Type;
 
-use Symfony\Component\Form\AbstractType;
+use Sylius\Bundle\ResourceBundle\Form\Type\AbstractResourceType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
  */
-class UserChangePasswordType extends AbstractType
+final class UserChangePasswordType extends AbstractResourceType
 {
-    /**
-     * @var string
-     */
-    protected $dataClass = null;
-
-    /**
-     * @var string[]
-     */
-    protected $validationGroups = [];
-
-    /**
-     * @param string $dataClass
-     * @param string[] $validationGroups
-     */
-    public function __construct($dataClass, array $validationGroups = [])
-    {
-        $this->dataClass = $dataClass;
-        $this->validationGroups = $validationGroups;
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -63,18 +42,7 @@ class UserChangePasswordType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        $resolver->setDefaults([
-            'data_class' => $this->dataClass,
-            'validation_groups' => $this->validationGroups,
-        ]);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'sylius_user_change_password';
     }

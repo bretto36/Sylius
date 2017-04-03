@@ -21,12 +21,12 @@ use Symfony\Component\Form\FormBuilderInterface;
 /**
  * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
  */
-class CustomerProfileType extends AbstractResourceType
+final class CustomerProfileType extends AbstractResourceType
 {
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options = [])
+    public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
             ->add('firstName', TextType::class, [
@@ -43,7 +43,7 @@ class CustomerProfileType extends AbstractResourceType
                 'widget' => 'single_text',
                 'required' => false,
             ])
-            ->add('gender', 'sylius_gender', [
+            ->add('gender', GenderType::class, [
                 'label' => 'sylius.form.customer.gender',
             ])
             ->add('phoneNumber', TextType::class, [
@@ -60,7 +60,7 @@ class CustomerProfileType extends AbstractResourceType
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'sylius_customer_profile';
     }

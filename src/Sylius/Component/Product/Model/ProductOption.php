@@ -38,6 +38,11 @@ class ProductOption implements ProductOptionInterface
     protected $code;
 
     /**
+     * @var int
+     */
+    protected $position;
+
+    /**
      * @var Collection|ProductOptionValueInterface[]
      */
     protected $values;
@@ -51,7 +56,7 @@ class ProductOption implements ProductOptionInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return string
      */
     public function __toString()
     {
@@ -87,7 +92,7 @@ class ProductOption implements ProductOptionInterface
      */
     public function getName()
     {
-        return $this->translate()->getName();
+        return $this->getTranslation()->getName();
     }
 
     /**
@@ -95,7 +100,23 @@ class ProductOption implements ProductOptionInterface
      */
     public function setName($name)
     {
-        $this->translate()->setName($name);
+        $this->getTranslation()->setName($name);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPosition()
+    {
+        return $this->position;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setPosition($position)
+    {
+        $this->position = $position;
     }
 
     /**
@@ -134,5 +155,13 @@ class ProductOption implements ProductOptionInterface
     public function hasValue(ProductOptionValueInterface $value)
     {
         return $this->values->contains($value);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function createTranslation()
+    {
+        return new ProductOptionTranslation();
     }
 }

@@ -14,7 +14,6 @@ namespace Sylius\Behat\Page\Shop\Cart;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Sylius\Behat\Page\SymfonyPage;
 use Sylius\Component\Core\Model\ProductInterface;
-use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
@@ -36,6 +35,16 @@ class SummaryPage extends SymfonyPage implements SummaryPageInterface
     public function getGrandTotal()
     {
         $totalElement = $this->getElement('grand_total');
+
+        return $totalElement->getText();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBaseGrandTotal()
+    {
+        $totalElement = $this->getElement('base_grand_total');
 
         return $totalElement->getText();
     }
@@ -114,7 +123,8 @@ class SummaryPage extends SymfonyPage implements SummaryPageInterface
     public function removeProduct($productName)
     {
         $itemElement = $this->getElement('product_row', ['%name%' => $productName]);
-        $itemElement->find('css', 'a.sylius-cart-remove-button')->click();
+        $itemElement->find('css', 'button.sylius-cart-remove-button')->press();
+
     }
 
     /**
@@ -152,7 +162,7 @@ class SummaryPage extends SymfonyPage implements SummaryPageInterface
      */
     public function hasItemNamed($name)
     {
-       return $this->hasItemWith($name, '.sylius-product-name');
+        return $this->hasItemWith($name, '.sylius-product-name');
     }
 
     /**
@@ -160,7 +170,7 @@ class SummaryPage extends SymfonyPage implements SummaryPageInterface
      */
     public function hasItemWithVariantNamed($variantName)
     {
-       return $this->hasItemWith($variantName, '.sylius-product-variant-name');
+        return $this->hasItemWith($variantName, '.sylius-product-variant-name');
     }
 
     /**
@@ -227,11 +237,11 @@ class SummaryPage extends SymfonyPage implements SummaryPageInterface
     {
         $cartTotalText = $this->getElement('cart_total')->getText();
 
-        if (strpos($cartTotalText, ',') !== false ) {
+        if (strpos($cartTotalText, ',') !== false) {
             return strstr($cartTotalText, ',', true);
         }
 
-        return $cartTotalText;
+        return trim($cartTotalText);
     }
 
     public function clearCart()
@@ -270,16 +280,17 @@ class SummaryPage extends SymfonyPage implements SummaryPageInterface
         return array_merge(parent::getDefinedElements(), [
             'apply_coupon_button' => 'button:contains("Apply coupon")',
             'cart_items' => '#sylius-cart-items',
-            'cart_total' => '#sylius-cart-button',
+            'cart_total' => '#sylius-cart-total',
             'clear_button' => '#sylius-cart-clear',
-            'coupon_field' => '#sylius_order_promotionCoupon',
+            'coupon_field' => '#sylius_cart_promotionCoupon',
             'grand_total' => '#sylius-cart-grand-total',
+            'base_grand_total' => '#sylius-cart-base-grand-total',
             'product_discounted_total' => '#sylius-cart-items tr:contains("%name%") .sylius-discounted-total',
             'product_row' => '#sylius-cart-items tbody tr:contains("%name%")',
             'product_total' => '#sylius-cart-items tr:contains("%name%") .sylius-total',
             'product_unit_price' => '#sylius-cart-items tr:contains("%name%") .sylius-unit-price',
             'product_unit_regular_price' => '#sylius-cart-items tr:contains("%name%") .sylius-regular-unit-price',
-            'promotion_coupon_validation_message' => '.coupon.action.input .sylius-validation-error',
+            'promotion_coupon_validation_message' => '#sylius-coupon .sylius-validation-error',
             'promotion_total' => '#sylius-cart-promotion-total',
             'save_button' => '#sylius-save',
             'shipping_total' => '#sylius-cart-shipping-total',
@@ -317,6 +328,6 @@ class SummaryPage extends SymfonyPage implements SummaryPageInterface
      */
     private function getPriceFromString($price)
     {
-        return (int) round((str_replace(['€', '£', '$'], '', $price) * 100), 2);
+        return (int) round(str_replace(['€', '£', '$'], '', $price) * 100, 2);
     }
 }

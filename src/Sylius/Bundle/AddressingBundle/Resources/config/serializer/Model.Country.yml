@@ -6,18 +6,23 @@ Sylius\Component\Addressing\Model\Country:
             expose: true
             type: integer
             xml_attribute: true
+            groups: [Default, Detailed]
         code:
             expose: true
             type: string
-        createdAt:
+            groups: [Default, Detailed]
+        enabled:
             expose: true
-            type: DateTime
-        updatedAt:
+            type: boolean
+            groups: [Detailed]
+        provinces:
             expose: true
-            type: DateTime
+            type: array
+            groups: [Detailed]
     relations:
-        - rel: self
-          href:
-                route: sylius_api_country_show
+        -   rel: self
+            href:
+                route: sylius_admin_api_country_show
                 parameters:
-                    id: expr(object.getId())
+                    code: expr(object.getCode())
+                    version: 1

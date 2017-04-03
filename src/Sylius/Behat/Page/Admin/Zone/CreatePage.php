@@ -15,7 +15,6 @@ use Behat\Mink\Exception\ElementNotFoundException;
 use Sylius\Behat\Behaviour\NamesIt;
 use Sylius\Behat\Behaviour\SpecifiesItsCode;
 use Sylius\Behat\Page\Admin\Crud\CreatePage as BaseCreatePage;
-use Webmozart\Assert\Assert;
 
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
@@ -58,6 +57,14 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
         }
 
         $lastSelectItem->selectOption($name);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function selectScope($scope)
+    {
+        $this->getDocument()->selectFieldOption('Scope', $scope);
     }
 
     /**

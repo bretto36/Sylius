@@ -19,7 +19,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class BooleanFilterType extends AbstractType
+final class BooleanFilterType extends AbstractType
 {
     /**
      * {@inheritdoc}
@@ -28,16 +28,14 @@ class BooleanFilterType extends AbstractType
     {
         $resolver
             ->setDefaults([
+                'choices' => [
+                    'sylius.ui.yes_label' => BooleanFilter::TRUE,
+                    'sylius.ui.no_label' => BooleanFilter::FALSE,
+                ],
                 'data_class' => null,
                 'required' => false,
-                'empty_value' => 'sylius.ui.all',
-                'choices' => [
-                    BooleanFilter::TRUE => 'sylius.ui.yes_label',
-                    BooleanFilter::FALSE => 'sylius.ui.no_label',
-                ],
+                'placeholder' => 'sylius.ui.all',
             ])
-            ->setDefined('field')
-            ->setAllowedTypes('field', 'string')
         ;
     }
 
@@ -52,7 +50,7 @@ class BooleanFilterType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'sylius_grid_filter_boolean';
     }

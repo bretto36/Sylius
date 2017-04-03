@@ -9,6 +9,7 @@ sylius:
                     association_types: Sąryšių tipai
                     attributes: Atributai
                     header: Katalogas
+                    inventory: Atsargos
                     options: Parinktys
                     products: Prekės
                     taxons: Taksonai
@@ -34,7 +35,3 @@ sylius:
                 sales:
                     header: Pardavimai
                     orders: Užsakymai
-                content:
-                    header: Turinys
-                    static_contents: Statinis turinys
-                    routes: Maršrutai

@@ -19,10 +19,7 @@ use Sylius\Component\Resource\Model\TranslatableInterface;
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
  */
-interface TaxonInterface extends
-    CodeAwareInterface,
-    TaxonTranslationInterface,
-    TranslatableInterface
+interface TaxonInterface extends CodeAwareInterface, TaxonTranslationInterface, TranslatableInterface
 {
     /**
      * @return bool
@@ -60,6 +57,11 @@ interface TaxonInterface extends
      * @return bool
      */
     public function hasChild(TaxonInterface $taxon);
+
+    /**
+     * @return bool
+     */
+    public function hasChildren();
 
     /**
      * @param TaxonInterface $taxon

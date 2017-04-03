@@ -19,26 +19,28 @@ sylius:
         promotion_action:
             add_product_configuration:
                 product: Product
-            customer_group: Gebruikersgroep
         promotion_coupon:
             per_customer_usage_limit: Gebruikslimiet per klant
         group:
             name: Naam
             roles: Rollen
         channel:
-            taxonomies: Taxonomieën
+            contact_email: Contact e-mail
+            currencies: Valuta's
+            currency_base: Standaardvaluta
+            account_verification_required: Is account verificatie vereist?
+            hostname: Hostnaam
             locale_default: Standaardlandinstelling
             locales: Talen/Regio's
-            currency_default: Standaard valuta
-            currencies: Valuta's
-            shipping_methods: Verzendmethodes
             payment_methods: Betaalmethodes
-            tax_calculation_strategy: Strategie voor berekening van de BTW
+            shipping_methods: Verzendmethodes
+            skipping_shipping_step_allowed: Verzending stap overslaan indien er slechts 1 verzendmethode beschikbaar is?
+            tax_calculation_strategy: Belastingberekeningsstrategie
             tax_zone_default: Standaard belastingzone
+            taxonomies: Taxonomieën
             theme: Thema
-            hostname: Hostnaam
         image:
-            code: Code
+            type: Type
             file: Afbeelding
         locale:
             code: Code
@@ -58,7 +60,6 @@ sylius:
         product:
             images: Afbeeldingen
             restricted_zone: Beperkte zone
-            shipping_category: Verzend categorie
             short_description: Korte omschrijving
             variant_selection_method: Variant selectie methode
             main_taxon: Hoofdcategorie
@@ -69,6 +70,7 @@ sylius:
             code: Code
         product_variant:
             tax_category: Belasting categorie
+            shipping_category: Verzend categorie
         shipment_filter:
             created_at_from: Van
             created_at_to: Tot
@@ -106,7 +108,6 @@ sylius:
             height: Hoogte
             on_hand: Huidige voorraad
             price: Prijs
-            original_price: Oorspronkelijke prijs
             sku: SKU
             weight: Gewicht
             width: Breedte
@@ -118,20 +119,30 @@ sylius:
             email: E-mail
         product_association:
             product: Gerelateerd product
-            type: Associatietype
+            type: Relatietype
         product_association_type:
             name: Naam
+        promotion_filter:
+            products: Producten filteren
+            taxons: Taxa filter
         promotion_rule:
-            contains_taxon:
-                taxon: Categorie
-                count: Aantal
-            taxon:
+            customer_group:
+                group: Klantengroep
+            has_taxon:
                 taxons: Taxa
             product:
                 products: Producten
             total_of_items_from_taxon:
-                taxon: Categorie
+                taxon: Taxon
                 amount: Hoeveelheid
+        payment_method:
+            channels: Kanalen
+        product_attribute:
+            position: Positie
+        zone:
+            scopes:
+                shipping: Verzending
+                tax: BTW
     installer:
         extensions:
             header: extensies
@@ -161,13 +172,16 @@ sylius:
             header: bestandssysteem
             cache:
                 header: cache
+                help: 'Machtigingen uitvoeren instellen: sudo setfacl -R -m u:www-gegevens: rwX -m u: ''whoami'': rwX %path% && sudo setfacl -dR -m u:www-gegevens: rwx -m u: ''whoami'': rwx %path%'
             exists: bestaat
             logs:
                 header: logs
+                help: 'Machtigingen uitvoeren instellen: sudo setfacl -R -m u:www-gegevens: rwX -m u: ''whoami'': rwX %path% && sudo setfacl -dR -m u:www-gegevens: rwx -m u: ''whoami'': rwx %path%'
             not_exists: niet bestaand
             not_writable: niet schrijfbaar
             parameters:
                 header: parameters.yml
+                help: 'Machtigingen uitvoeren instellen: sudo chmod a + w %path%'
             vendors: vendors
             writable: schrijfbaar
         settings:
@@ -188,23 +202,6 @@ sylius:
                 help: 'Tijdzone %timezone% is verouderd. Fix je php.ini bestand (lijst met verouderde tijdzones http://php.net/manual/en/timezones.others.php).'
             version: PHP versie
             version_recommended: Aanbevolen PHP versie
-    email:
-        order_confirmation:
-            name: Order bevestiging
-        order_comment:
-            name: Order Opmerkingen
-        shipment_confirmation:
-            name: Bevestiging van de verzending
-        user_confirmation:
-            name: Bevestiging van de gebruiker
-            subject: Welkom in jouw winkel
-            content: Wekom bij onze winkel<br/><br/>Je bent zonet geregistreerd.<br/>Bedankt %username%.
-        password_reset:
-            name: Wachtwoord opnieuw instellen
-            content: <h3>Dag %username%</h3>Bezoek %url% om je wachtwoord opnieuw in te stellen.<br/><br/>Met vriendelijke groeten, het Team.
-        verification:
-            name: E-mail adres verificatie
-            content: Bezoek %url% om je email adres te bevestigen
     payum_gateway:
         cash_on_delivery: Onder rembours
         offline: Offline

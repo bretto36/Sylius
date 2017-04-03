@@ -13,9 +13,9 @@ namespace Sylius\Behat\Context\Ui\Admin;
 
 use Behat\Behat\Context\Context;
 use Sylius\Behat\Page\Admin\Crud\IndexPageInterface;
+use Sylius\Behat\Page\Admin\TaxRate\CreatePageInterface;
 use Sylius\Behat\Page\Admin\TaxRate\UpdatePageInterface;
 use Sylius\Behat\Service\Resolver\CurrentPageResolverInterface;
-use Sylius\Behat\Page\Admin\TaxRate\CreatePageInterface;
 use Sylius\Component\Core\Model\TaxRateInterface;
 use Webmozart\Assert\Assert;
 
@@ -52,8 +52,8 @@ final class ManagingTaxRateContext implements Context
      */
     public function __construct(
         IndexPageInterface $indexPage,
-        CreatePageInterface $createPage, 
-        UpdatePageInterface $updatePage, 
+        CreatePageInterface $createPage,
+        UpdatePageInterface $updatePage,
         CurrentPageResolverInterface $currentPageResolver
     ) {
         $this->indexPage = $indexPage;
@@ -81,7 +81,6 @@ final class ManagingTaxRateContext implements Context
 
     /**
      * @When I specify its amount as :amount%
-     * @When I change its amount to :amount%
      * @When I do not specify its amount
      * @When I remove its amount
      */
@@ -143,10 +142,7 @@ final class ManagingTaxRateContext implements Context
     {
         $this->indexPage->open();
 
-        Assert::true(
-            $this->indexPage->isSingleResourceOnPage(['name' => $taxRateName]),
-            sprintf('Tax rate with name %s has not been found.', $taxRateName)
-        );
+        Assert::true($this->indexPage->isSingleResourceOnPage(['name' => $taxRateName]));
     }
 
     /**
@@ -163,10 +159,7 @@ final class ManagingTaxRateContext implements Context
      */
     public function thisTaxRateShouldNoLongerExistInTheRegistry(TaxRateInterface $taxRate)
     {
-        Assert::false(
-            $this->indexPage->isSingleResourceOnPage(['code' => $taxRate->getCode()]),
-            sprintf('Tax rate with code %s exists but should not.', $taxRate->getCode())
-        );
+        Assert::false($this->indexPage->isSingleResourceOnPage(['code' => $taxRate->getCode()]));
     }
 
     /**
@@ -183,10 +176,7 @@ final class ManagingTaxRateContext implements Context
      */
     public function theCodeFieldShouldBeDisabled()
     {
-        Assert::true(
-            $this->updatePage->isCodeDisabled(),
-            'Code should be immutable, but it does not.'
-        );
+        Assert::true($this->updatePage->isCodeDisabled());
     }
 
     /**
@@ -231,10 +221,7 @@ final class ManagingTaxRateContext implements Context
     {
         $this->indexPage->open();
 
-        Assert::true(
-            $this->indexPage->isSingleResourceOnPage([$element => $code]),
-            sprintf('Tax rate with %s %s cannot be found.', $element, $code)
-        );
+        Assert::true($this->indexPage->isSingleResourceOnPage([$element => $code]));
     }
 
     /**
@@ -276,10 +263,7 @@ final class ManagingTaxRateContext implements Context
     {
         $this->indexPage->open();
 
-        Assert::false(
-            $this->indexPage->isSingleResourceOnPage([$element => $name]),
-            sprintf('Tax rate with %s %s was created, but it should not.', $element, $name)
-        );
+        Assert::false($this->indexPage->isSingleResourceOnPage([$element => $name]));
     }
 
     /**
@@ -288,6 +272,14 @@ final class ManagingTaxRateContext implements Context
     public function iDoNotSpecifyItsZone()
     {
         // Intentionally left blank to fulfill context expectation
+    }
+
+    /**
+     * @When I remove its zone
+     */
+    public function iRemoveItsZone()
+    {
+        $this->updatePage->removeZone();
     }
 
     /**
@@ -308,12 +300,10 @@ final class ManagingTaxRateContext implements Context
         $this->indexPage->open();
 
         Assert::true(
-            $this->indexPage->isSingleResourceOnPage(
-                [
+            $this->indexPage->isSingleResourceOnPage([
                     'code' => $taxRate->getCode(),
                     $element => $taxRateElement,
-                ]
-            ),
+            ]),
             sprintf('Tax rate %s %s has not been assigned properly.', $element, $taxRateElement)
         );
     }

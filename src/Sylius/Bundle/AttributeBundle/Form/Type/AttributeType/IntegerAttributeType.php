@@ -12,19 +12,20 @@
 namespace Sylius\Bundle\AttributeBundle\Form\Type\AttributeType;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
  */
-class IntegerAttributeType extends AbstractType
+final class IntegerAttributeType extends AbstractType
 {
     /**
      * {@inheritdoc}
      */
     public function getParent()
     {
-        return 'integer';
+        return IntegerType::class;
     }
 
     /**
@@ -32,15 +33,18 @@ class IntegerAttributeType extends AbstractType
      */
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults([
-            'label' => false,
-        ]);
+        $resolver
+            ->setDefaults([
+                'label' => false,
+            ])
+            ->setRequired('configuration')
+        ;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'sylius_attribute_type_integer';
     }

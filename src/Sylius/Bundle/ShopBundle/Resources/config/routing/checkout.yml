@@ -3,6 +3,7 @@
 
 sylius_shop_checkout_start:
     path: /
+    methods: [GET]
     defaults:
         _controller: FrameworkBundle:Redirect:redirect
         route: sylius_shop_checkout_address
@@ -17,18 +18,16 @@ sylius_shop_checkout_address:
             flash: false
             template: SyliusShopBundle:Checkout:address.html.twig
             form:
-                type: sylius_checkout_address
+                type: Sylius\Bundle\CoreBundle\Form\Type\Checkout\AddressType
                 options:
                     customer: expr:service('sylius.context.customer').getCustomer()
             repository:
-                method: find
-                arguments: [expr:service('sylius.context.cart').getCart()]
+                method: findCartForAddressing
+                arguments:
+                    - "expr:service('sylius.context.cart').getCart().getId()"
             state_machine:
                 graph: sylius_order_checkout
                 transition: address
-            redirect:
-                route: sylius_shop_checkout_select_shipping
-                parameters: []
 
 sylius_shop_checkout_select_shipping:
     path: /select-shipping
@@ -39,16 +38,14 @@ sylius_shop_checkout_select_shipping:
             event: select_shipping
             flash: false
             template: SyliusShopBundle:Checkout:selectShipping.html.twig
-            form: sylius_checkout_select_shipping
+            form: Sylius\Bundle\CoreBundle\Form\Type\Checkout\SelectShippingType
             repository:
-                method: find
-                arguments: [expr:service('sylius.context.cart').getCart()]
+                method: findCartForSelectingShipping
+                arguments:
+                    - "expr:service('sylius.context.cart').getCart().getId()"
             state_machine:
                 graph: sylius_order_checkout
                 transition: select_shipping
-            redirect:
-                route: sylius_shop_checkout_select_payment
-                parameters: []
 
 sylius_shop_checkout_select_payment:
     path: /select-payment
@@ -59,16 +56,14 @@ sylius_shop_checkout_select_payment:
             event: payment
             flash: false
             template: SyliusShopBundle:Checkout:selectPayment.html.twig
-            form: sylius_checkout_select_payment
+            form: Sylius\Bundle\CoreBundle\Form\Type\Checkout\SelectPaymentType
             repository:
-                method: find
-                arguments: [expr:service('sylius.context.cart').getCart()]
+                method: findCartForSelectingPayment
+                arguments:
+                    - "expr:service('sylius.context.cart').getCart().getId()"
             state_machine:
                 graph: sylius_order_checkout
                 transition: select_payment
-            redirect:
-                route: sylius_shop_checkout_complete
-                parameters: []
 
 sylius_shop_checkout_complete:
     path: /complete
@@ -76,20 +71,21 @@ sylius_shop_checkout_complete:
     defaults:
         _controller: sylius.controller.order:updateAction
         _sylius:
-            event: summary
+            event: complete
             flash: false
             template: SyliusShopBundle:Checkout:complete.html.twig
             repository:
-                method: find
-                arguments: [expr:service('sylius.context.cart').getCart()]
+                method: findCartForSummary
+                arguments:
+                    - "expr:service('sylius.context.cart').getCart().getId()"
             state_machine:
                 graph: sylius_order_checkout
                 transition: complete
             redirect:
                 route: sylius_shop_order_pay
                 parameters:
-                    paymentId: expr:service('sylius.context.cart').getCart().getLastNewPayment().getId()
+                    tokenValue: resource.tokenValue
             form:
-                type: sylius_checkout_complete
+                type: Sylius\Bundle\CoreBundle\Form\Type\Checkout\CompleteType
                 options:
                     validation_groups: 'sylius_checkout_complete'

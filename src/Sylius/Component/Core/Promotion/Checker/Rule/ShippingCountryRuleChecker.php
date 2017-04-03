@@ -59,12 +59,4 @@ final class ShippingCountryRuleChecker implements RuleCheckerInterface
 
         return $country->getCode() === $configuration['country'];
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfigurationFormType()
-    {
-        return 'sylius_promotion_rule_shipping_country_configuration';
-    }
 }

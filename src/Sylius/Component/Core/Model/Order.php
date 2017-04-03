@@ -66,11 +66,6 @@ class Order extends BaseOrder implements OrderInterface
     protected $currencyCode;
 
     /**
-     * @var float
-     */
-    protected $exchangeRate = 1.0;
-
-    /**
      * @var string
      */
     protected $localeCode;
@@ -104,6 +99,11 @@ class Order extends BaseOrder implements OrderInterface
      * @var string
      */
     protected $tokenValue;
+
+    /**
+     * @var string
+     */
+    protected $customerIp;
 
     public function __construct()
     {
@@ -298,16 +298,18 @@ class Order extends BaseOrder implements OrderInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @param string|null $state
+     *
+     * @return BasePaymentInterface|null
      */
-    public function getLastNewPayment()
+    public function getLastPayment($state = null)
     {
         if ($this->payments->isEmpty()) {
             return null;
         }
 
-        $payment = $this->payments->filter(function (BasePaymentInterface $payment) {
-            return $payment->getState() === BasePaymentInterface::STATE_NEW;
+        $payment = $this->payments->filter(function (BasePaymentInterface $payment) use ($state) {
+            return null === $state || $payment->getState() === $state;
         })->last();
 
         return $payment !== false ? $payment : null;
@@ -368,7 +370,7 @@ class Order extends BaseOrder implements OrderInterface
     }
 
     /**
-     * @return null|BaseCouponInterface
+     * {@inheritdoc}
      */
     public function getPromotionCoupon()
     {
@@ -420,22 +422,6 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function getExchangeRate()
-    {
-        return $this->exchangeRate;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setExchangeRate($exchangeRate)
-    {
-        $this->exchangeRate = (float) $exchangeRate;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getLocaleCode()
     {
         return $this->localeCode;
@@ -465,27 +451,6 @@ class Order extends BaseOrder implements OrderInterface
     public function setShippingState($state)
     {
         $this->shippingState = $state;
-    }
-
-    /**
-     * Gets the last updated shipment of the order
-     *
-     * @return false|ShipmentInterface
-     */
-    public function getLastShipment()
-    {
-        if ($this->shipments->isEmpty()) {
-            return false;
-        }
-
-        $last = $this->shipments->first();
-        foreach ($this->shipments as $shipment) {
-            if ($shipment->getUpdatedAt() > $last->getUpdatedAt()) {
-                $last = $shipment;
-            }
-        }
-
-        return $last;
     }
 
     /**
@@ -576,6 +541,14 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
+    public function getTokenValue()
+    {
+        return $this->tokenValue;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function setTokenValue($tokenValue)
     {
         $this->tokenValue = $tokenValue;
@@ -584,8 +557,16 @@ class Order extends BaseOrder implements OrderInterface
     /**
      * {@inheritdoc}
      */
-    public function getTokenValue()
+    public function getCustomerIp()
     {
-        return $this->tokenValue;
+        return $this->customerIp;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setCustomerIp($customerIp)
+    {
+        $this->customerIp = $customerIp;
     }
 }

@@ -42,11 +42,19 @@ final class DashboardContext implements Context
     }
 
     /**
-     * @Then I should be on the administration dashboard
+     * @When I open administration dashboard for :code channel
      */
-    public function iShouldBeOnAdministrationDashboard()
+    public function iOpenAdministrationDashboardForChannel($code)
     {
-        Assert::true($this->dashboardPage->isOpen());
+        $this->dashboardPage->open(['channel' => $code]);
+    }
+
+    /**
+     * @When I choose :channelName channel
+     */
+    public function iChooseChannel($channelName)
+    {
+        $this->dashboardPage->chooseChannel($channelName);
     }
 
     /**

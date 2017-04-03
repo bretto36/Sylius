@@ -12,30 +12,35 @@ sylius:
         checkout:
             addressing:
                 different_billing_address: Použít jinou adresu pro fakturaci?
-            payment_method: Způsob Platby
-            shipping_method: Způsob Dopravy
+            payment_method: Způsob platby
+            shipping_method: Způsoby dopravy
         promotion:
             channels: Kanály
         promotion_action:
             add_product_configuration:
                 product: Produkt
+        promotion_coupon:
+            per_customer_usage_limit: Omezení použití na zákazníka
         group:
             name: Jméno
             roles: Role
         channel:
-            taxonomies: Taxonomie
-            locale_default: Výchozí Jazyk
-            locales: Lokalizace
-            currency_default: Výchozí měna
+            contact_email: Kontaktní e-mail
             currencies: Měny
-            shipping_methods: Způsoby dopravy
+            currency_base: Základní měna
+            account_verification_required: Je požadováno ověření účtu?
+            hostname: Hostname
+            locale_default: Výchozí jazyk
+            locales: Lokalizace
             payment_methods: Způsoby platby
+            shipping_methods: Způsoby dopravy
+            skipping_shipping_step_allowed: Přeskočit výběr doručení pokud je k dispozici pouze jedna možnost?
             tax_calculation_strategy: Strategie výpočtu daně
             tax_zone_default: Výchozí sazba DPH
+            taxonomies: Taxonomie
             theme: Vzhled
-            hostname: Hostname
         image:
-            code: Kód
+            type: Typ
             file: Obrázek
         locale:
             code: Kód
@@ -55,9 +60,9 @@ sylius:
         product:
             images: Obrázky
             restricted_zone: Zóna s omezeným přístupem
-            shipping_category: Typ dopravy
             short_description: Stručný popis
             variant_selection_method: Metoda výběru varianty
+            main_taxon: Hlavní taxon
             channels: Kanály
             enabled: Povoleno
         product_filter:
@@ -65,6 +70,7 @@ sylius:
             code: Kód
         product_variant:
             tax_category: Typ daně
+            shipping_category: Typ dopravy
         shipment_filter:
             created_at_from: Od
             created_at_to: Do
@@ -102,7 +108,6 @@ sylius:
             height: Výška
             on_hand: Aktuálně skladem
             price: Cena
-            original_price: Původní cena
             sku: SKU
             weight: Hmotnost
             width: Šířka
@@ -117,20 +122,40 @@ sylius:
             type: Typy asociace
         product_association_type:
             name: Jméno
+        promotion_filter:
+            products: Filtr produktů
+            taxons: Taxonů filtr
         promotion_rule:
-            contains_taxon:
-                count: Počet
+            customer_group:
+                group: Skupina zákazníků
+            has_taxon:
+                taxons: Taxony
+            product:
+                products: Produkty
+            total_of_items_from_taxon:
+                taxon: Taxonu
+                amount: Částka
+        payment_method:
+            channels: Kanály
+        product_attribute:
+            position: Pozice
+        zone:
+            scopes:
+                shipping: Přeprava
+                tax: Daň
     installer:
         extensions:
             header: rozšíření
             accelerator:
                 header: Akcelerátor
+                help: Povolte Zend OpCache (vysoce doporučeno).
             apc: APC
             ctype: Ctype
             gd: GD
             help: Nainstalujte a povolte %extension% rozšíření.
             iconv: Iconv
             exif: EXIF
+            fileinfo: FileInfo
             icu: ICU
             intl: Intl
             json_encode: JSON
@@ -147,13 +172,16 @@ sylius:
             header: souborový systém
             cache:
                 header: mezipaměť
+                help: 'To set permissions run: sudo setfacl -R -m u:www-data:rwX -m u:`whoami`:rwX %path% && sudo setfacl -dR -m u:www-data:rwx -m u:`whoami`:rwx %path%'
             exists: Existuje
             logs:
                 header: logy
+                help: 'To set permissions run: sudo setfacl -R -m u:www-data:rwX -m u:`whoami`:rwX %path% && sudo setfacl -dR -m u:www-data:rwx -m u:`whoami`:rwx %path%'
             not_exists: neexistuje
             not_writable: nelze zapisovat
             parameters:
                 header: parameters.yml
+                help: 'Chcete-li nastavit oprávnění spustit: sudo chmod a + w %path%'
             vendors: vendors
             writable: zapisovatelný
         settings:
@@ -173,23 +201,7 @@ sylius:
                 header: Zastaralé časové pásmo
                 help: 'Časové pásmo %timezone% je zastaralé. Spravte Váš php.ini soubor (seznam zastaralých časových pásem http://php.net/manual/en/timezones.others.php).'
             version: Verze PHP
-    email:
-        order_confirmation:
-            name: Potvrzení objednávky
-        order_comment:
-            name: Poznámka k objednávce
-        shipment_confirmation:
-            name: Potvrzení odeslání
-        user_confirmation:
-            name: Potvrzení uživatele
-            subject: Vítejte v našem obchodě
-            content: Vítejte v našem obchodě <br/> <br/> jste se právě zaregistrovali. <br/> Děkujeme vám %username%.
-        password_reset:
-            name: Obnovení hesla
-            content: <h3>Dobrý den %username%</h3> Chcete-li obnovit vaše heslo - navštivte %url% <br/> <br/> S pozdravem, tým.
-        verification:
-            name: Ověření emailové adresy
-            content: Chcete-li ověřit svou e-mailovou adresu - prosím navštivte %url%
+            version_recommended: Doporučená verze PHP
     payum_gateway:
         cash_on_delivery: Platba na dobírku
         offline: Offline

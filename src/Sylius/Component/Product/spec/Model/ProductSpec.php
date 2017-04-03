@@ -13,6 +13,7 @@ namespace spec\Sylius\Component\Product\Model;
 
 use Doctrine\Common\Collections\Collection;
 use PhpSpec\ObjectBehavior;
+use Sylius\Component\Attribute\Model\AttributeValueInterface;
 use Sylius\Component\Product\Model\Product;
 use Sylius\Component\Product\Model\ProductAssociationInterface;
 use Sylius\Component\Product\Model\ProductAttributeValueInterface;
@@ -86,35 +87,6 @@ final class ProductSpec extends ObjectBehavior
         $this->getDescription()->shouldReturn('This product is super cool because...');
     }
 
-    function it_initializes_availability_date_by_default()
-    {
-        $this->getAvailableOn()->shouldHaveType(\DateTime::class);
-    }
-
-    function it_is_available_by_default()
-    {
-        $this->shouldBeAvailable();
-    }
-
-    function its_availability_date_is_mutable(\DateTime $availableOnDate)
-    {
-        $this->setAvailableOn($availableOnDate);
-        $this->getAvailableOn()->shouldReturn($availableOnDate);
-    }
-
-    function it_is_available_only_if_availability_date_is_in_past()
-    {
-        $availableOn = new \DateTime('yesterday');
-
-        $this->setAvailableOn($availableOn);
-        $this->shouldBeAvailable();
-
-        $availableOn = new \DateTime('tomorrow');
-
-        $this->setAvailableOn($availableOn);
-        $this->shouldNotBeAvailable();
-    }
-
     function it_initializes_attribute_collection_by_default()
     {
         $this->getAttributes()->shouldHaveType(Collection::class);
@@ -141,6 +113,17 @@ final class ProductSpec extends ObjectBehavior
         $this->hasAttribute($attribute)->shouldReturn(false);
     }
 
+    function it_refuses_to_add_non_product_attribute(AttributeValueInterface $attribute)
+    {
+        $this->shouldThrow('\InvalidArgumentException')->duringAddAttribute($attribute);
+        $this->hasAttribute($attribute)->shouldReturn(false);
+    }
+
+    function it_refuses_to_remove_non_product_attribute(AttributeValueInterface $attribute)
+    {
+        $this->shouldThrow('\InvalidArgumentException')->duringRemoveAttribute($attribute);
+    }
+
     function it_has_no_variants_by_default()
     {
         $this->hasVariants()->shouldReturn(false);
@@ -161,34 +144,24 @@ final class ProductSpec extends ObjectBehavior
     function it_initializes_variants_collection_by_default()
     {
         $this->getVariants()->shouldHaveType(Collection::class);
-        $this->getAvailableVariants()->shouldHaveType(Collection::class);
     }
 
     function it_does_not_include_unavailable_variants_in_available_variants(ProductVariantInterface $variant)
     {
-        $variant->isAvailable()->willReturn(false);
-
         $variant->setProduct($this)->shouldBeCalled();
 
         $this->addVariant($variant);
-        $this->getAvailableVariants()->shouldHaveCount(0);
     }
 
     function it_returns_available_variants(
         ProductVariantInterface $unavailableVariant,
         ProductVariantInterface $variant
     ) {
-        $unavailableVariant->isAvailable()->willReturn(false);
-        $variant->isAvailable()->willReturn(true);
-
         $unavailableVariant->setProduct($this)->shouldBeCalled();
         $variant->setProduct($this)->shouldBeCalled();
 
         $this->addVariant($unavailableVariant);
         $this->addVariant($variant);
-
-        $this->getAvailableVariants()->shouldHaveCount(1);
-        $this->getAvailableVariants()->first()->shouldReturn($variant);
     }
 
     function it_initializes_options_collection_by_default()

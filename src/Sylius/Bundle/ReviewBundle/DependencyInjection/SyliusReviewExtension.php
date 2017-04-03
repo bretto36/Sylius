@@ -12,9 +12,13 @@
 namespace Sylius\Bundle\ReviewBundle\DependencyInjection;
 
 use Sylius\Bundle\ResourceBundle\DependencyInjection\Extension\AbstractResourceExtension;
+use Sylius\Bundle\ReviewBundle\EventListener\ReviewChangeListener;
+use Sylius\Bundle\ReviewBundle\Updater\AverageRatingUpdater;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
@@ -23,27 +27,18 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 final class SyliusReviewExtension extends AbstractResourceExtension
 {
     /**
-     * @var array
-     */
-    private $reviewSubjects = [];
-
-    /**
      * {@inheritdoc}
      */
     public function load(array $config, ContainerBuilder $container)
     {
-        $config = $this->processConfiguration($this->getConfiguration($config, $container), $config);
+        $config = $this->processConfiguration($this->getConfiguration([], $container), $config);
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 
         $this->registerResources('sylius', $config['driver'], $this->resolveResources($config['resources'], $container), $container);
 
         $loader->load('services.xml');
 
-        foreach ($config['resources'] as $name => $parameters) {
-            $this->addRequiredArgumentsToForms($name, $parameters, $container);
-        }
-
-        $this->addProperTagToReviewDeleteListener($container);
+        $loader->load(sprintf('integrations/%s.xml', $config['driver']));
     }
 
     /**
@@ -51,17 +46,11 @@ final class SyliusReviewExtension extends AbstractResourceExtension
      */
     private function resolveResources(array $resources, ContainerBuilder $container)
     {
-        $subjects = [];
+        $container->setParameter('sylius.review.subjects', $resources);
 
-        foreach ($resources as $subject => $parameters) {
-            $this->reviewSubjects[] = $subject;
-            $subjects[$subject] = $parameters;
-        }
-
-        $container->setParameter('sylius.review.subjects', $subjects);
+        $this->createReviewListeners(array_keys($resources), $container);
 
         $resolvedResources = [];
-
         foreach ($resources as $subjectName => $subjectConfig) {
             foreach ($subjectConfig as $resourceName => $resourceConfig) {
                 if (is_array($resourceConfig)) {
@@ -74,33 +63,32 @@ final class SyliusReviewExtension extends AbstractResourceExtension
     }
 
     /**
-     * @param string $name
-     * @param array $parameters
+     * @param array $reviewSubjects
      * @param ContainerBuilder $container
      */
-    private function addRequiredArgumentsToForms($name, array $parameters, ContainerBuilder $container)
+    private function createReviewListeners(array $reviewSubjects, ContainerBuilder $container)
     {
-        if (!$container->hasDefinition('sylius.form.type.'.$name.'_review')) {
-            return;
-        }
+        foreach ($reviewSubjects as $reviewSubject) {
+            $reviewChangeListener = new Definition(ReviewChangeListener::class, [
+                new Reference(sprintf('sylius.%s_review.average_rating_updater', $reviewSubject)),
+            ]);
 
-        foreach ($parameters['review']['classes']['form'] as $formName => $form) {
-            $formKey = ('default' === $formName) ? $name.'_review' : $name.'_review_'.$formName;
-            $formDefinition = $container->getDefinition('sylius.form.type.'.$formKey);
-            $formDefinition->addArgument($name);
-        }
-    }
+            $reviewChangeListener->addTag('kernel.event_listener', [
+                'event' => sprintf('sylius.%s_review.post_update', $reviewSubject),
+                'method' => 'recalculateSubjectRating',
+            ]);
+            $reviewChangeListener->addTag('kernel.event_listener', [
+                'event' => sprintf('sylius.%s_review.post_delete', $reviewSubject),
+                'method' => 'recalculateSubjectRating',
+            ]);
 
-    /**
-     * @param ContainerBuilder $container
-     */
-    private function addProperTagToReviewDeleteListener(ContainerBuilder $container)
-    {
-        if (!$container->hasDefinition('sylius.listener.review_delete')) {
-            return;
+            $container->addDefinitions([
+                sprintf('sylius.%s_review.average_rating_updater', $reviewSubject) => new Definition(AverageRatingUpdater::class, [
+                    new Reference('sylius.average_rating_calculator'),
+                    new Reference(sprintf('sylius.manager.%s_review', $reviewSubject)),
+                ]),
+                sprintf('sylius.listener.%s_review_change', $reviewSubject) => $reviewChangeListener,
+            ]);
         }
-
-        $listenerDefinition = $container->getDefinition('sylius.listener.review_delete');
-        $listenerDefinition->addTag('doctrine.event_listener', ['event' => 'postRemove', 'method' => 'recalculateSubjectRating']);
     }
 }

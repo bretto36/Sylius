@@ -12,7 +12,7 @@
 namespace Sylius\Bundle\CoreBundle\Form\Type;
 
 use Sylius\Component\Addressing\Model\AddressInterface;
-use Sylius\Component\Resource\Repository\RepositoryInterface;
+use Sylius\Component\Core\Repository\AddressRepositoryInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\OptionsResolver\Options;
@@ -21,17 +21,17 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * @author Jan Góralski <jan.goralski@lakion.com>
  */
-class AddressChoiceType extends AbstractType
+final class AddressChoiceType extends AbstractType
 {
     /**
-     * @var RepositoryInterface
+     * @var AddressRepositoryInterface
      */
     private $addressRepository;
 
     /**
-     * @param RepositoryInterface $addressRepository
+     * @param AddressRepositoryInterface $addressRepository
      */
-    public function __construct(RepositoryInterface $addressRepository)
+    public function __construct(AddressRepositoryInterface $addressRepository)
     {
         $this->addressRepository = $addressRepository;
     }
@@ -41,17 +41,16 @@ class AddressChoiceType extends AbstractType
      */
     public function configureOptions(OptionsResolver $resolver)
     {
-        $choices = function (Options $options) {
-            if (null === $options['customer']) {
-                return $this->addressRepository->findAll();
-            }
-
-            return $this->addressRepository->findBy(['customer' => $options['customer']]);
-        };
-
         $resolver->setDefaults([
-            'class' => AddressInterface::class,
-            'choices' => $choices,
+            'choices' => function (Options $options) {
+                if (null === $options['customer']) {
+                    return $this->addressRepository->findAll();
+                }
+
+                return $this->addressRepository->findByCustomer($options['customer']);
+            },
+            'choice_value' => 'id',
+            'choice_translation_domain' => false,
             'customer' => null,
             'label' => false,
             'placeholder' => false,
@@ -69,7 +68,7 @@ class AddressChoiceType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'sylius_address_choice';
     }

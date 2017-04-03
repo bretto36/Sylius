@@ -44,9 +44,23 @@ interface CreatePageInterface extends BaseCreatePageInterface
 
     /**
      * @param string $option
+     * @param string|string[] $value
+     * @param bool $multiple
+     */
+    public function selectAutocompleteRuleOption($option, $value, $multiple = false);
+
+    /**
+     * @param string $option
      * @param string $value
      */
     public function fillRuleOption($option, $value);
+
+    /**
+     * @param string $channelName
+     * @param string $option
+     * @param string $value
+     */
+    public function fillRuleOptionForChannel($channelName, $option, $value);
 
     /**
      * @param string $actionName
@@ -65,6 +79,13 @@ interface CreatePageInterface extends BaseCreatePageInterface
      * @param string $value
      */
     public function fillActionOption($option, $value);
+
+    /**
+     * @param string $channelName
+     * @param string $option
+     * @param string $value
+     */
+    public function fillActionOptionForChannel($channelName, $option, $value);
 
     /**
      * @param string $limit
@@ -99,8 +120,8 @@ interface CreatePageInterface extends BaseCreatePageInterface
 
     /**
      * @param string $option
-     * @param string $value
+     * @param string|string[] $value
      * @param bool $multiple
      */
-    public function selectFilterOption($option, $value, $multiple = false);
+    public function selectAutoCompleteFilterOption($option, $value, $multiple = false);
 }

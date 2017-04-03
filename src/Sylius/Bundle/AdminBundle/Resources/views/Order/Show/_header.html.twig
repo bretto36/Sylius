@@ -7,12 +7,12 @@
         <div class="sub header">
             <div class="ui horizontal divided list">
                 <div class="item">
-                    {{ order.checkoutCompletedAt|format_date }}
+                    {{ order.checkoutCompletedAt|format_datetime }}
                 </div>
                 <div class="item" id="sylius-order-state">
                     {% include [('@SyliusAdmin/Order/Label/State' ~ '/' ~ order.state ~ '.html.twig'), '@SyliusUi/Label/_default.html.twig'] with {'value': ('sylius.ui.' ~ order.state)|trans} %}
                 </div>
-                <div class="item">
+                <div class="item" id="sylius-order-currency">
                     {{ order.currencyCode }}
                 </div>
                 <div class="item">
@@ -23,7 +23,6 @@
                     <span class="ui large empty horizontal circular label" style="background-color: {{ order.channel.color }}"></span> <strong>{{ order.channel }}</strong>
                 </div>
             </div>
-
         </div>
     </div>
 </h1>

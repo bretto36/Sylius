@@ -31,26 +31,26 @@ class IndexPage extends SymfonyPage implements IndexPageInterface
     /**
      * @var string
      */
-    private $resourceName;
+    private $routeName;
 
     /**
      * @param Session $session
      * @param array $parameters
      * @param RouterInterface $router
      * @param TableAccessorInterface $tableAccessor
-     * @param string $resourceName
+     * @param string $routeName
      */
     public function __construct(
         Session $session,
         array $parameters,
         RouterInterface $router,
         TableAccessorInterface $tableAccessor,
-        $resourceName
+        $routeName
     ) {
         parent::__construct($session, $parameters, $router);
 
         $this->tableAccessor = $tableAccessor;
-        $this->resourceName = strtolower($resourceName);
+        $this->routeName = $routeName;
     }
 
     /**
@@ -137,17 +137,27 @@ class IndexPage extends SymfonyPage implements IndexPageInterface
     /**
      * {@inheritdoc}
      */
-    public function getRouteName()
+    public function getActionsForResource(array $parameters)
     {
-        return sprintf('sylius_admin_%s_index', $this->resourceName);
+        $tableAccessor = $this->getTableAccessor();
+        $table = $this->getElement('table');
+
+        $resourceRow = $tableAccessor->getRowWithFields($table, $parameters);
+
+        return $tableAccessor->getFieldFromRow($table, $resourceRow, 'actions');
+    }
+
+    public function filter()
+    {
+        $this->getElement('filter')->press();
     }
 
     /**
-     * @return string
+     * {@inheritdoc}
      */
-    protected function getResourceName()
+    public function getRouteName()
     {
-        return $this->resourceName;
+        return $this->routeName;
     }
 
     /**
@@ -164,6 +174,7 @@ class IndexPage extends SymfonyPage implements IndexPageInterface
     protected function getDefinedElements()
     {
         return array_merge(parent::getDefinedElements(), [
+            'filter' => 'button:contains("Filter")',
             'table' => '.table',
         ]);
     }

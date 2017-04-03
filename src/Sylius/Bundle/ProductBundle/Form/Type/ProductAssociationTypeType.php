@@ -13,12 +13,14 @@ namespace Sylius\Bundle\ProductBundle\Form\Type;
 
 use Sylius\Bundle\ResourceBundle\Form\EventSubscriber\AddCodeFormSubscriber;
 use Sylius\Bundle\ResourceBundle\Form\Type\AbstractResourceType;
+use Sylius\Bundle\ResourceBundle\Form\Type\ResourceTranslationsType;
 use Symfony\Component\Form\FormBuilderInterface;
 
 /**
  * @author Leszek Prabucki <leszek.prabucki@gmail.com>
+ * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
  */
-class ProductAssociationTypeType extends AbstractResourceType
+final class ProductAssociationTypeType extends AbstractResourceType
 {
     /**
      * {@inheritdoc}
@@ -26,8 +28,9 @@ class ProductAssociationTypeType extends AbstractResourceType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('name', 'text', [
-                'label' => 'sylius.form.product_association_type.name',
+            ->add('translations', ResourceTranslationsType::class, [
+                'entry_type' => ProductAssociationTypeTranslationType::class,
+                'label' => 'sylius.form.product_association_type.translations',
             ])
             ->addEventSubscriber(new AddCodeFormSubscriber())
         ;
@@ -36,7 +39,7 @@ class ProductAssociationTypeType extends AbstractResourceType
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'sylius_product_association_type';
     }

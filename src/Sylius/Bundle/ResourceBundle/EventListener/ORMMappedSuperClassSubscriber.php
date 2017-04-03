@@ -74,7 +74,11 @@ final class ORMMappedSuperClassSubscriber extends AbstractDoctrineSubscriber
      */
     private function setAssociationMappings(ClassMetadataInfo $metadata, $configuration)
     {
-        foreach (class_parents($metadata->getName()) as $parent) {
+        $class = $metadata->getName();
+        if (!class_exists($class)) {
+            return;
+        }
+        foreach (class_parents($class) as $parent) {
             if (false === in_array($parent, $configuration->getMetadataDriverImpl()->getAllClassNames())) {
                 continue;
             }
@@ -96,7 +100,7 @@ final class ORMMappedSuperClassSubscriber extends AbstractDoctrineSubscriber
 
             if ($parentMetadata->isMappedSuperclass) {
                 foreach ($parentMetadata->getAssociationMappings() as $key => $value) {
-                    if ($this->hasRelation($value['type'])) {
+                    if ($this->isRelation($value['type']) && !isset($metadata->associationMappings[$key])) {
                         $metadata->associationMappings[$key] = $value;
                     }
                 }
@@ -114,18 +118,18 @@ final class ORMMappedSuperClassSubscriber extends AbstractDoctrineSubscriber
         }
 
         foreach ($metadata->getAssociationMappings() as $key => $value) {
-            if ($this->hasRelation($value['type'])) {
+            if ($this->isRelation($value['type'])) {
                 unset($metadata->associationMappings[$key]);
             }
         }
     }
 
     /**
-     * @param $type
+     * @param string $type
      *
      * @return bool
      */
-    private function hasRelation($type)
+    private function isRelation($type)
     {
         return in_array(
             $type,

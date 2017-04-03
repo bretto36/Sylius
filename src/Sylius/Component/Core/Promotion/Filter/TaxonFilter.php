@@ -23,7 +23,7 @@ final class TaxonFilter implements FilterInterface
      */
     public function filter(array $items, array $configuration)
     {
-        if (!isset($configuration['filters']['taxons_filter']) || empty($configuration['filters']['taxons_filter']['taxons'])) {
+        if (empty($configuration['filters']['taxons_filter']['taxons'])) {
             return $items;
         }
 
@@ -46,7 +46,7 @@ final class TaxonFilter implements FilterInterface
     private function hasProductValidTaxon(ProductInterface $product, array $taxons)
     {
         foreach ($product->getTaxons() as $taxon) {
-            if (in_array($taxon->getCode(), $taxons)) {
+            if (in_array($taxon->getCode(), $taxons, true)) {
                 return true;
             }
         }

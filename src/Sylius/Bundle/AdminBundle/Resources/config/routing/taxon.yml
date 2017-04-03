@@ -15,21 +15,15 @@ sylius_admin_taxon:
 
 sylius_admin_taxon_index:
     path: /taxons/
+    methods: [GET]
     defaults:
         _controller: FrameworkBundle:Redirect:redirect
         route: sylius_admin_taxon_create
         permanent: true
 
-sylius_admin_taxon_move:
-    path: /taxons/{id}/move
-    methods: [PUT]
-    defaults:
-        _controller: sylius.controller.taxon:updateAction
-        _sylius:
-            form: sylius_taxon_position
-
 sylius_admin_taxon_create_for_parent:
     path: /taxons/new/{id}
+    methods: [GET, POST]
     defaults:
         _controller: sylius.controller.taxon:createAction
         _sylius:
@@ -38,8 +32,8 @@ sylius_admin_taxon_create_for_parent:
             redirect: sylius_admin_taxon_update
             factory:
                 method: createForParent
-                arguments: ['expr:service("sylius.repository.taxon").find($id)']
+                arguments: ['expr:notFoundOnNull(service("sylius.repository.taxon").find($id))']
             vars:
                 subheader: sylius.ui.manage_categorization_of_your_product
                 templates:
-                    form: @SyliusAdmin/Taxon/_form.html.twig
+                    form: "@SyliusAdmin/Taxon/_form.html.twig"

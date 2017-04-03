@@ -11,12 +11,15 @@
 
 namespace Sylius\Bundle\CoreBundle\Form\Type\Customer;
 
+use Sylius\Bundle\ResourceBundle\Form\Type\AbstractResourceType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 
 /**
  * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
  */
-class CustomerRegistrationType extends CustomerSimpleRegistrationType
+final class CustomerRegistrationType extends AbstractResourceType
 {
     /**
      * {@inheritdoc}
@@ -26,17 +29,17 @@ class CustomerRegistrationType extends CustomerSimpleRegistrationType
         parent::buildForm($builder, $options);
 
         $builder
-            ->add('firstName', 'text', [
+            ->add('firstName', TextType::class, [
                 'label' => 'sylius.form.customer.first_name',
             ])
-            ->add('lastName', 'text', [
+            ->add('lastName', TextType::class, [
                 'label' => 'sylius.form.customer.last_name',
             ])
-            ->add('phoneNumber', 'text', [
+            ->add('phoneNumber', TextType::class, [
                 'required' => false,
                 'label' => 'sylius.form.customer.phone_number',
             ])
-            ->add('subscribedToNewsletter', 'checkbox', [
+            ->add('subscribedToNewsletter', CheckboxType::class, [
                 'required' => false,
                 'label' => 'sylius.form.customer.subscribed_to_newsletter',
             ])
@@ -46,7 +49,15 @@ class CustomerRegistrationType extends CustomerSimpleRegistrationType
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getParent()
+    {
+        return CustomerSimpleRegistrationType::class;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
     {
         return 'sylius_customer_registration';
     }

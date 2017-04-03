@@ -46,8 +46,6 @@ interface CustomerInterface extends TimestampableInterface, ResourceInterface
     public function setEmailCanonical($emailCanonical);
 
     /**
-     * Gets first and last name.
-     *
      * @return string
      */
     public function getFullName();
@@ -112,7 +110,7 @@ interface CustomerInterface extends TimestampableInterface, ResourceInterface
     /**
      * @param CustomerGroupInterface $group
      */
-    public function setGroup(CustomerGroupInterface $group);
+    public function setGroup(CustomerGroupInterface $group = null);
 
     /**
      * @return string

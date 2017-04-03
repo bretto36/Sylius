@@ -73,6 +73,17 @@ final class GridSpec extends ObjectBehavior
         $this->getSorting()->shouldReturn(['name' => 'asc']);
     }
 
+    function it_has_no_pagination_limits_by_default()
+    {
+        $this->getLimits()->shouldReturn([]);
+    }
+
+    function its_pagination_limits_can_be_configured()
+    {
+        $this->setLimits([20, 50, 100]);
+        $this->getLimits()->shouldReturn([20, 50, 100]);
+    }
+
     function it_does_not_have_any_fields_by_default()
     {
         $this->getFields()->shouldReturn([]);
@@ -106,6 +117,47 @@ final class GridSpec extends ObjectBehavior
 
         $this->hasField('enabled')->shouldReturn(true);
         $this->hasField('parent')->shouldReturn(false);
+    }
+
+    function it_can_remove_field(Field $field)
+    {
+        $field->getName()->willReturn('enabled');
+        $this->addField($field);
+
+        $this->removeField('enabled');
+        $this->hasField('enabled')->shouldReturn(false);
+    }
+
+    function it_can_replace_field(Field $firstField, Field $secondField)
+    {
+        $firstField->getName()->willReturn('enabled');
+        $secondField->getName()->willReturn('enabled');
+        $this->addField($firstField);
+
+        $this->setField($secondField);
+        $this->getField('enabled')->shouldReturn($secondField);
+    }
+
+    function it_can_return_fields(Field $firstField, Field $secondField)
+    {
+        $firstField->getName()->willReturn('first');
+        $secondField->getName()->willReturn('second');
+        $this->addField($firstField);
+        $this->addField($secondField);
+
+        $this->getFields()->shouldHaveCount(2);
+    }
+
+    function it_can_return_only_enabled_fields(Field $firstField, Field $secondField)
+    {
+        $firstField->getName()->willReturn('first');
+        $firstField->isEnabled()->willReturn(true);
+        $secondField->getName()->willReturn('second');
+        $secondField->isEnabled()->willReturn(false);
+        $this->addField($firstField);
+        $this->addField($secondField);
+
+        $this->getEnabledFields()->shouldHaveCount(1);
     }
 
     function it_does_not_have_any_action_groups_by_default()
@@ -143,6 +195,25 @@ final class GridSpec extends ObjectBehavior
         $this->hasActionGroup('default')->shouldReturn(false);
     }
 
+    function it_can_remove_action_group(ActionGroup $actionGroup)
+    {
+        $actionGroup->getName()->willReturn('row');
+        $this->addActionGroup($actionGroup);
+
+        $this->removeActionGroup('row');
+        $this->hasActionGroup('row')->shouldReturn(false);
+    }
+
+    function it_can_replace_action_group(ActionGroup $firstActionGroup, ActionGroup $secondActionGroup)
+    {
+        $firstActionGroup->getName()->willReturn('row');
+        $secondActionGroup->getName()->willReturn('row');
+        $this->addActionGroup($firstActionGroup);
+
+        $this->setActionGroup($secondActionGroup);
+        $this->getActionGroup('row')->shouldReturn($secondActionGroup);
+    }
+
     function it_returns_actions_for_given_group(ActionGroup $actionGroup, Action $action)
     {
         $actionGroup->getName()->willReturn('row');
@@ -150,6 +221,20 @@ final class GridSpec extends ObjectBehavior
         $this->addActionGroup($actionGroup);
 
         $this->getActions('row')->shouldReturn([$action]);
+    }
+
+    function it_returns_only_enabled_actions_for_given_group(
+        ActionGroup $actionGroup,
+        Action $firstAction,
+        Action $secondAction
+    ) {
+        $firstAction->isEnabled()->willReturn(true);
+        $secondAction->isEnabled()->willReturn(false);
+        $actionGroup->getName()->willReturn('row');
+        $actionGroup->getActions()->willReturn([$firstAction, $secondAction]);
+        $this->addActionGroup($actionGroup);
+
+        $this->getEnabledActions('row')->shouldReturn([$firstAction]);
     }
 
     function it_does_not_have_any_filters_by_default()
@@ -185,5 +270,46 @@ final class GridSpec extends ObjectBehavior
 
         $this->hasFilter('enabled')->shouldReturn(true);
         $this->hasFilter('created_at')->shouldReturn(false);
+    }
+
+    function it_can_remove_filter(Filter $filter)
+    {
+        $filter->getName()->willReturn('enabled');
+        $this->addFilter($filter);
+
+        $this->removeFilter('enabled');
+        $this->hasFilter('enabled')->shouldReturn(false);
+    }
+
+    function it_can_replace_filter(Filter $firstFilter, Filter $secondFilter)
+    {
+        $firstFilter->getName()->willReturn('enabled');
+        $secondFilter->getName()->willReturn('enabled');
+        $this->addFilter($firstFilter);
+
+        $this->setFilter($secondFilter);
+        $this->getFilter('enabled')->shouldReturn($secondFilter);
+    }
+
+    function it_can_return_filters(Filter $firstFilter, Filter $secondFilter)
+    {
+        $firstFilter->getName()->willReturn('first');
+        $secondFilter->getName()->willReturn('second');
+        $this->addFilter($firstFilter);
+        $this->addFilter($secondFilter);
+
+        $this->getFilters()->shouldHaveCount(2);
+    }
+
+    function it_can_return_only_enabled_filters(Filter $firstFilter, Filter $secondFilter)
+    {
+        $firstFilter->getName()->willReturn('first');
+        $firstFilter->isEnabled()->willReturn(true);
+        $secondFilter->getName()->willReturn('second');
+        $secondFilter->isEnabled()->willReturn(false);
+        $this->addFilter($firstFilter);
+        $this->addFilter($secondFilter);
+
+        $this->getEnabledFilters()->shouldHaveCount(1);
     }
 }

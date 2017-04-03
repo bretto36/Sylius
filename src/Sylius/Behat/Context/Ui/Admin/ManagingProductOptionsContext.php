@@ -55,8 +55,7 @@ final class ManagingProductOptionsContext implements Context
         CreatePageInterface $createPage,
         UpdatePageInterface $updatePage,
         CurrentPageResolverInterface $currentPageResolver
-    )
-    {
+    ) {
         $this->indexPage = $indexPage;
         $this->createPage = $createPage;
         $this->updatePage = $updatePage;
@@ -150,14 +149,6 @@ final class ManagingProductOptionsContext implements Context
     }
 
     /**
-     * @When I delete the :optionValue option value of this product option
-     */
-    public function iDeleteTheOptionValueOfThisProductOption($optionValue)
-    {
-        $this->updatePage->removeOptionValue($optionValue);
-    }
-
-    /**
      * @Then the product option :productOptionName should appear in the registry
      * @Then the product option :productOptionName should be in the registry
      */
@@ -165,10 +156,7 @@ final class ManagingProductOptionsContext implements Context
     {
         $this->iBrowseProductOptions();
 
-        Assert::true(
-            $this->indexPage->isSingleResourceOnPage(['name' => $productOptionName]),
-            sprintf('The product option with name %s has not been found.', $productOptionName)
-        );
+        Assert::true($this->indexPage->isSingleResourceOnPage(['name' => $productOptionName]));
     }
 
     /**
@@ -186,10 +174,7 @@ final class ManagingProductOptionsContext implements Context
     {
         $this->iBrowseProductOptions();
 
-        Assert::true(
-            $this->indexPage->isSingleResourceOnPage([$element => $value]),
-            sprintf('Product option with %s %s cannot be found.', $element, $value)
-        );
+        Assert::true($this->indexPage->isSingleResourceOnPage([$element => $value]));
     }
 
     /**
@@ -207,10 +192,7 @@ final class ManagingProductOptionsContext implements Context
     {
         $this->iBrowseProductOptions();
 
-        Assert::false(
-            $this->indexPage->isSingleResourceOnPage([$element => $value]),
-            sprintf('Product option with %s %s was created, but it should not.', $element, $value)
-        );
+        Assert::false($this->indexPage->isSingleResourceOnPage([$element => $value]));
     }
 
     /**
@@ -221,13 +203,10 @@ final class ManagingProductOptionsContext implements Context
     {
         $this->iBrowseProductOptions();
 
-        Assert::true(
-            $this->indexPage->isSingleResourceOnPage([
-                'code' => $productOption->getCode(),
-                'name' => $productOptionName,
-            ]),
-            sprintf('Product option name %s has not been assigned properly.', $productOptionName)
-        );
+        Assert::true($this->indexPage->isSingleResourceOnPage([
+            'code' => $productOption->getCode(),
+            'name' => $productOptionName,
+        ]));
     }
 
     /**
@@ -235,10 +214,7 @@ final class ManagingProductOptionsContext implements Context
      */
     public function theCodeFieldShouldBeDisabled()
     {
-        Assert::true(
-            $this->updatePage->isCodeDisabled(),
-            'Code field should be disabled but it is not'
-        );
+        Assert::true($this->updatePage->isCodeDisabled());
     }
 
     /**
@@ -254,10 +230,7 @@ final class ManagingProductOptionsContext implements Context
      */
     public function iShouldBeNotifiedThatAtLeastTwoOptionValuesAreRequired()
     {
-        Assert::true(
-            $this->createPage->checkValidationMessageForOptionValues('Please add at least 2 option values.'),
-            'I should be notified that product option needs at least two option values.'
-        );
+        Assert::true($this->createPage->checkValidationMessageForOptionValues('Please add at least 2 option values.'));
     }
 
     /**
@@ -265,13 +238,7 @@ final class ManagingProductOptionsContext implements Context
      */
     public function iShouldSeeProductOptionsInTheList($amount)
     {
-        $foundRows = $this->indexPage->countItems();
-
-        Assert::same(
-            (int) $amount,
-            $foundRows,
-            '%2$s rows with product options should appear on page, %s rows has been found'
-        );
+        Assert::same($this->indexPage->countItems(), (int) $amount);
     }
 
     /**
@@ -281,22 +248,24 @@ final class ManagingProductOptionsContext implements Context
     {
         $this->iWantToModifyAProductOption($productOption);
 
-        Assert::true(
-            $this->updatePage->isThereOptionValue($optionValue),
-            sprintf('%s is not a value of this product option.', $optionValue)
-        );
+        Assert::true($this->updatePage->isThereOptionValue($optionValue));
     }
 
     /**
-     * @Then /^(this product option) should not have the "([^"]*)" option value$/
+     * @Then the first product option in the list should have :field :value
      */
-    public function thisProductOptionShouldNotHaveTheOptionValue(ProductOptionInterface $productOption, $optionValue)
+    public function theFirstProductOptionInTheListShouldHave($field, $value)
     {
-        $this->iWantToModifyAProductOption($productOption);
+        Assert::same($this->indexPage->getColumnFields($field)[0], $value);
+    }
 
-        Assert::false(
-            $this->updatePage->isThereOptionValue($optionValue),
-            sprintf('%s is a value of this product option, but it should not.', $optionValue)
-        );
+    /**
+     * @Then the last product option in the list should have :field :value
+     */
+    public function theLastProductOptionInTheListShouldHave($field, $value)
+    {
+        $values = $this->indexPage->getColumnFields($field);
+
+        Assert::same(end($values), $value);
     }
 }

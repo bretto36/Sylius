@@ -11,6 +11,7 @@
 
 namespace Sylius\Behat\Page\Admin\Customer;
 
+use Behat\Mink\Element\NodeElement;
 use Sylius\Behat\Page\SymfonyPage;
 use Webmozart\Assert\Assert;
 
@@ -38,17 +39,20 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
         $deleteButton->pressButton('Delete');
     }
 
-    public function resetPassword()
-    {
-        $this->getDocument()->pressButton('Reset password');
-    }
-
     /**
      * {@inheritdoc}
      */
     public function getCustomerEmail()
     {
         return $this->getElement('customer_email')->getText();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getCustomerPhoneNumber()
+    {
+        return $this->getElement('customer_phone_number')->getText();
     }
 
     /**
@@ -144,6 +148,74 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
     /**
      * {@inheritdoc}
      */
+    public function hasImpersonateButton()
+    {
+        return $this->hasElement('impersonate_button');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function impersonate()
+    {
+        $this->getElement('impersonate_button')->click();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasCustomerPlacedAnyOrders()
+    {
+        return null !== $this->getElement('statistics')->find('css', '.sylius-orders-overall-count');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOrdersCountInChannel($channelName)
+    {
+        return (int) $this
+            ->getStatisticsForChannel($channelName)
+            ->find('css', '.sylius-orders-count')
+            ->getText()
+        ;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOrdersTotalInChannel($channelName)
+    {
+        return $this
+            ->getStatisticsForChannel($channelName)
+            ->find('css', '.sylius-orders-total')
+            ->getText()
+        ;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAverageTotalInChannel($channelName)
+    {
+        return $this
+            ->getStatisticsForChannel($channelName)
+            ->find('css', '.sylius-order-average-total')
+            ->getText()
+        ;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSuccessFlashMessage()
+    {
+        return trim($this->getElement('flash_message')->getText());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getRouteName()
     {
         return 'sylius_admin_customer_show';
@@ -157,13 +229,52 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
         return array_merge(parent::getDefinedElements(), [
             'customer_email' => '#info .content.extra > a',
             'customer_name' => '#info .content > a',
-            'default_address' => '#defaultAddress address',
+            'customer_phone_number' => '#phone-number',
+            'default_address' => '#default-address',
             'delete_account_button' => '#actions',
+            'flash_message' => '.ui.icon.positive.message .content p',
             'group' => '.group',
+            'impersonate_button' => '#impersonate',
             'no_account' => '#no-account',
+            'statistics' => '#statistics',
             'registration_date' => '#info .content .date',
             'subscribed_to_newsletter' => '#subscribed-to-newsletter',
             'verified_email' => '#verified-email',
         ]);
+    }
+
+    /**
+     * @param string $channelName
+     *
+     * @return NodeElement
+     *
+     * @throws \InvalidArgumentException
+     */
+    private function getStatisticsForChannel($channelName)
+    {
+        $statisticsRibs = $this
+            ->getElement('statistics')
+            ->findAll('css', '.row > .column > .statistic > .sylius-channel-name')
+        ;
+
+        $statisticsRibs = array_filter($statisticsRibs, function (NodeElement $statistic) use ($channelName) {
+            return $channelName === trim($statistic->getText());
+        });
+
+        $actualStatisticsCount = count($statisticsRibs);
+        Assert::same(
+            1,
+            $actualStatisticsCount,
+            sprintf(
+                'Expected a single statistic for channel "%s", but %d were found.',
+                $channelName,
+                $actualStatisticsCount
+            )
+        );
+
+        $statisticsContents = $this->getElement('statistics')->findAll('css', '.row');
+        $contentIndexes = array_keys($statisticsRibs);
+
+        return $statisticsContents[reset($contentIndexes)];
     }
 }

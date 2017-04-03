@@ -3,6 +3,6 @@
 
 sylius:
     cart:
-        cart_save_completed: Het winkelwagentje is bijgewerkt.
-        item_add_completed: Product is toegevoegd aan het winkelwagentje.
-        item_remove_completed: Product is verwijderd uit het winkelwagentje.
+        add_item: 'Product is toegevoegd aan de winkelwagen'
+        remove_item: 'Product is verwijderd uit de winkelwagen'
+        save: 'De winkelwagen is bijgewerkt'

@@ -16,9 +16,9 @@
         <constraint name="Sylius\Bundle\CoreBundle\Validator\Constraints\HasEnabledEntity">
             <option name="groups">sylius</option>
         </constraint>
-        <property name="defaultCurrency">
+        <property name="baseCurrency">
             <constraint name="NotBlank">
-                <option name="message">sylius.channel.default_currency.not_blank</option>
+                <option name="message">sylius.channel.base_currency.not_blank</option>
                 <option name="groups">sylius</option>
             </constraint>
         </property>
@@ -29,7 +29,26 @@
             </constraint>
         </property>
         <property name="taxCalculationStrategy">
-            <constraint name="NotBlank" />
+            <constraint name="NotBlank">
+                <option name="groups">sylius</option>
+            </constraint>
+        </property>
+        <property name="contactEmail">
+            <constraint name="Length">
+                <option name="min">2</option>
+                <option name="minMessage">sylius.channel.contact_email.min</option>
+                <option name="max">254</option>
+                <option name="maxMessage">sylius.channel.contact_email.max</option>
+                <option name="groups">
+                    <value>sylius</value>
+                </option>
+            </constraint>
+            <constraint name="Email">
+                <option name="message">sylius.channel.contact_email.invalid</option>
+                <option name="groups">
+                    <value>sylius</value>
+                </option>
+            </constraint>
         </property>
     </class>
 </constraint-mapping>

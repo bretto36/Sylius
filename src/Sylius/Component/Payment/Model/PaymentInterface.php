@@ -25,11 +25,8 @@ interface PaymentInterface extends TimestampableInterface, ResourceInterface
     const STATE_COMPLETED = 'completed';
     const STATE_FAILED = 'failed';
     const STATE_CANCELLED = 'cancelled';
-    const STATE_VOID = 'void';
     const STATE_REFUNDED = 'refunded';
-    const STATE_AUTHORIZED = 'authorized';
     const STATE_UNKNOWN = 'unknown';
-    const STATE_PAYEDOUT = 'payedout';
 
     /**
      * @return PaymentMethodInterface
@@ -40,16 +37,6 @@ interface PaymentInterface extends TimestampableInterface, ResourceInterface
      * @param null|PaymentMethodInterface $method
      */
     public function setMethod(PaymentMethodInterface $method = null);
-
-    /**
-     * @return PaymentSourceInterface
-     */
-    public function getSource();
-
-    /**
-     * @param null|PaymentSourceInterface $source
-     */
-    public function setSource(PaymentSourceInterface $source = null);
 
     /**
      * @return string
@@ -82,12 +69,12 @@ interface PaymentInterface extends TimestampableInterface, ResourceInterface
     public function setAmount($amount);
 
     /**
-     * @param array|\Traversable $details
-     */
-    public function setDetails($details);
-
-    /**
      * @return array
      */
     public function getDetails();
+
+    /**
+     * @param array|\Traversable $details
+     */
+    public function setDetails($details);
 }

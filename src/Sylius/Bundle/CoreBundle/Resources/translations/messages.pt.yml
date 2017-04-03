@@ -5,14 +5,14 @@ sylius:
     form:
         block:
             body: Corpo
-            id: Nº
+            id: Id.
             title: Título
         cart:
             coupon: Cupão
         checkout:
             addressing:
-                different_billing_address: Usar um endereço diferente para faturação?
-            payment_method: Método de pagamento
+                different_billing_address: Usar uma morada diferente para a faturação?
+            payment_method: Método de Pagamento
             shipping_method: Método de envio
         promotion:
             channels: Canais
@@ -23,19 +23,21 @@ sylius:
             name: Nome
             roles: Funções
         channel:
-            taxonomies: Taxonomias
+            contact_email: E-mail de Contacto
+            currencies: Moedas
+            currency_base: Moeda base
+            account_verification_required: É necessária a verificação da conta?
+            hostname: Nome do servidor
             locale_default: Localidade padrão
             locales: Linguagens
-            currency_default: Moeda padrão
-            currencies: Moedas
-            shipping_methods: Métodos de envio
             payment_methods: Métodos de pagamento
+            shipping_methods: Métodos de envio
             tax_calculation_strategy: Estratégia de cálculo do imposto
             tax_zone_default: Zona de imposto padrão
+            taxonomies: Taxonomias
             theme: Aparência
-            hostname: Nome do servidor
         image:
-            code: Código
+            type: Tipo
             file: Imagem
         locale:
             code: Código
@@ -50,12 +52,11 @@ sylius:
             channel: Todos os canais
         page:
             body: Corpo
-            id: Nº
+            id: Id.
             title: Título
         product:
             images: Imagens
             restricted_zone: Zona restrita
-            shipping_category: Categoria de transporte
             short_description: Descrição breve
             variant_selection_method: Método de seleção de variantes
             main_taxon: Táxon principal
@@ -66,6 +67,7 @@ sylius:
             code: Código
         product_variant:
             tax_category: Categoria de imposto
+            shipping_category: Categoria de transporte
         shipment_filter:
             created_at_from: De
             created_at_to: Para
@@ -88,7 +90,7 @@ sylius:
             file: Selecionar imagem
         user:
             billing_address: Endereço de faturação
-            different_billing_address: Usar um endereço diferente para faturação?
+            different_billing_address: Usar uma morada diferente para a faturação?
             enabled: Ativado
             first_name: Nome próprio
             groups: Grupos
@@ -103,7 +105,6 @@ sylius:
             height: Altura
             on_hand: Disponibilidade
             price: Preço
-            original_price: Preço original
             sku: SKU
             weight: Peso
             width: Largura
@@ -118,17 +119,24 @@ sylius:
             type: Tipo de associação
         product_association_type:
             name: Nome
+        promotion_filter:
+            products: Filtro de produtos
         promotion_rule:
-            contains_taxon:
-                taxon: Táxon
-                count: Quantidade
-            taxon:
-                taxons: Táxons
+            customer_group:
+                group: Grupo de clientes
             product:
                 products: Produtos
             total_of_items_from_taxon:
                 taxon: Táxon
                 amount: Quantia
+        payment_method:
+            channels: Canais
+        product_attribute:
+            position: Posição
+        zone:
+            scopes:
+                shipping: Expedição
+                tax: Imposto
     installer:
         extensions:
             header: extensões
@@ -138,30 +146,42 @@ sylius:
             apc: APC
             ctype: Ctype
             gd: GD
+            help: Instalar e ativar a extensão %extension%.
+            exif: Exif
             icu: ICU
+            json_encode: JSON
             "off": false
             "on": true
+            pcre: PCRE
+            pdo: PDO
+            php_xml: PHP-XML
+            session_start: Sessão
+            simplexml_import_dom: SimpleXML
+        filesystem:
+            header: sistema de ficheiros
+            cache:
+                header: cache
+            exists: existe
+            logs:
+                header: registos
+            not_exists: não existe
+            not_writable: não gravável
+            parameters:
+                header: parameters.yml
+            vendors: fornecedores
+            writable: gravável
         settings:
+            any: qualquer
+            detect_unicode: detect_unicode
+            magic_quotes_gpc: magic_quotes_gpc
             "off": false
             "on": true
-    email:
-        order_confirmation:
-            name: Confirmação de encomenda
-        order_comment:
-            name: Comentário de encomenda
-        shipment_confirmation:
-            name: Confirmação de envio
-            content: A encomenda nº%number% foi enviada por %method%.<br />Pode verificar a sua localização com o código %tracking%.<br /><br />Obrigado pela preferência.
-        user_confirmation:
-            name: Confirmação do utilizador
-            subject: Bem-vindo à nossa loja
-            content: Bem-vindo à nossa loja, %username%.<br/> <br/>Acabou de se registar.
-        password_reset:
-            name: Redefinir palavra-passe
-            content: <h3>Olá %username%</h3> Para redefinir a sua palavra-passe, por favor visite %url% <br/> <br/>Obrigado.
-        verification:
-            name: Verificação de endereço de e-mail
-            content: Para verificar o seu endereço de e-mail, por favor visite %url%
+            register_globals: register_globals
+            session:
+                auto_start: session.auto_start
+            short_open_tag: short_open_tag
+            timezone: fuso horário
+            version: Versão de PHP
     payum_gateway:
         cash_on_delivery: Pagamento na entrega
         offline: Offline

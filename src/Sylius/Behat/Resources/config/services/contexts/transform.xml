@@ -13,10 +13,11 @@
 
 <container xmlns="http://symfony.com/schema/dic/services" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
     <services>
-        <service id="sylius.behat.context.transform.addressing" class="Sylius\Behat\Context\Transform\AddressingContext">
+        <service id="sylius.behat.context.transform.address" class="Sylius\Behat\Context\Transform\AddressContext">
             <argument type="service" id="__symfony__.sylius.factory.address" />
             <argument type="service" id="__symfony__.sylius.converter.country_name" />
             <argument type="service" id="__symfony__.sylius.repository.address" />
+            <argument type="service" id="__symfony__.sylius.fixture.example_factory.address" />
             <tag name="fob.context_service" />
         </service>
 
@@ -116,6 +117,11 @@
 
         <service id="sylius.behat.context.transform.shared_storage" class="Sylius\Behat\Context\Transform\SharedStorageContext">
             <argument type="service" id="sylius.behat.shared_storage" />
+            <tag name="fob.context_service" />
+        </service>
+
+        <service id="sylius.behat.context.transform.shipping_category" class="Sylius\Behat\Context\Transform\ShippingCategoryContext">
+            <argument type="service" id="__symfony__.sylius.repository.shipping_category" />
             <tag name="fob.context_service" />
         </service>
 

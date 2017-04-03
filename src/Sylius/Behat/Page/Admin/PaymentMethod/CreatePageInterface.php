@@ -33,9 +33,9 @@ interface CreatePageInterface extends BaseCreatePageInterface
     public function specifyCode($code);
 
     /**
-     * @param string $gateway
+     * @param string $channelName
      */
-    public function chooseGateway($gateway);
+    public function checkChannel($channelName);
 
     /**
      * @param string $description
@@ -48,6 +48,31 @@ interface CreatePageInterface extends BaseCreatePageInterface
      * @param string $languageCode
      */
     public function setInstructions($instructions, $languageCode);
+
+    /**
+     * @param string $username
+     */
+    public function setPaypalGatewayUsername($username);
+
+    /**
+     * @param string $password
+     */
+    public function setPaypalGatewayPassword($password);
+
+    /**
+     * @param string $signature
+     */
+    public function setPaypalGatewaySignature($signature);
+
+    /**
+     * @param string $secretKey
+     */
+    public function setStripeSecretKey($secretKey);
+
+    /**
+     * @param string $publishableKey
+     */
+    public function setStripePublishableKey($publishableKey);
 
     /**
      * @return bool

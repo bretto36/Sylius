@@ -29,60 +29,13 @@ final class SyliusAddressingExtension extends AbstractResourceExtension
      */
     public function load(array $config, ContainerBuilder $container)
     {
-        $config = $this->processConfiguration($this->getConfiguration($config, $container), $config);
+        $config = $this->processConfiguration($this->getConfiguration([], $container), $config);
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
-
-        $loader->load(sprintf('services/integrations/%s.xml', $config['driver']));
 
         $this->registerResources('sylius', $config['driver'], $config['resources'], $container);
 
         $loader->load('services.xml');
 
         $container->setParameter('sylius.scope.zone', $config['scopes']);
-
-        $container
-            ->getDefinition('sylius.form.type.province_choice')
-            ->setArguments([
-                new Reference('sylius.repository.province'),
-            ])
-        ;
-
-        $container
-            ->getDefinition('sylius.form.type.province_code_choice')
-            ->setArguments([
-                new Reference('sylius.repository.province'),
-            ])
-        ;
-
-        $container
-            ->getDefinition('sylius.form.type.country_choice')
-            ->setArguments([
-                new Reference('sylius.repository.country'),
-            ])
-        ;
-
-        $container
-            ->getDefinition('sylius.form.type.country_code_choice')
-            ->setArguments([
-                new Reference('sylius.repository.country'),
-            ])
-        ;
-
-        $container
-            ->getDefinition('sylius.form.type.zone_code_choice')
-            ->setArguments([
-                new Reference('sylius.repository.zone'),
-            ])
-        ;
-
-        $container
-            ->getDefinition('sylius.form.type.address')
-            ->addArgument(new Reference('sylius.form.listener.address'))
-        ;
-
-        $container
-            ->getDefinition('sylius.form.type.zone')
-            ->addArgument(new Parameter('sylius.scope.zone'))
-        ;
     }
 }

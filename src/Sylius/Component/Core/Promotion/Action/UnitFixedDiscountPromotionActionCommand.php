@@ -21,6 +21,7 @@ use Sylius\Component\Resource\Factory\FactoryInterface;
 
 /**
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
+ * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
  */
 final class UnitFixedDiscountPromotionActionCommand extends UnitDiscountPromotionActionCommand
 {
@@ -69,25 +70,32 @@ final class UnitFixedDiscountPromotionActionCommand extends UnitDiscountPromotio
             throw new UnexpectedTypeException($subject, OrderInterface::class);
         }
 
-        if (0 === $configuration['amount']) {
-            return;
+        $channelCode = $subject->getChannel()->getCode();
+        if (!isset($configuration[$channelCode])) {
+            return false;
         }
 
-        $filteredItems = $this->priceRangeFilter->filter($subject->getItems()->toArray(), $configuration);
-        $filteredItems = $this->taxonFilter->filter($filteredItems, $configuration);
-        $filteredItems = $this->productFilter->filter($filteredItems, $configuration);
+        $amount = $configuration[$channelCode]['amount'];
+        if (0 === $amount) {
+            return false;
+        }
+
+        $filteredItems = $this->priceRangeFilter->filter(
+            $subject->getItems()->toArray(),
+            array_merge(['channel' => $subject->getChannel()], $configuration[$channelCode])
+        );
+        $filteredItems = $this->taxonFilter->filter($filteredItems, $configuration[$channelCode]);
+        $filteredItems = $this->productFilter->filter($filteredItems, $configuration[$channelCode]);
+
+        if (empty($filteredItems)) {
+            return false;
+        }
 
         foreach ($filteredItems as $item) {
-            $this->setUnitsAdjustments($item, $configuration['amount'], $promotion);
+            $this->setUnitsAdjustments($item, $amount, $promotion);
         }
-    }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfigurationFormType()
-    {
-        return 'sylius_promotion_action_unit_fixed_discount_configuration';
+        return true;
     }
 
     /**

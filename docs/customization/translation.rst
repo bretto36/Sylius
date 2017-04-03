@@ -3,7 +3,7 @@ Customizing Translations
 
 .. note::
 
-    We've adopted a convention of overriding translations in the ``AppBundle\Resources\translations`` directory.
+    We've adopted a convention of overriding translations in the ``app\Resources\translations`` directory.
 
 Why would you customize a translation?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -22,14 +22,14 @@ How to customize a translation?
 
 In order to customize a translation in your project:
 
-1. If you don't have it yet, create ``AppBundle\Resources\translations\messages.en.yml`` for English translations.
+**1.** If you don't have it yet, create ``app\Resources\translations\messages.en.yml`` for English translations.
 
 .. note::
 
     You can create different files for different locales (languages). For example ``messages.pl.yml`` should hold only Polish translations,
-    as they will be visible when the current locale is ``PL``. Check the :doc:`Locales </book/locales>` docs for more information.
+    as they will be visible when the current locale is ``PL``. Check the :doc:`Locales </book/configuration/locales>` docs for more information.
 
-3. In this file, configure the desired key and give it a translation.
+**2.** In this file, configure the desired key and give it a translation.
 
 If you would like to change the translation of "Email" into "Username" on the login form you have to
 override its translation key which is ``sylius.form.customer.email``.

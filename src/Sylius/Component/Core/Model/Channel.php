@@ -17,8 +17,6 @@ use Sylius\Component\Addressing\Model\ZoneInterface;
 use Sylius\Component\Channel\Model\Channel as BaseChannel;
 use Sylius\Component\Currency\Model\CurrencyInterface;
 use Sylius\Component\Locale\Model\LocaleInterface;
-use Sylius\Component\Payment\Model\PaymentMethodInterface;
-use Sylius\Component\Shipping\Model\ShippingMethodInterface as BaseShippingMethodInterface;
 
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
@@ -28,7 +26,7 @@ class Channel extends BaseChannel implements ChannelInterface
     /**
      * @var CurrencyInterface
      */
-    protected $defaultCurrency;
+    protected $baseCurrency;
 
     /**
      * @var LocaleInterface
@@ -56,19 +54,29 @@ class Channel extends BaseChannel implements ChannelInterface
     protected $locales;
 
     /**
-     * @var PaymentMethodInterface[]|Collection
+     * @var string
      */
-    protected $paymentMethods;
-
-    /**
-     * @var BaseShippingMethodInterface[]|Collection
-     */
-    protected $shippingMethods;
+    protected $themeName;
 
     /**
      * @var string
      */
-    protected $themeName;
+    protected $contactEmail;
+
+    /**
+     * @var bool
+     */
+    protected $skippingShippingStepAllowed = false;
+
+    /**
+     * @var bool
+     */
+    protected $skippingPaymentStepAllowed = false;
+
+    /**
+     * @var bool
+     */
+    protected $accountVerificationRequired = true;
 
     public function __construct()
     {
@@ -76,24 +84,22 @@ class Channel extends BaseChannel implements ChannelInterface
 
         $this->currencies = new ArrayCollection();
         $this->locales = new ArrayCollection();
-        $this->paymentMethods = new ArrayCollection();
-        $this->shippingMethods = new ArrayCollection();
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getDefaultCurrency()
+    public function getBaseCurrency()
     {
-        return $this->defaultCurrency;
+        return $this->baseCurrency;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setDefaultCurrency(CurrencyInterface $defaultCurrency)
+    public function setBaseCurrency(CurrencyInterface $baseCurrency)
     {
-        $this->defaultCurrency = $defaultCurrency;
+        $this->baseCurrency = $baseCurrency;
     }
 
     /**
@@ -219,78 +225,6 @@ class Channel extends BaseChannel implements ChannelInterface
     /**
      * {@inheritdoc}
      */
-    public function getShippingMethods()
-    {
-        return $this->shippingMethods;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function addShippingMethod(BaseShippingMethodInterface $shippingMethod)
-    {
-        if (!$this->hasShippingMethod($shippingMethod)) {
-            $this->shippingMethods->add($shippingMethod);
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function removeShippingMethod(BaseShippingMethodInterface $shippingMethod)
-    {
-        if ($this->hasShippingMethod($shippingMethod)) {
-            $this->shippingMethods->removeElement($shippingMethod);
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function hasShippingMethod(BaseShippingMethodInterface $shippingMethod)
-    {
-        return $this->shippingMethods->contains($shippingMethod);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getPaymentMethods()
-    {
-        return $this->paymentMethods;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function addPaymentMethod(PaymentMethodInterface $paymentMethod)
-    {
-        if (!$this->hasPaymentMethod($paymentMethod)) {
-            $this->paymentMethods->add($paymentMethod);
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function removePaymentMethod(PaymentMethodInterface $paymentMethod)
-    {
-        if ($this->hasPaymentMethod($paymentMethod)) {
-            $this->paymentMethods->removeElement($paymentMethod);
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function hasPaymentMethod(PaymentMethodInterface $paymentMethod)
-    {
-        return $this->paymentMethods->contains($paymentMethod);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getThemeName()
     {
         return $this->themeName;
@@ -302,5 +236,69 @@ class Channel extends BaseChannel implements ChannelInterface
     public function setThemeName($themeName)
     {
         $this->themeName = $themeName;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getContactEmail()
+    {
+        return $this->contactEmail;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setContactEmail($contactEmail)
+    {
+        $this->contactEmail = $contactEmail;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isSkippingShippingStepAllowed()
+    {
+        return $this->skippingShippingStepAllowed;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setSkippingShippingStepAllowed($skippingShippingStepAllowed)
+    {
+        $this->skippingShippingStepAllowed = $skippingShippingStepAllowed;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isSkippingPaymentStepAllowed()
+    {
+        return $this->skippingPaymentStepAllowed;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setSkippingPaymentStepAllowed($skippingPaymentStepAllowed)
+    {
+        $this->skippingPaymentStepAllowed = $skippingPaymentStepAllowed;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isAccountVerificationRequired()
+    {
+        return $this->accountVerificationRequired;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setAccountVerificationRequired($accountVerificationRequired)
+    {
+        $this->accountVerificationRequired = $accountVerificationRequired;
     }
 }

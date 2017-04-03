@@ -12,26 +12,14 @@
 -->
 
 <container xmlns="http://symfony.com/schema/dic/services" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
-    <services>
-        <service id="sylius.form.type.zone_type_choice" class="Sylius\Bundle\AddressingBundle\Form\Type\ZoneTypeChoiceType">
-            <tag name="form.type" alias="sylius_zone_type_choice" />
-        </service>
-        <service id="sylius.form.type.country_code_choice" class="Sylius\Bundle\AddressingBundle\Form\Type\CountryCodeChoiceType">
-            <argument type="service" id="sylius.repository.country" />
-            <tag name="form.type" alias="sylius_country_code_choice" />
-        </service>
-        <service id="sylius.form.type.zone_code_choice" class="Sylius\Bundle\AddressingBundle\Form\Type\ZoneCodeChoiceType">
-            <argument type="service" id="sylius.repository.zone" />
-            <tag name="form.type" alias="sylius_zone_code_choice" />
-        </service>
-        <service id="sylius.form.type.province_code_choice" class="Sylius\Bundle\AddressingBundle\Form\Type\ProvinceCodeChoiceType">
-            <argument type="service" id="sylius.repository.province" />
-            <tag name="form.type" alias="sylius_province_code_choice" />
-        </service>
+    <imports>
+        <import resource="services/form.xml" />
+    </imports>
 
-        <service id="sylius.form.listener.address" class="Sylius\Bundle\AddressingBundle\Form\EventListener\BuildAddressFormSubscriber">
-            <argument type="service" id="sylius.repository.country" />
-            <argument type="service" id="form.factory" />
+    <services>
+        <service id="sylius.custom_factory.zone" class="Sylius\Component\Addressing\Factory\ZoneFactory" decorates="sylius.factory.zone" decoration-priority="256" public="false">
+            <argument type="service" id="sylius.custom_factory.zone.inner" />
+            <argument type="service" id="sylius.factory.zone_member" />
         </service>
 
         <service id="sylius.province_naming_provider" class="Sylius\Component\Addressing\Provider\ProvinceNamingProvider" lazy="true">

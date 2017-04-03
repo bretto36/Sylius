@@ -4,34 +4,39 @@
 
 {% block stylesheets %}
     {% include 'SyliusUiBundle::_stylesheets.html.twig' with {'path': 'assets/admin/css/style.css'} %}
+
+    {{ sonata_block_render_event('sylius.admin.layout.stylesheets') }}
 {% endblock %}
 
 {% block topbar %}
-    <a class="icon item" id="sidebar-toggle">
+    <a class="icon item" id="sidebar-toggle" title="{{ 'sylius.ui.toggle_sidebar'|trans }}">
         <i class="sidebar icon"></i>
     </a>
-    <div class="ui right floated simple dropdown item">
-        <img class="ui avatar image" src="{{ asset('assets/admin/img/avatar.png') }}">
-        <span>
-            {{ app.user.firstName|default(app.user.email) }}
-        </span>
-        <i class="dropdown icon"></i>
-        <div class="menu">
-            <a href="{{ path('sylius_admin_admin_user_update', {'id': app.user.id}) }}" class="item">
-                <i class="user icon"></i>
-                {{ 'sylius.ui.my_account'|trans }}
-            </a>
-            <a href="{{ path('sylius_admin_logout') }}" id="sylius-logout-button" class="item">
-                <i class="sign out icon"></i>
-                {{ 'sylius.ui.logout'|trans }}
-            </a>
-        </div>
-    </div>
+
+    {{ sonata_block_render_event('sylius.admin.layout.topbar_left') }}
+
+    {{ render(url('sylius_admin_partial_channel_index', {'template': '@SyliusAdmin/_channelLinks.html.twig'})) }}
+    {% include '@SyliusAdmin/_search.html.twig' %}
+
+    <div class="ui left floated dividing empty item"></div>
+
+    {{ sonata_block_render_event('sylius.admin.layout.topbar_middle') }}
+
+    <div class="ui right floated dividing empty item"></div>
+
+    {{ sylius_render_notifications_widget() }}
+    {% include '@SyliusAdmin/_security.html.twig' %}
+
+    {{ sonata_block_render_event('sylius.admin.layout.topbar_right') }}
 {% endblock %}
 
 {% block sidebar %}
+    {{ sonata_block_render_event('sylius.admin.layout.sidebar_top') }}
+
     <a class="item" href="{{ path('sylius_admin_dashboard') }}"><b>Sylius</b></a>
-    {{ knp_menu_render('sylius.admin.main', {'template': 'SyliusUiBundle:Menu:sidebar.html.twig'}) }}
+    {{ knp_menu_render('sylius.admin.main', {'template': 'SyliusUiBundle:Menu:sidebar.html.twig', 'currentClass': 'active'}) }}
+
+    {{ sonata_block_render_event('sylius.admin.layout.sidebar_down') }}
 {% endblock %}
 
 {% block footer %}
@@ -40,4 +45,6 @@
 
 {% block javascripts %}
     {% include 'SyliusUiBundle::_javascripts.html.twig' with {'path': 'assets/admin/js/app.js'} %}
+
+    {{ sonata_block_render_event('sylius.admin.layout.javascripts') }}
 {% endblock %}

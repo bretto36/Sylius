@@ -11,11 +11,14 @@
 
 namespace spec\Sylius\Component\Core\Model;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use PhpSpec\ObjectBehavior;
-use Sylius\Component\Core\Model\ProductInterface;
+use Sylius\Component\Core\Model\ChannelInterface;
+use Sylius\Component\Core\Model\ChannelPricingInterface;
 use Sylius\Component\Core\Model\ProductVariant;
 use Sylius\Component\Core\Model\ProductVariantInterface;
 use Sylius\Component\Product\Model\ProductVariant as BaseProductVariant;
+use Sylius\Component\Resource\Model\VersionedInterface;
 use Sylius\Component\Shipping\Model\ShippableInterface;
 use Sylius\Component\Shipping\Model\ShippingCategoryInterface;
 use Sylius\Component\Taxation\Model\TaxableInterface;
@@ -46,70 +49,19 @@ final class ProductVariantSpec extends ObjectBehavior
         $this->shouldHaveType(BaseProductVariant::class);
     }
 
-    function it_does_not_have_price_by_default()
-    {
-        $this->getPrice()->shouldReturn(null);
-    }
-
-    function it_does_not_have_original_price_by_default()
-    {
-        $this->getOriginalPrice()->shouldReturn(null);
-    }
-
-    function its_price_should_be_mutable()
-    {
-        $this->setPrice(499);
-        $this->getPrice()->shouldReturn(499);
-    }
-
-    function its_original_price_should_be_mutable()
-    {
-        $this->setOriginalPrice(399);
-        $this->getOriginalPrice()->shouldReturn(399);
-    }
-
-    function its_price_should_accept_only_integer()
-    {
-        $this->setPrice(410);
-        $this->getPrice()->shouldBeInteger();
-
-        $this->shouldThrow(\InvalidArgumentException::class)->duringSetPrice(4.1 * 100);
-        $this->shouldThrow(\InvalidArgumentException::class)->duringSetPrice('410');
-        $this->shouldThrow(\InvalidArgumentException::class)->duringSetPrice(round(4.1 * 100));
-        $this->shouldThrow(\InvalidArgumentException::class)->duringSetPrice([410]);
-        $this->shouldThrow(\InvalidArgumentException::class)->duringSetPrice(new \stdClass());
-    }
-
-    function its_original_price_should_accept_only_integer()
-    {
-        $this->shouldThrow(\InvalidArgumentException::class)->duringSetOriginalPrice(3.1 * 100);
-        $this->shouldThrow(\InvalidArgumentException::class)->duringSetOriginalPrice('310');
-        $this->shouldThrow(\InvalidArgumentException::class)->duringSetOriginalPrice(round(3.1 * 100));
-        $this->shouldThrow(\InvalidArgumentException::class)->duringSetOriginalPrice([310]);
-        $this->shouldThrow(\InvalidArgumentException::class)->duringSetOriginalPrice(new \stdClass());
-    }
-
     function it_implements_a_shippable_interface()
     {
         $this->shouldImplement(ShippableInterface::class);
     }
 
-    function it_returns_null_if_product_has_no_shipping_category(ProductInterface $product)
+    function it_implements_versioned_interface()
     {
-        $this->setProduct($product);
-
-        $product->getShippingCategory()->willReturn(null)->shouldBeCalled();
-        $this->getShippingCategory()->shouldReturn(null);
+        $this->shouldImplement(VersionedInterface::class);
     }
 
-    function it_returns_the_product_shipping_category(
-        ProductInterface $product,
-        ShippingCategoryInterface $shippingCategory
-    ) {
-        $this->setProduct($product);
-
-        $product->getShippingCategory()->willReturn($shippingCategory)->shouldBeCalled();
-        $this->getShippingCategory()->shouldReturn($shippingCategory);
+    function it_has_version_1_by_default()
+    {
+        $this->getVersion()->shouldReturn(1);
     }
 
     function it_has_no_weight_by_default()
@@ -200,5 +152,92 @@ final class ProductVariantSpec extends ObjectBehavior
 
         $this->setTaxCategory(null);
         $this->getTaxCategory()->shouldReturn(null);
+    }
+
+    function it_has_no_shipping_category_by_default()
+    {
+        $this->getShippingCategory()->shouldReturn(null);
+    }
+
+    function its_shipping_category_is_mutable(ShippingCategoryInterface $shippingCategory)
+    {
+        $this->setShippingCategory($shippingCategory);
+        $this->getShippingCategory()->shouldReturn($shippingCategory);
+    }
+
+    function it_adds_and_removes_channel_pricings(ChannelPricingInterface $channelPricing)
+    {
+        $channelPricing->getChannelCode()->willReturn('WEB');
+
+        $channelPricing->setProductVariant($this)->shouldBeCalled();
+        $this->addChannelPricing($channelPricing);
+        $this->hasChannelPricing($channelPricing)->shouldReturn(true);
+
+        $channelPricing->setProductVariant(null)->shouldBeCalled();
+        $this->removeChannelPricing($channelPricing);
+        $this->hasChannelPricing($channelPricing)->shouldReturn(false);
+    }
+
+    function it_has_channel_pricings_collection(
+        ChannelPricingInterface $firstChannelPricing,
+        ChannelPricingInterface $secondChannelPricing
+    ) {
+        $firstChannelPricing->getChannelCode()->willReturn('WEB');
+        $secondChannelPricing->getChannelCode()->willReturn('MOB');
+
+        $firstChannelPricing->setProductVariant($this)->shouldBeCalled();
+        $secondChannelPricing->setProductVariant($this)->shouldBeCalled();
+
+        $this->addChannelPricing($firstChannelPricing);
+        $this->addChannelPricing($secondChannelPricing);
+
+        $this->getChannelPricings()->shouldBeLike(new ArrayCollection([
+            'WEB' => $firstChannelPricing->getWrappedObject(),
+            'MOB' => $secondChannelPricing->getWrappedObject(),
+        ]));
+    }
+
+    function it_checks_if_contains_channel_pricing_for_given_channel(
+        ChannelInterface $firstChannel,
+        ChannelInterface $secondChannel,
+        ChannelPricingInterface $firstChannelPricing
+    ) {
+        $firstChannelPricing->getChannelCode()->willReturn('WEB');
+        $firstChannel->getCode()->willReturn('WEB');
+        $secondChannel->getCode()->willReturn('MOB');
+
+        $firstChannelPricing->setProductVariant($this)->shouldBeCalled();
+        $this->addChannelPricing($firstChannelPricing);
+
+        $firstChannelPricing->getChannelCode()->willReturn($firstChannel);
+
+        $this->hasChannelPricingForChannel($firstChannel)->shouldReturn(true);
+        $this->hasChannelPricingForChannel($secondChannel)->shouldReturn(false);
+    }
+
+    function it_returns_channel_pricing_for_given_channel(
+        ChannelInterface $channel,
+        ChannelPricingInterface $channelPricing
+    ) {
+        $channelPricing->getChannelCode()->willReturn('WEB');
+        $channel->getCode()->willReturn('WEB');
+
+        $channelPricing->setProductVariant($this)->shouldBeCalled();
+        $this->addChannelPricing($channelPricing);
+
+        $channelPricing->getChannelCode()->willReturn($channel);
+
+        $this->getChannelPricingForChannel($channel)->shouldReturn($channelPricing);
+    }
+
+    function it_requires_shipping_by_default()
+    {
+        $this->isShippingRequired()->shouldReturn(true);
+    }
+
+    function its_shipping_can_be_not_required()
+    {
+        $this->setShippingRequired(false);
+        $this->isShippingRequired()->shouldReturn(false);
     }
 }

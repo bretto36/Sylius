@@ -3,17 +3,5 @@
 
 sylius:
     user:
-        email:
-            not_exist: Não existe nenhum utilizador com este endereço de e-mail.
-        password:
-            reset:
-                success: A sua palavra-passe foi redefinida com sucesso!
-            change:
-                success: A sua palavra-passe foi alterada com sucesso!
-        verification:
-            error: O token de verificação é inválido.
-            notice:
-                verified: O seu endereço de e-mail já foi verificado.
-            success: O seu endereço de e-mail foi verificado com sucesso.
-            request:
-                success: Um e-mail com um link de verificação foi enviado para seu endereço de e-mail.
+        change_password: 'A sua palavra-passe foi alterada com sucesso!'
+        verify_verified_email: 'O seu e-mail já foi verificado.'

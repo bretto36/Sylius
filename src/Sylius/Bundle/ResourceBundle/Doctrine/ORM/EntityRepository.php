@@ -65,7 +65,7 @@ class EntityRepository extends BaseEntityRepository implements RepositoryInterfa
     protected function getPaginator(QueryBuilder $queryBuilder)
     {
         // Use output walkers option in DoctrineORMAdapter should be false as it affects performance greatly (see #3775)
-        return new Pagerfanta(new DoctrineORMAdapter($queryBuilder, true, false));
+        return new Pagerfanta(new DoctrineORMAdapter($queryBuilder, false, false));
     }
 
     /**
@@ -85,7 +85,12 @@ class EntityRepository extends BaseEntityRepository implements RepositoryInterfa
     protected function applyCriteria(QueryBuilder $queryBuilder, array $criteria = [])
     {
         foreach ($criteria as $property => $value) {
+            if (!in_array($property, array_merge($this->_class->getAssociationNames(), $this->_class->getFieldNames()))) {
+                continue;
+            }
+
             $name = $this->getPropertyName($property);
+
             if (null === $value) {
                 $queryBuilder->andWhere($queryBuilder->expr()->isNull($name));
             } elseif (is_array($value)) {
@@ -107,6 +112,10 @@ class EntityRepository extends BaseEntityRepository implements RepositoryInterfa
     protected function applySorting(QueryBuilder $queryBuilder, array $sorting = [])
     {
         foreach ($sorting as $property => $order) {
+            if (!in_array($property, array_merge($this->_class->getAssociationNames(), $this->_class->getFieldNames()))) {
+                continue;
+            }
+
             if (!empty($order)) {
                 $queryBuilder->addOrderBy($this->getPropertyName($property), $order);
             }

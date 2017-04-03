@@ -3,4 +3,6 @@
 
 sylius:
     review:
-        waiting_for_the_acceptation: Votre commentaire est en attente d'approbation.
+        accept: 'L''avis sur le produit a été accepté avec succès.'
+        reject: 'L''avis sur le produit a été rejeté avec succès.'
+        wait_for_the_acceptation: 'Votre commentaire est en attente d''approbation.'

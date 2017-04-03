@@ -12,11 +12,12 @@
 namespace Sylius\Bundle\ThemeBundle\Tests\Functional;
 
 use Sylius\Bundle\ThemeBundle\Asset\Installer\AssetsInstallerInterface;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 /**
  * @author Kamil Kokot <kamil.kokot@lakion.com>
  */
-final class AssetTest extends ThemeBundleTestCase
+final class AssetTest extends WebTestCase
 {
     protected function tearDown()
     {
@@ -26,15 +27,16 @@ final class AssetTest extends ThemeBundleTestCase
     }
 
     /**
+     * @test
      * @dataProvider getSymlinkMasks
      *
      * @param int $symlinkMask
      */
-    public function testAssets($symlinkMask)
+    public function it_dumps_assets($symlinkMask)
     {
-        $webDirectory = $this->createWebDirectory();
+        $client = self::createClient();
 
-        $client = $this->getClient();
+        $webDirectory = $this->createWebDirectory();
 
         $client->getContainer()->get('sylius.theme.asset.assets_installer')->installAssets($webDirectory, $symlinkMask);
 
@@ -45,15 +47,16 @@ final class AssetTest extends ThemeBundleTestCase
     }
 
     /**
+     * @test
      * @dataProvider getSymlinkMasks
      *
      * @param int $symlinkMask
      */
-    public function testAssetsWhenModifiedAndReinstalled($symlinkMask)
+    public function it_updates_dumped_assets_if_they_are_modified($symlinkMask)
     {
-        $webDirectory = $this->createWebDirectory();
+        $client = self::createClient();
 
-        $client = $this->getClient();
+        $webDirectory = $this->createWebDirectory();
 
         $client->getContainer()->get('sylius.theme.asset.assets_installer')->installAssets($webDirectory, $symlinkMask);
 
@@ -70,15 +73,16 @@ final class AssetTest extends ThemeBundleTestCase
     }
 
     /**
+     * @test
      * @dataProvider getSymlinkMasks
      *
      * @param int $symlinkMask
      */
-    public function testAssetsWhenReinstalled($symlinkMask)
+    public function it_dumps_assets_correctly_even_if_nothing_has_changed($symlinkMask)
     {
-        $webDirectory = $this->createWebDirectory();
+        $client = self::createClient();
 
-        $client = $this->getClient();
+        $webDirectory = $this->createWebDirectory();
 
         $client->getContainer()->get('sylius.theme.asset.assets_installer')->installAssets($webDirectory, $symlinkMask);
         $client->getContainer()->get('sylius.theme.asset.assets_installer')->installAssets($webDirectory, $symlinkMask);
@@ -91,7 +95,7 @@ final class AssetTest extends ThemeBundleTestCase
 
     private function createWebDirectory()
     {
-        $webDirectory = $this->getTmpDirPath(self::TEST_CASE).'/web';
+        $webDirectory = self::$kernel->getCacheDir() . '/web';
         if (!is_dir($webDirectory)) {
             mkdir($webDirectory, 0777, true);
         }

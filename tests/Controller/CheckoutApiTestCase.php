@@ -12,6 +12,9 @@
 namespace Sylius\Tests\Controller;
 
 use Lakion\ApiTestCase\JsonApiTestCase;
+use Sylius\Component\Core\Model\OrderInterface;
+use Sylius\Component\Core\Model\PaymentMethodInterface;
+use Sylius\Component\Core\Model\ShippingMethodInterface;
 
 /**
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
@@ -35,9 +38,49 @@ class CheckoutApiTestCase extends JsonApiTestCase
     ];
 
     /**
-     * @param int $orderId
+     * @return mixed
      */
-    protected function addressOrder($orderId)
+    protected function createCart()
+    {
+        $data =
+<<<EOT
+        {
+            "customer": "oliver.queen@star-city.com",
+            "channel": "CHANNEL",
+            "localeCode": "en_US"
+        }
+EOT;
+
+        $this->client->request('POST', '/api/v1/carts/', [], [], static::$authorizedHeaderWithContentType, $data);
+
+        $response = $this->client->getResponse();
+        $rawResponse = json_decode($response->getContent(), true);
+
+        return $rawResponse['id'];
+    }
+
+    /**
+     * @param mixed $cartId
+     */
+    protected function addItemToCart($cartId)
+    {
+        $url = sprintf('/api/v1/carts/%d/items/', $cartId);
+
+        $data =
+<<<EOT
+        {
+            "variant": "MUG_SW",
+            "quantity": 1
+        }
+EOT;
+
+        $this->client->request('POST', $url, [], [], static::$authorizedHeaderWithContentType, $data);
+    }
+
+    /**
+     * @param mixed $cartId
+     */
+    protected function addressOrder($cartId)
     {
         $this->loadFixturesFromFile('resources/countries.yml');
 
@@ -60,56 +103,97 @@ class CheckoutApiTestCase extends JsonApiTestCase
                 "city": "Groot Zundert",
                 "postcode": "88-888"
             },
-            "differentBillingAddress": true,
-            "customer": {
-                "email": "john@doe.com"
-            }
+            "differentBillingAddress": true
         }
 EOT;
 
-        $url = sprintf('/api/checkouts/addressing/%d', $orderId);
+        $url = sprintf('/api/v1/checkouts/addressing/%d', $cartId);
         $this->client->request('PUT', $url, [], [], static::$authorizedHeaderWithContentType, $data);
     }
 
     /**
-     * @param int $orderId
-     * @param int $shippingMethodCode
+     * @param mixed $cartId
      */
-    protected function selectOrderShippingMethod($orderId, $shippingMethodCode)
+    protected function selectOrderShippingMethod($cartId)
     {
+        $url = sprintf('/api/v1/checkouts/select-shipping/%d', $cartId);
+
+        $this->client->request('GET', $url, [], [], static::$authorizedHeaderWithContentType);
+
+        $response = $this->client->getResponse();
+        $rawResponse = json_decode($response->getContent(), true);
+
         $data =
 <<<EOT
         {
             "shipments": [
                 {
-                    "method": "{$shippingMethodCode}"
+                    "method": "{$rawResponse['shipments'][0]['methods'][0]['code']}"
                 }
             ]
         }
 EOT;
 
-        $url = sprintf('/api/checkouts/select-shipping/%d', $orderId);
         $this->client->request('PUT', $url, [], [], static::$authorizedHeaderWithContentType, $data);
     }
 
     /**
-     * @param int $orderId
-     * @param int $paymentMethodId
+     * @param mixed $cartId
      */
-    protected function selectOrderPaymentMethod($orderId, $paymentMethodId)
+    protected function selectOrderPaymentMethod($cartId)
     {
+        $url = sprintf('/api/v1/checkouts/select-payment/%d', $cartId);
+
+        $this->client->request('GET', $url, [], [], static::$authorizedHeaderWithContentType);
+
+        $response = $this->client->getResponse();
+        $rawResponse = json_decode($response->getContent(), true);
+
         $data =
 <<<EOT
         {
             "payments": [
                 {
-                    "method": {$paymentMethodId}
+                    "method": "{$rawResponse['payments'][0]['methods'][0]['code']}"
                 }
             ]
         }
 EOT;
 
-        $url = sprintf('/api/checkouts/select-payment/%d', $orderId);
         $this->client->request('PUT', $url, [], [], static::$authorizedHeaderWithContentType, $data);
+    }
+
+    /**
+     * @param mixed $cartId
+     */
+    protected function completeOrder($cartId)
+    {
+        $this->client->request('PUT', sprintf('/api/v1/checkouts/complete/%d', $cartId), [], [], static::$authorizedHeaderWithContentType);
+    }
+
+    /**
+     * @return mixed
+     */
+    protected function prepareOrder()
+    {
+        $cartId = $this->createCart();
+
+        $this->addItemToCart($cartId);
+        $this->addressOrder($cartId);
+        $this->selectOrderShippingMethod($cartId);
+        $this->selectOrderPaymentMethod($cartId);
+        $this->completeOrder($cartId);
+
+        return $cartId;
+    }
+
+    /**
+     * @param mixed $cartId
+     *
+     * @return string
+     */
+    protected function getCheckoutSummaryUrl($cartId)
+    {
+        return sprintf('/api/v1/checkouts/%d', $cartId);
     }
 }

@@ -11,6 +11,7 @@ sylius:
             ends_at: Ends at
             exclusive: Exclusive
             name: Name
+            priority: Priority
             rules: Rules
             starts_at: Starts at
             usage_limit: Usage limit
@@ -28,6 +29,8 @@ sylius:
             code_length: Code length
             expires_at: Expires at
             usage_limit: Usage limit
+        promotion_filter:
+            price_range: Price range filter
         promotion_rule:
             cart_quantity_configuration:
                 count: Count

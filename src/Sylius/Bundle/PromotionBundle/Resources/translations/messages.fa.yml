@@ -12,6 +12,7 @@ sylius:
             ends_at: پایان در
             exclusive: یکبار مصرف
             name: نام
+            priority: درجه ی اهمیت
             rules: قوانین
             starts_at: شروع از
             usage_limit: محدودیت استفاده

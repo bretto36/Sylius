@@ -63,12 +63,4 @@ final class NthOrderRuleChecker implements RuleCheckerInterface
 
         return $this->orderRepository->countByCustomer($customer) === ($configuration['nth'] - 1);
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfigurationFormType()
-    {
-        return 'sylius_promotion_rule_nth_order_configuration';
-    }
 }

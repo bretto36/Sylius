@@ -11,9 +11,12 @@
 
 namespace Sylius\Bundle\CoreBundle\Form\Type\Promotion\Rule;
 
-use Sylius\Component\Product\Repository\ProductRepositoryInterface;
+use Sylius\Bundle\ProductBundle\Form\Type\ProductAutocompleteChoiceType;
+use Sylius\Bundle\ResourceBundle\Form\DataTransformer\ResourceToIdentifierTransformer;
+use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\ReversedTransformer;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -21,17 +24,17 @@ use Symfony\Component\Validator\Constraints\Type;
  * @author Alexandre Bacco <alexandre.bacco@gmail.com>
  * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
  */
-class ContainsProductConfigurationType extends AbstractType
+final class ContainsProductConfigurationType extends AbstractType
 {
     /**
-     * @var ProductRepositoryInterface
+     * @var RepositoryInterface
      */
-    protected $productRepository;
+    private $productRepository;
 
     /**
-     * @param ProductRepositoryInterface $productRepository
+     * @param RepositoryInterface $productRepository
      */
-    public function __construct(ProductRepositoryInterface $productRepository)
+    public function __construct(RepositoryInterface $productRepository)
     {
         $this->productRepository = $productRepository;
     }
@@ -42,22 +45,22 @@ class ContainsProductConfigurationType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('product_code', 'sylius_product_from_identifier', [
+            ->add('product_code', ProductAutocompleteChoiceType::class, [
                 'label' => 'sylius.form.promotion_action.add_product_configuration.product',
-                'class' => $this->productRepository->getClassName(),
                 'constraints' => [
-                    new NotBlank(),
-                    new Type(['type' => 'string']),
+                    new NotBlank(['groups' => ['sylius']]),
+                    new Type(['type' => 'string', 'groups' => ['sylius']]),
                 ],
-                'identifier' => 'code',
             ])
         ;
+
+        $builder->get('product_code')->addModelTransformer(new ReversedTransformer(new ResourceToIdentifierTransformer($this->productRepository, 'code')));
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'sylius_promotion_rule_contains_product_configuration';
     }

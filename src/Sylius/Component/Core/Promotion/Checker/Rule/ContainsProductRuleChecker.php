@@ -44,12 +44,4 @@ final class ContainsProductRuleChecker implements RuleCheckerInterface
 
         return false;
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfigurationFormType()
-    {
-        return 'sylius_promotion_rule_contains_product_configuration';
-    }
 }

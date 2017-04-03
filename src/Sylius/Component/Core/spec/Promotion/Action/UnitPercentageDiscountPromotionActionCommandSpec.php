@@ -11,8 +11,10 @@
 
 namespace spec\Sylius\Component\Core\Promotion\Action;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use PhpSpec\ObjectBehavior;
+use Sylius\Component\Channel\Model\ChannelInterface;
 use Sylius\Component\Core\Model\AdjustmentInterface;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Model\OrderItemInterface;
@@ -50,6 +52,7 @@ final class UnitPercentageDiscountPromotionActionCommandSpec extends ObjectBehav
     }
 
     function it_applies_percentage_discount_on_every_unit_in_order(
+        ChannelInterface $channel,
         FactoryInterface $adjustmentFactory,
         FilterInterface $priceRangeFilter,
         FilterInterface $taxonFilter,
@@ -64,10 +67,13 @@ final class UnitPercentageDiscountPromotionActionCommandSpec extends ObjectBehav
         OrderItemUnitInterface $unit2,
         PromotionInterface $promotion
     ) {
+        $order->getChannel()->willReturn($channel);
+        $channel->getCode()->willReturn('WEB_US');
+
         $order->getItems()->willReturn($originalItems);
         $originalItems->toArray()->willReturn([$orderItem1]);
 
-        $priceRangeFilter->filter([$orderItem1], ['percentage' => 0.2])->willReturn([$orderItem1]);
+        $priceRangeFilter->filter([$orderItem1], ['percentage' => 0.2, 'channel' => $channel])->willReturn([$orderItem1]);
         $taxonFilter->filter([$orderItem1], ['percentage' => 0.2])->willReturn([$orderItem1]);
         $productFilter->filter([$orderItem1], ['percentage' => 0.2])->willReturn([$orderItem1]);
 
@@ -97,7 +103,55 @@ final class UnitPercentageDiscountPromotionActionCommandSpec extends ObjectBehav
         $unit1->addAdjustment($promotionAdjustment1)->shouldBeCalled();
         $unit2->addAdjustment($promotionAdjustment2)->shouldBeCalled();
 
-        $this->execute($order, ['percentage' => 0.2], $promotion);
+        $this->execute($order, ['WEB_US' => ['percentage' => 0.2]], $promotion)->shouldReturn(true);
+    }
+
+    function it_does_not_apply_a_discount_if_all_items_have_been_filtered_out(
+        ChannelInterface $channel,
+        FilterInterface $priceRangeFilter,
+        FilterInterface $taxonFilter,
+        FilterInterface $productFilter,
+        OrderInterface $order,
+        OrderItemInterface $orderItem,
+        PromotionInterface $promotion
+    ) {
+        $order->getChannel()->willReturn($channel);
+        $channel->getCode()->willReturn('WEB_US');
+
+        $order->getItems()->willReturn(new ArrayCollection([$orderItem]));
+        $order->getChannel()->willReturn($channel);
+
+        $priceRangeFilter->filter([$orderItem], ['percentage' => 0.2, 'channel' => $channel])->willReturn([$orderItem]);
+        $taxonFilter->filter([$orderItem], ['percentage' => 0.2])->willReturn([$orderItem]);
+        $productFilter->filter([$orderItem], ['percentage' => 0.2])->willReturn([]);
+
+        $this->execute($order, ['WEB_US' => ['percentage' => 0.2]], $promotion)->shouldReturn(false);
+    }
+
+    function it_does_not_apply_discount_if_configuration_for_order_channel_is_not_defined(
+        ChannelInterface $channel,
+        OrderInterface $order,
+        PromotionInterface $promotion
+    ) {
+        $order->getChannel()->willReturn($channel);
+        $channel->getCode()->willReturn('WEB_PL');
+
+        $order->getItems()->shouldNotBeCalled();
+
+        $this->execute($order, ['WEB_US' => ['percentage' => 0.2]], $promotion)->shouldReturn(false);
+    }
+
+    function it_does_not_apply_discount_if_percentage_configuration_not_defined(
+        ChannelInterface $channel,
+        OrderInterface $order,
+        PromotionInterface $promotion
+    ) {
+        $order->getChannel()->willReturn($channel);
+        $channel->getCode()->willReturn('WEB_PL');
+
+        $order->getItems()->shouldNotBeCalled();
+
+        $this->execute($order, ['WEB_PL' => []], $promotion)->shouldReturn(false);
     }
 
     function it_throws_an_exception_if_passed_subject_is_not_order(
@@ -152,10 +206,5 @@ final class UnitPercentageDiscountPromotionActionCommandSpec extends ObjectBehav
             ->shouldThrow(UnexpectedTypeException::class)
             ->during('revert', [$subject, ['percentage' => 0.2], $promotion])
         ;
-    }
-
-    function it_has_a_configuration_form_type()
-    {
-        $this->getConfigurationFormType()->shouldReturn('sylius_promotion_action_unit_percentage_discount_configuration');
     }
 }

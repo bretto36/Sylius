@@ -16,6 +16,7 @@
         <service id="sylius.fixture.example_factory.payment_method" class="Sylius\Bundle\CoreBundle\Fixture\Factory\PaymentMethodExampleFactory">
             <argument type="service" id="sylius.factory.payment_method" />
             <argument type="service" id="sylius.repository.locale" />
+            <argument type="service" id="sylius.repository.channel" />
         </service>
 
         <service id="sylius.fixture.example_factory.shipping_category" class="Sylius\Bundle\CoreBundle\Fixture\Factory\ShippingCategoryExampleFactory">
@@ -27,24 +28,55 @@
             <argument type="service" id="sylius.repository.zone" />
             <argument type="service" id="sylius.repository.shipping_category" />
             <argument type="service" id="sylius.repository.locale" />
+            <argument type="service" id="sylius.repository.channel" />
         </service>
 
         <service id="sylius.fixture.example_factory.channel" class="Sylius\Bundle\CoreBundle\Fixture\Factory\ChannelExampleFactory">
             <argument type="service" id="sylius.factory.channel" />
             <argument type="service" id="sylius.repository.locale" />
             <argument type="service" id="sylius.repository.currency" />
-            <argument type="service" id="sylius.repository.payment_method" />
-            <argument type="service" id="sylius.repository.shipping_method" />
+            <argument type="service" id="sylius.repository.zone" />
+        </service>
+
+        <service id="sylius.fixture.example_factory.customer_group" class="Sylius\Bundle\CoreBundle\Fixture\Factory\CustomerGroupExampleFactory">
+            <argument type="service" id="sylius.factory.customer_group" />
         </service>
 
         <service id="sylius.fixture.example_factory.shop_user" class="Sylius\Bundle\CoreBundle\Fixture\Factory\ShopUserExampleFactory">
             <argument type="service" id="sylius.factory.shop_user" />
             <argument type="service" id="sylius.factory.customer" />
+            <argument type="service" id="sylius.repository.customer_group" />
         </service>
 
         <service id="sylius.fixture.example_factory.admin_user" class="Sylius\Bundle\CoreBundle\Fixture\Factory\AdminUserExampleFactory">
             <argument type="service" id="sylius.factory.admin_user" />
             <argument>%locale%</argument>
+        </service>
+
+        <service id="sylius.fixture.example_factory.promotion" class="Sylius\Bundle\CoreBundle\Fixture\Factory\PromotionExampleFactory">
+            <argument type="service" id="sylius.factory.promotion" />
+            <argument type="service" id="sylius.fixture.example_factory.promotion_rule" />
+            <argument type="service" id="sylius.fixture.example_factory.promotion_action" />
+            <argument type="service" id="sylius.repository.channel" />
+        </service>
+
+        <service id="sylius.fixture.example_factory.promotion_action" class="Sylius\Bundle\CoreBundle\Fixture\Factory\PromotionActionExampleFactory">
+            <argument type="service" id="sylius.factory.promotion_action" />
+        </service>
+
+        <service id="sylius.fixture.example_factory.promotion_rule" class="Sylius\Bundle\CoreBundle\Fixture\Factory\PromotionRuleExampleFactory">
+            <argument type="service" id="sylius.factory.promotion_rule" />
+        </service>
+
+        <service id="sylius.fixture.example_factory.product_association_type" class="Sylius\Bundle\CoreBundle\Fixture\Factory\ProductAssociationTypeExampleFactory">
+            <argument type="service" id="sylius.factory.product_association_type" />
+            <argument type="service" id="sylius.repository.locale" />
+        </service>
+
+        <service id="sylius.fixture.example_factory.product_association" class="Sylius\Bundle\CoreBundle\Fixture\Factory\ProductAssociationExampleFactory">
+            <argument type="service" id="sylius.factory.product_association" />
+            <argument type="service" id="sylius.repository.product_association_type" />
+            <argument type="service" id="sylius.repository.product" />
         </service>
 
         <service id="sylius.fixture.example_factory.product_option" class="Sylius\Bundle\CoreBundle\Fixture\Factory\ProductOptionExampleFactory">
@@ -57,6 +89,13 @@
             <argument type="service" id="sylius.factory.product_attribute" />
             <argument type="service" id="sylius.repository.locale" />
             <argument>%sylius.attribute.attribute_types%</argument>
+        </service>
+
+        <service id="sylius.fixture.example_factory.product_review" class="Sylius\Bundle\CoreBundle\Fixture\Factory\ProductReviewExampleFactory">
+            <argument type="service" id="sylius.factory.product_review" />
+            <argument type="service" id="sylius.repository.product" />
+            <argument type="service" id="sylius.repository.customer" />
+            <argument type="service" id="sm.factory" />
         </service>
 
         <service id="sylius.fixture.example_factory.tax_category" class="Sylius\Bundle\CoreBundle\Fixture\Factory\TaxCategoryExampleFactory">
@@ -72,7 +111,6 @@
         <service id="sylius.fixture.example_factory.taxon" class="Sylius\Bundle\CoreBundle\Fixture\Factory\TaxonExampleFactory">
             <argument type="service" id="sylius.factory.taxon" />
             <argument type="service" id="sylius.repository.taxon" />
-            <argument type="service" id="sylius.manager.taxon" />
             <argument type="service" id="sylius.repository.locale" />
             <argument type="service" id="sylius.generator.taxon_slug" />
         </service>
@@ -80,9 +118,11 @@
         <service id="sylius.fixture.example_factory.product" class="Sylius\Bundle\CoreBundle\Fixture\Factory\ProductExampleFactory">
             <argument type="service" id="sylius.factory.product" />
             <argument type="service" id="sylius.factory.product_variant" />
+            <argument type="service" id="sylius.factory.channel_pricing" />
             <argument type="service" id="sylius.generator.product_variant" />
             <argument type="service" id="sylius.factory.product_attribute_value" />
             <argument type="service" id="sylius.factory.product_image" />
+            <argument type="service" id="sylius.factory.product_taxon" />
             <argument type="service" id="sylius.image_uploader" />
             <argument type="service" id="sylius.generator.slug" />
             <argument type="service" id="sylius.repository.taxon" />
@@ -92,13 +132,10 @@
             <argument type="service" id="sylius.repository.locale" />
         </service>
 
-        <service id="sylius.fixture.example_factory.static_content" class="Sylius\Bundle\CoreBundle\Fixture\Factory\StaticContentExampleFactory">
-            <argument type="service" id="sylius.factory.static_content" />
-        </service>
-
-        <service id="sylius.fixture.example_factory.route" class="Sylius\Bundle\CoreBundle\Fixture\Factory\RouteExampleFactory">
-            <argument type="service" id="sylius.factory.route" />
-            <argument type="service" id="sylius.repository.static_content" />
+        <service id="sylius.fixture.example_factory.address" class="Sylius\Bundle\CoreBundle\Fixture\Factory\AddressExampleFactory">
+            <argument type="service" id="sylius.factory.address" />
+            <argument type="service" id="sylius.repository.country" />
+            <argument type="service" id="sylius.repository.customer" />
         </service>
     </services>
 </container>

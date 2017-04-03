@@ -11,6 +11,7 @@
 
 namespace Sylius\Bundle\UiBundle\Controller;
 
+use Sylius\Bundle\UiBundle\Form\Type\SecurityLoginType;
 use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -62,8 +63,10 @@ final class SecurityController
         $lastError = $this->authenticationUtils->getLastAuthenticationError();
         $lastUsername = $this->authenticationUtils->getLastUsername();
 
-        $template = $request->attributes->get('_sylius[template]', 'SyliusUiBundle:Security:login.html.twig', true);
-        $formType = $request->attributes->get('_sylius[form]', 'sylius_security_login', true);
+        $options = $request->attributes->get('_sylius');
+
+        $template = isset($options['template']) ? $options['template'] : '@SyliusUi/Security/login.html.twig';
+        $formType = isset($options['form']) ? $options['form'] : SecurityLoginType::class;
         $form = $this->formFactory->createNamed('', $formType);
 
         return $this->templatingEngine->renderResponse($template, [

@@ -11,11 +11,13 @@
 
 namespace Sylius\Behat\Page\Admin\Promotion;
 
+use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Sylius\Behat\Behaviour\NamesIt;
 use Sylius\Behat\Behaviour\SpecifiesItsCode;
 use Sylius\Behat\Page\Admin\Crud\CreatePage as BaseCreatePage;
+use Sylius\Behat\Service\AutocompleteHelper;
 use Webmozart\Assert\Assert;
 
 /**
@@ -32,7 +34,13 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
      */
     public function addRule($ruleName)
     {
+        $count = count($this->getCollectionItems('rules'));
+
         $this->getDocument()->clickLink('Add rule');
+
+        $this->getDocument()->waitFor(5, function () use ($count) {
+            return $count + 1 === count($this->getCollectionItems('rules'));
+        });
 
         $this->selectRuleOption('Type', $ruleName);
     }
@@ -42,7 +50,29 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
      */
     public function selectRuleOption($option, $value, $multiple = false)
     {
-        $this->getLastAddedCollectionItem('rules')->find('named', array('select', $option))->selectOption($value, $multiple);
+        $this->getLastCollectionItem('rules')->find('named', array('select', $option))->selectOption($value, $multiple);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function selectAutocompleteRuleOption($option, $value, $multiple = false)
+    {
+        $option = strtolower(str_replace(' ', '_', $option));
+
+        $ruleAutocomplete = $this
+            ->getLastCollectionItem('rules')
+            ->find('css', sprintf('input[type="hidden"][name*="[%s]"]', $option))
+            ->getParent()
+        ;
+
+        if ($multiple && is_array($value)) {
+            AutocompleteHelper::chooseValues($this->getSession(), $ruleAutocomplete, $value);
+
+            return;
+        }
+
+        AutocompleteHelper::chooseValue($this->getSession(), $ruleAutocomplete, $value);
     }
 
     /**
@@ -50,7 +80,16 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
      */
     public function fillRuleOption($option, $value)
     {
-        $this->getLastAddedCollectionItem('rules')->fillField($option, $value);
+        $this->getLastCollectionItem('rules')->fillField($option, $value);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fillRuleOptionForChannel($channelName, $option, $value)
+    {
+        $lastAction = $this->getChannelConfigurationOfLastRule($channelName);
+        $lastAction->fillField($option, $value);
     }
 
     /**
@@ -58,7 +97,13 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
      */
     public function addAction($actionName)
     {
+        $count = count($this->getCollectionItems('actions'));
+
         $this->getDocument()->clickLink('Add action');
+
+        $this->getDocument()->waitFor(5, function () use ($count) {
+            return $count + 1 === count($this->getCollectionItems('actions'));
+        });
 
         $this->selectActionOption('Type', $actionName);
     }
@@ -68,7 +113,7 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
      */
     public function selectActionOption($option, $value, $multiple = false)
     {
-        $this->getLastAddedCollectionItem('actions')->find('named', array('select', $option))->selectOption($value, $multiple);
+        $this->getLastCollectionItem('actions')->find('named', array('select', $option))->selectOption($value, $multiple);
     }
 
     /**
@@ -76,7 +121,16 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
      */
     public function fillActionOption($option, $value)
     {
-        $this->getLastAddedCollectionItem('actions')->fillField($option, $value);
+        $this->getLastCollectionItem('actions')->fillField($option, $value);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function fillActionOptionForChannel($channelName, $option, $value)
+    {
+        $lastAction = $this->getChannelConfigurationOfLastAction($channelName);
+        $lastAction->fillField($option, $value);
     }
 
     /**
@@ -129,7 +183,7 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
      */
     public function getValidationMessageForAction()
     {
-        $actionForm = $this->getLastAddedCollectionItem('actions');
+        $actionForm = $this->getLastCollectionItem('actions');
 
         $foundElement = $actionForm->find('css', '.sylius-validation-error');
         if (null === $foundElement) {
@@ -142,9 +196,23 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
     /**
      * {@inheritdoc}
      */
-    public function selectFilterOption($option, $value, $multiple = false)
+    public function selectAutoCompleteFilterOption($option, $value, $multiple = false)
     {
-        $this->getLastAddedCollectionItem('actions')->find('named', array('select', $option))->selectOption($value, $multiple);
+        $option = strtolower(str_replace(' ', '_', $option));
+
+        $filterAutocomplete = $this
+            ->getLastCollectionItem('actions')
+            ->find('css', sprintf('input[type="hidden"][name*="[%s_filter]"]', $option))
+            ->getParent()
+        ;
+
+        if ($multiple && is_array($value)) {
+            AutocompleteHelper::chooseValues($this->getSession(), $filterAutocomplete, $value);
+
+            return;
+        }
+
+        AutocompleteHelper::chooseValue($this->getSession(), $filterAutocomplete, $value);
     }
 
     /**
@@ -156,8 +224,8 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
             'actions' => '#sylius_promotion_actions',
             'code' => '#sylius_promotion_code',
             'ends_at' => '#sylius_promotion_endsAt',
-            'minimum' => '#sylius_promotion_actions_0_configuration_filters_price_range_filter_min',
-            'maximum' => '#sylius_promotion_actions_0_configuration_filters_price_range_filter_max',
+            'minimum' => '#sylius_promotion_actions_0_configuration_WEB-US_filters_price_range_filter_min',
+            'maximum' => '#sylius_promotion_actions_0_configuration_WEB-US_filters_price_range_filter_max',
             'name' => '#sylius_promotion_name',
             'rules' => '#sylius_promotion_rules',
             'starts_at' => '#sylius_promotion_startsAt',
@@ -165,16 +233,56 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
     }
 
     /**
+     * @param string $channelName
+     *
+     * @return NodeElement
+     */
+    private function getChannelConfigurationOfLastAction($channelName)
+    {
+        return $this
+            ->getLastCollectionItem('actions')
+            ->find('css', sprintf('[id$="configuration"] .field:contains("%s")', $channelName))
+        ;
+    }
+
+    /**
+     * @param string $channelName
+     *
+     * @return NodeElement
+     */
+    private function getChannelConfigurationOfLastRule($channelName)
+    {
+        return $this
+            ->getLastCollectionItem('rules')
+            ->find('css', sprintf('[id$="configuration"] .field:contains("%s")', $channelName))
+        ;
+    }
+
+    /**
      * @param string $collection
      *
      * @return NodeElement
      */
-    private function getLastAddedCollectionItem($collection)
+    private function getLastCollectionItem($collection)
     {
-        $items = $this->getElement($collection)->findAll('css', 'div[data-form-collection="item"]');
+        $items = $this->getCollectionItems($collection);
 
         Assert::notEmpty($items);
 
         return end($items);
+    }
+
+    /**
+     * @param string $collection
+     *
+     * @return NodeElement[]
+     */
+    private function getCollectionItems($collection)
+    {
+        $items = $this->getElement($collection)->findAll('css', 'div[data-form-collection="item"]');
+
+        Assert::isArray($items);
+
+        return $items;
     }
 }

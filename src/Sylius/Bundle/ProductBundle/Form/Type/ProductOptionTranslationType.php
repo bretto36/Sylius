@@ -12,12 +12,13 @@
 namespace Sylius\Bundle\ProductBundle\Form\Type;
 
 use Sylius\Bundle\ResourceBundle\Form\Type\AbstractResourceType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 
 /**
  * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
  */
-class ProductOptionTranslationType extends AbstractResourceType
+final class ProductOptionTranslationType extends AbstractResourceType
 {
     /**
      * {@inheritdoc}
@@ -25,7 +26,7 @@ class ProductOptionTranslationType extends AbstractResourceType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('name', 'text', [
+            ->add('name', TextType::class, [
                 'label' => 'sylius.form.option.name',
             ])
         ;
@@ -34,7 +35,7 @@ class ProductOptionTranslationType extends AbstractResourceType
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'sylius_product_option_translation';
     }

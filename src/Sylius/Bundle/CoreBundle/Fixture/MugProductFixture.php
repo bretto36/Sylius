@@ -12,6 +12,7 @@
 namespace Sylius\Bundle\CoreBundle\Fixture;
 
 use Sylius\Bundle\FixturesBundle\Fixture\AbstractFixture;
+use Sylius\Component\Attribute\AttributeType\SelectAttributeType;
 use Sylius\Component\Attribute\AttributeType\TextAttributeType;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -19,25 +20,25 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * @author Kamil Kokot <kamil.kokot@lakion.com>
  */
-final class MugProductFixture extends AbstractFixture
+class MugProductFixture extends AbstractFixture
 {
     /**
-     * @var TaxonFixture
+     * @var AbstractResourceFixture
      */
     private $taxonFixture;
 
     /**
-     * @var ProductAttributeFixture
+     * @var AbstractResourceFixture
      */
     private $productAttributeFixture;
 
     /**
-     * @var ProductOptionFixture
+     * @var AbstractResourceFixture
      */
     private $productOptionFixture;
 
     /**
-     * @var ProductFixture
+     * @var AbstractResourceFixture
      */
     private $productFixture;
 
@@ -52,16 +53,16 @@ final class MugProductFixture extends AbstractFixture
     private $optionsResolver;
 
     /**
-     * @param TaxonFixture $taxonFixture
-     * @param ProductAttributeFixture $productAttributeFixture
-     * @param ProductOptionFixture $productOptionFixture
-     * @param ProductFixture $productFixture
+     * @param AbstractResourceFixture $taxonFixture
+     * @param AbstractResourceFixture $productAttributeFixture
+     * @param AbstractResourceFixture $productOptionFixture
+     * @param AbstractResourceFixture $productFixture
      */
     public function __construct(
-        TaxonFixture $taxonFixture,
-        ProductAttributeFixture $productAttributeFixture,
-        ProductOptionFixture $productOptionFixture,
-        ProductFixture $productFixture
+        AbstractResourceFixture $taxonFixture,
+        AbstractResourceFixture $productAttributeFixture,
+        AbstractResourceFixture $productOptionFixture,
+        AbstractResourceFixture $productFixture
     ) {
         $this->taxonFixture = $taxonFixture;
         $this->productAttributeFixture = $productAttributeFixture;
@@ -102,8 +103,17 @@ final class MugProductFixture extends AbstractFixture
             ]
         ]]]);
 
+        $mugMaterials = ['Invisible porcelain', 'Banana skin', 'Porcelain', 'Centipede'];
         $this->productAttributeFixture->load(['custom' => [
-            ['name' => 'Mug material', 'code' => 'mug_material', 'type' => TextAttributeType::TYPE],
+            [
+                'name' => 'Mug material',
+                'code' => 'mug_material',
+                'type' => SelectAttributeType::TYPE,
+                'configuration' => [
+                    'multiple' => false,
+                    'choices' => $mugMaterials,
+                ]
+            ],
         ]]);
 
         $this->productOptionFixture->load(['custom' => [
@@ -127,12 +137,12 @@ final class MugProductFixture extends AbstractFixture
                 'main_taxon' => 'mugs',
                 'taxons' => ['mugs'],
                 'product_attributes' => [
-                    'mug_material' => $this->faker->randomElement(['Invisible porcelain', 'Banana skin', 'Porcelain', 'Centipede']),
+                    'mug_material' => [$this->faker->randomKey($mugMaterials)],
                 ],
                 'product_options' => ['mug_type'],
                 'images' => [
-                    'main' => sprintf('%s/../Resources/fixtures/%s', __DIR__, 'mugs.jpg'),
-                    'thumbnail' => sprintf('%s/../Resources/fixtures/%s', __DIR__, 'mugs.jpg'),
+                    [sprintf('%s/../Resources/fixtures/%s', __DIR__, 'mugs.jpg'), 'main'],
+                    [sprintf('%s/../Resources/fixtures/%s', __DIR__, 'mugs.jpg'), 'thumbnail'],
                 ],
             ];
         }

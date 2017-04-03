@@ -48,17 +48,27 @@ class PromotionActionFactory implements PromotionActionFactoryInterface
     /**
      * {@inheritdoc}
      */
-    public function createFixedDiscount($amount)
+    public function createFixedDiscount($amount, $channelCode)
     {
-        return $this->createAction(FixedDiscountPromotionActionCommand::TYPE, ['amount' => $amount]);
+        return $this->createAction(
+            FixedDiscountPromotionActionCommand::TYPE,
+            [
+                $channelCode => ['amount' => $amount],
+            ]
+        );
     }
 
     /**
      * {@inheritdoc}
      */
-    public function createUnitFixedDiscount($amount)
+    public function createUnitFixedDiscount($amount, $channelCode)
     {
-        return $this->createAction(UnitFixedDiscountPromotionActionCommand::TYPE, ['amount' => $amount]);
+        return $this->createAction(
+            UnitFixedDiscountPromotionActionCommand::TYPE,
+            [
+                $channelCode => ['amount' => $amount],
+            ]
+        );
     }
 
     /**
@@ -66,15 +76,25 @@ class PromotionActionFactory implements PromotionActionFactoryInterface
      */
     public function createPercentageDiscount($percentage)
     {
-        return $this->createAction(PercentageDiscountPromotionActionCommand::TYPE, ['percentage' => $percentage]);
+        return $this->createAction(
+            PercentageDiscountPromotionActionCommand::TYPE,
+            [
+                'percentage' => $percentage,
+            ]
+        );
     }
 
     /**
      * {@inheritdoc}
      */
-    public function createUnitPercentageDiscount($percentage)
+    public function createUnitPercentageDiscount($percentage, $channelCode)
     {
-        return $this->createAction(UnitPercentageDiscountPromotionActionCommand::TYPE, ['percentage' => $percentage]);
+        return $this->createAction(
+            UnitPercentageDiscountPromotionActionCommand::TYPE,
+            [
+                $channelCode => ['percentage' => $percentage],
+            ]
+        );
     }
 
     /**
@@ -82,7 +102,12 @@ class PromotionActionFactory implements PromotionActionFactoryInterface
      */
     public function createShippingPercentageDiscount($percentage)
     {
-        return $this->createAction(ShippingPercentageDiscountPromotionActionCommand::TYPE, ['percentage' => $percentage]);
+        return $this->createAction(
+            ShippingPercentageDiscountPromotionActionCommand::TYPE,
+            [
+                'percentage' => $percentage,
+            ]
+        );
     }
 
     /**

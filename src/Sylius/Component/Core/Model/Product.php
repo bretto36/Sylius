@@ -13,10 +13,10 @@ namespace Sylius\Component\Core\Model;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\Criteria;
 use Sylius\Component\Channel\Model\ChannelInterface as BaseChannelInterface;
 use Sylius\Component\Product\Model\Product as BaseProduct;
 use Sylius\Component\Review\Model\ReviewInterface;
-use Sylius\Component\Shipping\Model\ShippingCategoryInterface;
 use Sylius\Component\Taxonomy\Model\TaxonInterface as BaseTaxonInterface;
 
 /**
@@ -29,20 +29,15 @@ class Product extends BaseProduct implements ProductInterface, ReviewableProduct
     /**
      * @var string
      */
-    protected $variantSelectionMethod;
+    protected $variantSelectionMethod = self::VARIANT_SELECTION_CHOICE;
 
     /**
-     * @var Collection|BaseTaxonInterface[]
+     * @var Collection|ProductTaxonInterface[]
      */
-    protected $taxons;
+    protected $productTaxons;
 
     /**
-     * @var ShippingCategoryInterface
-     */
-    protected $shippingCategory;
-
-    /**
-     * @var ChannelInterface[]|Collection
+     * @var Collection|ChannelInterface[]
      */
     protected $channels;
 
@@ -70,12 +65,10 @@ class Product extends BaseProduct implements ProductInterface, ReviewableProduct
     {
         parent::__construct();
 
-        $this->taxons = new ArrayCollection();
+        $this->productTaxons = new ArrayCollection();
         $this->channels = new ArrayCollection();
         $this->reviews = new ArrayCollection();
         $this->images = new ArrayCollection();
-
-        $this->variantSelectionMethod = self::VARIANT_SELECTION_CHOICE;
     }
 
     /**
@@ -119,59 +112,56 @@ class Product extends BaseProduct implements ProductInterface, ReviewableProduct
     /**
      * {@inheritdoc}
      */
-    public function getTaxons($rootTaxonCode = null)
+    public function getProductTaxons()
     {
-        if (null !== $rootTaxonCode) {
-            return $this->taxons->filter(function (BaseTaxonInterface $taxon) use ($rootTaxonCode) {
-                return $rootTaxonCode === strtolower($taxon->getRoot()->getCode());
-            });
-        }
-
-        return $this->taxons;
+        return $this->productTaxons;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function addTaxon(BaseTaxonInterface $taxon)
+    public function addProductTaxon(ProductTaxonInterface $productTaxon)
     {
-        if (!$this->hasTaxon($taxon)) {
-            $this->taxons->add($taxon);
+        if (!$this->hasProductTaxon($productTaxon)) {
+            $this->productTaxons->add($productTaxon);
+            $productTaxon->setProduct($this);
         }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function removeTaxon(BaseTaxonInterface $taxon)
+    public function removeProductTaxon(ProductTaxonInterface $productTaxon)
     {
-        if ($this->hasTaxon($taxon)) {
-            $this->taxons->removeElement($taxon);
+        if ($this->hasProductTaxon($productTaxon)) {
+            $this->productTaxons->removeElement($productTaxon);
         }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function hasTaxon(BaseTaxonInterface $taxon)
+    public function hasProductTaxon(ProductTaxonInterface $productTaxon)
     {
-        return $this->taxons->contains($taxon);
+        return $this->productTaxons->contains($productTaxon);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getShippingCategory()
+    public function getTaxons()
     {
-        return $this->shippingCategory;
+        return $this->productTaxons->map(function (ProductTaxonInterface $productTaxon) {
+            return $productTaxon->getTaxon();
+        });
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setShippingCategory(ShippingCategoryInterface $category = null)
+    public function hasTaxon(TaxonInterface $taxon)
     {
-        $this->shippingCategory = $category;
+        return $this->getTaxons()->contains($taxon);
     }
 
     /**
@@ -216,8 +206,8 @@ class Product extends BaseProduct implements ProductInterface, ReviewableProduct
     public static function getVariantSelectionMethodLabels()
     {
         return [
-            self::VARIANT_SELECTION_CHOICE => 'Variant choice',
-            self::VARIANT_SELECTION_MATCH => 'Options matching',
+            self::VARIANT_SELECTION_CHOICE => 'sylius.ui.variant_choice',
+            self::VARIANT_SELECTION_MATCH => 'sylius.ui.options_matching',
         ];
     }
 
@@ -226,7 +216,7 @@ class Product extends BaseProduct implements ProductInterface, ReviewableProduct
      */
     public function getShortDescription()
     {
-        return $this->translate()->getShortDescription();
+        return $this->getTranslation()->getShortDescription();
     }
 
     /**
@@ -234,7 +224,7 @@ class Product extends BaseProduct implements ProductInterface, ReviewableProduct
      */
     public function setShortDescription($shortDescription)
     {
-        $this->translate()->setShortDescription($shortDescription);
+        $this->getTranslation()->setShortDescription($shortDescription);
     }
 
     /**
@@ -259,6 +249,18 @@ class Product extends BaseProduct implements ProductInterface, ReviewableProduct
     public function getReviews()
     {
         return $this->reviews;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAcceptedReviews()
+    {
+        $criteria = Criteria::create()
+            ->where(Criteria::expr()->eq('status', ReviewInterface::STATUS_ACCEPTED))
+        ;
+
+        return $this->reviews->matching($criteria);
     }
 
     /**
@@ -296,30 +298,6 @@ class Product extends BaseProduct implements ProductInterface, ReviewableProduct
     /**
      * {@inheritdoc}
      */
-    public function getFirstVariant()
-    {
-        if ($this->variants->isEmpty()) {
-            return null;
-        }
-
-        return $this->variants->first();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getPrice()
-    {
-        if (null === $this->getFirstVariant()) {
-            return null;
-        }
-
-        return $this->getFirstVariant()->getPrice();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getImages()
     {
         return $this->images;
@@ -328,15 +306,11 @@ class Product extends BaseProduct implements ProductInterface, ReviewableProduct
     /**
      * {@inheritdoc}
      */
-    public function getImageByCode($code)
+    public function getImagesByType($type)
     {
-        foreach ($this->images as $image) {
-            if ($code === $image->getCode()) {
-                return $image;
-            }
-        }
-
-        return null;
+        return $this->images->filter(function (ImageInterface $image) use ($type) {
+            return $type === $image->getType();
+        });
     }
 
     /**
@@ -373,5 +347,13 @@ class Product extends BaseProduct implements ProductInterface, ReviewableProduct
             $image->setOwner(null);
             $this->images->removeElement($image);
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function createTranslation()
+    {
+        return new ProductTranslation();
     }
 }

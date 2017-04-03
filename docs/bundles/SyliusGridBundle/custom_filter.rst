@@ -9,35 +9,19 @@ To add a new filter, we need to create an appropriate class and form type.
 
     <?php
 
-    namespace App\Grid\Filter;
+    namespace AppBundle\Grid\Filter;
 
     use Sylius\Component\Grid\Data\DataSourceInterface;
     use Sylius\Component\Grid\Filtering\FilterInterface;
-    use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 
     class SuppliersStatisticsFilter implements FilterInterface
     {
-        public function apply(DataSourceInterface $dataSource, $name, $data, array $options = array())
+        public function apply(DataSourceInterface $dataSource, $name, $data, array $options = [])
         {
             // Your filtering logic. DataSource is kind of query builder.
             // $data['stats'] contains the submitted value!
-        }
-
-        public function setOptions(OptionsResolverInterface $resolver)
-        {
-            $resolver
-                ->setDefaults(array(
-                    'range' => array(0, 10)
-                ))
-                ->setAllowedTypes(array(
-                    'range' => array('array')
-                ))
-            ;
-        }
-
-        public function getType()
-        {
-            return 'supplier_statistics';
+            // here is an example
+            $dataSource->restrict($dataSource->getExpressionBuilder()->equal('stats', $data['stats']));
         }
     }
 
@@ -47,34 +31,32 @@ And the form type:
 
     <?php
 
-    namespace AppBundle\Form\Type\Filterh;
+    namespace AppBundle\Form\Type\Filter;
 
-    use Sylius\Component\Grid\Data\DataSourceInterface;
-    use Sylius\Component\Grid\Filter\FilterInterface;
-    use Symfony\Component\OptionsResolver\OptionsResolverInterface;
+    use Symfony\Component\Form\AbstractType;
+    use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+    use Symfony\Component\Form\FormBuilderInterface;
+    use Symfony\Component\OptionsResolver\OptionsResolver;
 
-    class TournamentStatisticsFilterType extends AbstractType
+    class SuppliersStatisticsFilterType extends AbstractType
     {
         public function buildForm(FormBuilderInterface $builder, array $options)
         {
-            $builder->add('stats', 'choice', array('choices' => range($options['range'][0], $options['range'][1])));
+            $builder->add(
+                'stats',
+                ChoiceType:class,
+                ['choices' => range($options['range'][0], $options['range'][1])]
+            );
         }
 
-        public function setDefaultOptions(OptionsResolverInterface $resolver)
+        public function configureOptions(OptionsResolver $resolver)
         {
             $resolver
-                ->setDefaults(array(
-                    'range' => array(0, 10)
-                ))
-                ->setAllowedTypes(array(
-                    'range' => array('array')
-                ))
+                ->setDefaults([
+                    'range' => [0, 10],
+                ])
+                ->setAllowedTypes('range', ['array'])
             ;
-        }
-
-        public function getName()
-        {
-            return 'sylius_filter_tournament_statistics'; // The name is important to be sylius_filter_NAME
         }
     }
 
@@ -82,7 +64,7 @@ Create a template for the filter, similar to the existing ones:
 
 .. code-block:: html
 
-    # AppBundle/Resources/views/Grid/Filter/suppliers_statistics.html.twig
+    # app/Resources/views/Grid/Filter/suppliers_statistics.html.twig
     {% form_theme form 'SyliusUiBundle:Form:theme.html.twig' %}
 
     {{ form_row(form) }}
@@ -97,11 +79,10 @@ That is all. Now let's register your new filter type as service.
         app.grid.filter.suppliers_statistics:
             class: AppBundle\Grid\Filter\SuppliersStatisticsFilter
             tags:
-                - { name: sylius.grid_filter, type: suppliers_statistics }
-        app.form.type.grid.filter.suppliers_statistics:
-            class: AppBundle\Form\Type\Filter\SuppliersStatisticsFilterType
-            tags:
-                - { name: form.type, alias: sylius_grid_filter_suppliers_statistics }
+                -
+                    name: sylius.grid_filter
+                    type: suppliers_statistics
+                    form-type: AppBundle\Form\Type\Filter\SuppliersStatisticsFilterType
 
 Now you can use your new filter type in the grid configuration!
 
@@ -114,9 +95,9 @@ Now you can use your new filter type in the grid configuration!
                 resource: app.tournament
                 filters:
                     stats:
-                        type: tournament_statistics
+                        type: suppliers_statistics
                         options:
                             range: [0, 100]
         templates:
             filter:
-                suppliers_statistics: "AppBundle:Grid/Filter:suppliers_statistics.html.twig"
+                suppliers_statistics: 'AppBundle:Grid/Filter:suppliers_statistics.html.twig'

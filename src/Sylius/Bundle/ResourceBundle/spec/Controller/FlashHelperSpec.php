@@ -23,6 +23,7 @@ use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Translation\MessageCatalogueInterface;
 use Symfony\Component\Translation\TranslatorBagInterface;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
@@ -30,7 +31,7 @@ use Symfony\Component\Translation\TranslatorBagInterface;
  */
 final class FlashHelperSpec extends ObjectBehavior
 {
-    function let(SessionInterface $session, TranslatorBagInterface $translator)
+    function let(SessionInterface $session, TranslatorInterface $translator)
     {
         $this->beConstructedWith($session, $translator, 'en');
     }
@@ -46,6 +47,99 @@ final class FlashHelperSpec extends ObjectBehavior
     }
 
     function it_adds_resource_message_by_default(
+        SessionInterface $session,
+        TranslatorBagInterface $translator,
+        MessageCatalogueInterface $messageCatalogue,
+        FlashBagInterface $flashBag,
+        MetadataInterface $metadata,
+        RequestConfiguration $requestConfiguration,
+        ResourceInterface $resource
+    ) {
+        $metadata->getApplicationName()->willReturn('sylius');
+        $metadata->getHumanizedName()->willReturn('product');
+
+        $requestConfiguration->getMetadata()->willReturn($metadata);
+        $requestConfiguration->getFlashMessage(ResourceActions::CREATE)->willReturn('sylius.product.create');
+
+        $translator->getCatalogue('en')->willReturn($messageCatalogue);
+
+        $session->getBag('flashes')->willReturn($flashBag);
+        $flashBag->add(
+            'success',
+            [
+                'message' => 'sylius.resource.create',
+                'parameters' => ['%resource%' => 'Product'],
+            ]
+        )->shouldBeCalled();
+
+        $this->addSuccessFlash($requestConfiguration, ResourceActions::CREATE, $resource);
+    }
+
+    function it_adds_resource_message_when_catalogue_is_unavailable_and_given_message_cannot_be_translated(
+        SessionInterface $session,
+        TranslatorInterface $translator,
+        FlashBagInterface $flashBag,
+        MetadataInterface $metadata,
+        RequestConfiguration $requestConfiguration,
+        ResourceInterface $resource
+    ) {
+        $parameters = ['%resource%' => 'Product'];
+
+        $metadata->getApplicationName()->willReturn('sylius');
+        $metadata->getHumanizedName()->willReturn('product');
+
+        $requestConfiguration->getMetadata()->willReturn($metadata);
+        $requestConfiguration->getFlashMessage(ResourceActions::CREATE)->willReturn('sylius.product.create');
+
+        $translator->trans('sylius.product.create', $parameters, 'flashes')->willReturn('sylius.product.create');
+
+        $session->getBag('flashes')->willReturn($flashBag);
+        $flashBag->add(
+            'success',
+            [
+                'message' => 'sylius.resource.create',
+                'parameters' => $parameters,
+            ]
+        )->shouldBeCalled();
+
+        $this->addSuccessFlash($requestConfiguration, ResourceActions::CREATE, $resource);
+    }
+
+    function it_adds_resource_message_when_catalogue_is_unavailable_and_given_message_can_be_translated(
+        SessionInterface $session,
+        TranslatorInterface $translator,
+        FlashBagInterface $flashBag,
+        MetadataInterface $metadata,
+        RequestConfiguration $requestConfiguration,
+        ResourceInterface $resource
+    ) {
+        $parameters = ['%resource%' => 'Spoon'];
+
+        $metadata->getApplicationName()->willReturn('app');
+        $metadata->getHumanizedName()->willReturn('spoon');
+
+        $requestConfiguration->getMetadata()->willReturn($metadata);
+        $requestConfiguration->getFlashMessage(ResourceActions::CREATE)
+            ->willReturn('%resource% is the best cutlery of them all!')
+        ;
+
+        $translator->trans('%resource% is the best cutlery of them all!', $parameters, 'flashes')
+            ->willReturn('Spoon is the best cutlery of them all!')
+        ;
+
+        $session->getBag('flashes')->willReturn($flashBag);
+        $flashBag->add(
+            'success',
+            [
+                'message' => '%resource% is the best cutlery of them all!',
+                'parameters' => $parameters,
+            ]
+        )->shouldBeCalled();
+
+        $this->addSuccessFlash($requestConfiguration, ResourceActions::CREATE, $resource);
+    }
+
+    function it_adds_resource_message_if_message_was_not_found_in_the_catalogue(
         SessionInterface $session,
         TranslatorBagInterface $translator,
         MessageCatalogueInterface $messageCatalogue,

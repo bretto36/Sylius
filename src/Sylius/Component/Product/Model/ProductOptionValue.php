@@ -12,6 +12,7 @@
 namespace Sylius\Component\Product\Model;
 
 use Sylius\Component\Resource\Model\TranslatableTrait;
+use Sylius\Component\Resource\Model\TranslationInterface;
 
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
@@ -95,7 +96,7 @@ class ProductOptionValue implements ProductOptionValueInterface
      */
     public function getValue()
     {
-        return $this->translate()->getValue();
+        return $this->getTranslation()->getValue();
     }
 
     /**
@@ -103,16 +104,20 @@ class ProductOptionValue implements ProductOptionValueInterface
      */
     public function setValue($value)
     {
-        $this->translate()->setValue($value);
+        $this->getTranslation()->setValue($value);
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @throws \BadMethodCallException
      */
     public function getOptionCode()
     {
         if (null === $this->option) {
-            throw new \BadMethodCallException('The option have not been created yet so you cannot access proxy methods.');
+            throw new \BadMethodCallException(
+                'The option have not been created yet so you cannot access proxy methods.'
+            );
         }
 
         return $this->option->getCode();
@@ -120,13 +125,25 @@ class ProductOptionValue implements ProductOptionValueInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @throws \BadMethodCallException
      */
     public function getName()
     {
         if (null === $this->option) {
-            throw new \BadMethodCallException('The option have not been created yet so you cannot access proxy methods.');
+            throw new \BadMethodCallException(
+                'The option have not been created yet so you cannot access proxy methods.'
+            );
         }
 
         return $this->option->getName();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function createTranslation()
+    {
+        return new ProductOptionValueTranslation();
     }
 }

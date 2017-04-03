@@ -24,7 +24,7 @@ abstract class Image implements ImageInterface
     /**
      * @var string
      */
-    protected $code;
+    protected $type;
 
     /**
      * @var \SplFileInfo
@@ -37,7 +37,7 @@ abstract class Image implements ImageInterface
     protected $path;
 
     /**
-     * @var ImageAwareInterface
+     * @var object
      */
     protected $owner;
 
@@ -57,25 +57,17 @@ abstract class Image implements ImageInterface
     /**
      * {@inheritdoc}
      */
-    public function getCode()
+    public function getType()
     {
-        return $this->code;
+        return $this->type;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setCode($code)
+    public function setType($type)
     {
-        $this->code = $code;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function hasFile()
-    {
-        return null !== $this->file;
+        $this->type = $type;
     }
 
     /**
@@ -97,9 +89,9 @@ abstract class Image implements ImageInterface
     /**
      * {@inheritdoc}
      */
-    public function hasPath()
+    public function hasFile()
     {
-        return null !== $this->path;
+        return null !== $this->file;
     }
 
     /**
@@ -121,6 +113,14 @@ abstract class Image implements ImageInterface
     /**
      * {@inheritdoc}
      */
+    public function hasPath()
+    {
+        return null !== $this->path;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getOwner()
     {
         return $this->owner;
@@ -129,7 +129,7 @@ abstract class Image implements ImageInterface
     /**
      * {@inheritdoc}
      */
-    public function setOwner(ImageAwareInterface $owner = null)
+    public function setOwner($owner)
     {
         $this->owner = $owner;
     }

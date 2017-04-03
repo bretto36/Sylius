@@ -13,9 +13,8 @@ namespace Sylius\Component\Core\Model;
 
 use Sylius\Component\Channel\Model\ChannelsAwareInterface;
 use Sylius\Component\Product\Model\ProductInterface as BaseProductInterface;
+use Sylius\Component\Review\Model\ReviewInterface;
 use Sylius\Component\Review\Model\ReviewableInterface;
-use Sylius\Component\Shipping\Model\ShippingCategoryInterface;
-use Sylius\Component\Taxonomy\Model\TaxonsAwareInterface;
 
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
@@ -23,10 +22,10 @@ use Sylius\Component\Taxonomy\Model\TaxonsAwareInterface;
  */
 interface ProductInterface extends
     BaseProductInterface,
-    TaxonsAwareInterface,
+    ProductTaxonsAwareInterface,
     ChannelsAwareInterface,
     ReviewableInterface,
-    ImageAwareInterface
+    ImagesAwareInterface
 {
     /*
      * Variant selection methods.
@@ -72,16 +71,6 @@ interface ProductInterface extends
     public function setShortDescription($shortDescription);
 
     /**
-     * @return ShippingCategoryInterface
-     */
-    public function getShippingCategory();
-
-    /**
-     * @param ShippingCategoryInterface $category
-     */
-    public function setShippingCategory(ShippingCategoryInterface $category = null);
-
-    /**
      * @return TaxonInterface
      */
     public function getMainTaxon();
@@ -92,12 +81,7 @@ interface ProductInterface extends
     public function setMainTaxon(TaxonInterface $mainTaxon = null);
 
     /**
-     * @return ProductVariantInterface
+     * @return ReviewInterface[]
      */
-    public function getFirstVariant();
-
-    /**
-     * @return int
-     */
-    public function getPrice();
+    public function getAcceptedReviews();
 }

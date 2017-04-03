@@ -21,14 +21,13 @@ sylius:
             name: Navn
             roles: Roller
         channel:
-            taxonomies: Taksonomier
             locales: Landekoder
-            currency_default: Standard valuta
-            shipping_methods: Fragtmetoder
             payment_methods: Betalingsmetoder
+            shipping_methods: Fragtmetoder
             tax_zone_default: Standard moms zone
+            taxonomies: Taksonomier
         image:
-            code: Kode
+            type: Type
             file: Billede
         locale:
             code: Kode
@@ -47,7 +46,6 @@ sylius:
         product:
             images: Billeder
             restricted_zone: Begrænset zone
-            shipping_category: Fragt kategori
             short_description: Kort beskrivelse
             variant_selection_method: Variant udvælgelsesmetode
             enabled: Aktiveret
@@ -56,6 +54,7 @@ sylius:
             code: Kode
         product_variant:
             tax_category: Momskategori
+            shipping_category: Fragt kategori
         shipment_filter:
             created_at_from: Fra
             created_at_to: Til
@@ -97,9 +96,6 @@ sylius:
             email: Email
         product_association_type:
             name: Navn
-        promotion_rule:
-            contains_taxon:
-                count: Antal
     installer:
         extensions:
             apc: APC

@@ -23,18 +23,17 @@ sylius:
             name: Emri
             roles: Funksionet
         channel:
-            taxonomies: Kategorizimet
+            currencies: Monedhat
+            currency_base: Valuta baze
+            hostname: Emri i hostit
             locale_default: Lokalizimi i parazgjedhur
             locales: Rajonet
-            currency_default: Monedha e paracaktuar
-            currencies: Monedhat
-            shipping_methods: Mënyrat e dërgesës
             payment_methods: Mënyrat e pagesës
+            shipping_methods: Mënyrat e dërgesës
             tax_zone_default: Zona e paracakruar e taksimit
+            taxonomies: Kategorizimet
             theme: Tema
-            hostname: Emri i hostit
         image:
-            code: Kodi
             file: Imazhi
         locale:
             code: Kodi
@@ -54,7 +53,6 @@ sylius:
         product:
             images: Imazhet
             restricted_zone: Zonë e kufizuar
-            shipping_category: Kategoria e dërgesës
             short_description: Përshkrim i shkurtër
             variant_selection_method: Metoda rezervë e përzgjedhjes
             main_taxon: Tipologjia kryesore
@@ -65,6 +63,7 @@ sylius:
             code: Kodi
         product_variant:
             tax_category: Kategoria e taksimit
+            shipping_category: Kategoria e dërgesës
         shipment_filter:
             created_at_from: Nga (dërguesi)
             created_at_to: Për (marrësi)
@@ -102,7 +101,6 @@ sylius:
             height: Lartësia
             on_hand: Fondi aktual
             price: Çmimi
-            original_price: Çmimi fillestar
             sku: SKU
             weight: Pesha
             width: Gjerësia
@@ -118,13 +116,12 @@ sylius:
         product_association_type:
             name: Emri
         promotion_rule:
-            contains_taxon:
-                taxon: Fushe
-                count: Numëro
-            taxon:
+            has_taxon:
                 taxons: Tipologjite
             total_of_items_from_taxon:
                 taxon: Fushe
+        payment_method:
+            channels: Kanalet
     installer:
         extensions:
             header: Shtesa
@@ -179,15 +176,3 @@ sylius:
                 header: Zonë orare e papranueshme
                 help: 'Zona orare %timezone% nuk pranohet. is deprecated. Korrigjo php.ini file (lista e zonave orare të kundërshtuara http://php.net/manual/en/timezones.others.php).'
             version: Versioni PHP
-    email:
-        order_confirmation:
-            name: Konfirmimi i porosisë
-        order_comment:
-            name: Komenti i porosisë
-        shipment_confirmation:
-            name: Konfirmimi i dërgesës
-        user_confirmation:
-            name: Konfirmimi i përdoruesit
-            subject: Mirë se erdhët në arkivin tone
-        password_reset:
-            name: Ricakto Fjalëkalimin

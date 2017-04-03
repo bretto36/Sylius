@@ -23,6 +23,12 @@ use Sylius\Component\Resource\Model\ResourceInterface;
  */
 final class ProductVariantSpec extends ObjectBehavior
 {
+    public function let()
+    {
+        $this->setCurrentLocale('en_US');
+        $this->setFallbackLocale('en_US');
+    }
+
     function it_is_initializable()
     {
         $this->shouldHaveType(ProductVariant::class);
@@ -54,5 +60,16 @@ final class ProductVariantSpec extends ObjectBehavior
         $this->addOptionValue($optionValue);
         $this->removeOptionValue($optionValue);
         $this->hasOptionValue($optionValue)->shouldReturn(false);
+    }
+
+    function it_has_no_position_by_default()
+    {
+        $this->getPosition()->shouldReturn(null);
+    }
+
+    function its_position_is_mutable()
+    {
+        $this->setPosition(10);
+        $this->getPosition()->shouldReturn(10);
     }
 }

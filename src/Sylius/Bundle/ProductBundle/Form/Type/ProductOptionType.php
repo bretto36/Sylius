@@ -13,13 +13,16 @@ namespace Sylius\Bundle\ProductBundle\Form\Type;
 
 use Sylius\Bundle\ResourceBundle\Form\EventSubscriber\AddCodeFormSubscriber;
 use Sylius\Bundle\ResourceBundle\Form\Type\AbstractResourceType;
+use Sylius\Bundle\ResourceBundle\Form\Type\ResourceTranslationsType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\FormBuilderInterface;
 
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
  */
-class ProductOptionType extends AbstractResourceType
+final class ProductOptionType extends AbstractResourceType
 {
     /**
      * {@inheritdoc}
@@ -27,14 +30,17 @@ class ProductOptionType extends AbstractResourceType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('translations', 'sylius_translations', [
-                'type' => 'sylius_product_option_translation',
+            ->add('position', IntegerType::class, [
+                'required' => false,
+                'label' => 'sylius.form.option.position',
+            ])
+            ->add('translations', ResourceTranslationsType::class, [
+                'entry_type' => ProductOptionTranslationType::class,
                 'label' => 'sylius.form.option.name',
             ])
-            ->add('values', 'collection', [
-                'type' => 'sylius_product_option_value',
+            ->add('values', CollectionType::class, [
+                'entry_type' => ProductOptionValueType::class,
                 'allow_add' => true,
-                'allow_delete' => true,
                 'by_reference' => false,
                 'label' => false,
                 'button_add_label' => 'sylius.form.option_value.add_value',
@@ -46,7 +52,7 @@ class ProductOptionType extends AbstractResourceType
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'sylius_product_option';
     }

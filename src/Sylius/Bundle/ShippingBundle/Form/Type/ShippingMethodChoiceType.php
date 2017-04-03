@@ -19,7 +19,7 @@ use Sylius\Component\Shipping\Resolver\ShippingMethodsResolverInterface;
 use Symfony\Bridge\Doctrine\Form\DataTransformer\CollectionToArrayTransformer;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Exception\UnexpectedTypeException;
-use Symfony\Component\Form\Extension\Core\ChoiceList\ObjectChoiceList;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
@@ -29,22 +29,22 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class ShippingMethodChoiceType extends AbstractType
+final class ShippingMethodChoiceType extends AbstractType
 {
     /**
      * @var ShippingMethodsResolverInterface
      */
-    protected $shippingMethodsResolver;
+    private $shippingMethodsResolver;
 
     /**
      * @var ServiceRegistryInterface
      */
-    protected $calculators;
+    private $calculators;
 
     /**
      * @var RepositoryInterface
      */
-    protected $repository;
+    private $repository;
 
     /**
      * @param ShippingMethodsResolverInterface $shippingMethodsResolver
@@ -76,19 +76,18 @@ class ShippingMethodChoiceType extends AbstractType
      */
     public function configureOptions(OptionsResolver $resolver)
     {
-        $choiceList = function (Options $options) {
-            if (isset($options['subject']) && $this->shippingMethodsResolver->supports($options['subject'])) {
-                $methods = $this->shippingMethodsResolver->getSupportedMethods($options['subject']);
-            } else {
-                $methods = $this->repository->findAll();
-            }
-
-            return new ObjectChoiceList($methods, null, [], null, 'code');
-        };
-
         $resolver
             ->setDefaults([
-                'choice_list' => $choiceList,
+                'choices' => function (Options $options) {
+                    if (isset($options['subject']) && $this->shippingMethodsResolver->supports($options['subject'])) {
+                        return $this->shippingMethodsResolver->getSupportedMethods($options['subject']);
+                    }
+
+                    return $this->repository->findAll();
+                },
+                'choice_value' => 'code',
+                'choice_label' => 'name',
+                'choice_translation_domain' => false,
             ])
             ->setDefined([
                 'subject',
@@ -113,7 +112,7 @@ class ShippingMethodChoiceType extends AbstractType
             $method = $choiceView->data;
 
             if (!$method instanceof ShippingMethodInterface) {
-                throw new UnexpectedTypeException($method, 'ShippingMethodInterface');
+                throw new UnexpectedTypeException($method, ShippingMethodInterface::class);
             }
 
             $calculator = $this->calculators->get($method->getCalculator());
@@ -128,13 +127,13 @@ class ShippingMethodChoiceType extends AbstractType
      */
     public function getParent()
     {
-        return 'choice';
+        return ChoiceType::class;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'sylius_shipping_method_choice';
     }

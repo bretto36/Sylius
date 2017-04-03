@@ -40,47 +40,20 @@ final class ChannelBasedLocaleProviderSpec extends ObjectBehavior
         $this->shouldImplement(LocaleProviderInterface::class);
     }
 
-    function it_returns_only_channels_enabled_locales_as_available_ones(
+    function it_returns_all_channels_locales_as_available_ones(
         ChannelContextInterface $channelContext,
         ChannelInterface $channel,
-        LocaleInterface $enabledLocale,
-        LocaleInterface $disabledLocale
+        LocaleInterface $enabledLocale
     ) {
         $channelContext->getChannel()->willReturn($channel);
 
         $channel->getLocales()->willReturn(new ArrayCollection([
             $enabledLocale->getWrappedObject(),
-            $disabledLocale->getWrappedObject(),
         ]));
-
-        $enabledLocale->isEnabled()->willReturn(true);
-        $disabledLocale->isEnabled()->willReturn(false);
 
         $enabledLocale->getCode()->willReturn('en_US');
 
         $this->getAvailableLocalesCodes()->shouldReturn(['en_US']);
-    }
-
-    function it_returns_only_channels_locales_as_defined_ones(
-        ChannelContextInterface $channelContext,
-        ChannelInterface $channel,
-        LocaleInterface $enabledLocale,
-        LocaleInterface $disabledLocale
-    ) {
-        $channelContext->getChannel()->willReturn($channel);
-
-        $channel->getLocales()->willReturn(new ArrayCollection([
-            $enabledLocale->getWrappedObject(),
-            $disabledLocale->getWrappedObject(),
-        ]));
-
-        $enabledLocale->isEnabled()->willReturn(true);
-        $disabledLocale->isEnabled()->willReturn(false);
-
-        $enabledLocale->getCode()->willReturn('en_US');
-        $disabledLocale->getCode()->willReturn('en_GB');
-
-        $this->getDefinedLocalesCodes()->shouldReturn(['en_US', 'en_GB']);
     }
 
     function it_returns_the_default_locale_as_the_available_one_if_channel_cannot_be_determined(

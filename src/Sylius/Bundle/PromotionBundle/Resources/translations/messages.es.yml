@@ -12,6 +12,7 @@ sylius:
             ends_at: Termina el
             exclusive: Exclusivo
             name: Nombre
+            priority: Prioridad
             rules: Reglas
             starts_at: Empieza el
             usage_limit: Límite de uso
@@ -29,6 +30,8 @@ sylius:
             code_length: Longitud del código
             expires_at: Caduca el
             usage_limit: Límite de uso
+        promotion_filter:
+            price_range: Filtro de rango de precio
         promotion_rule:
             cart_quantity_configuration:
                 count: Contador

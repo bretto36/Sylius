@@ -13,9 +13,9 @@ namespace Sylius\Behat\Context\Setup;
 
 use Behat\Behat\Context\Context;
 use SM\Factory\FactoryInterface as StateMachineFactoryInterface;
+use Sylius\Behat\Service\SharedStorageInterface;
 use Sylius\Component\Core\Model\CustomerInterface;
 use Sylius\Component\Core\Model\ProductInterface;
-use Sylius\Behat\Service\SharedStorageInterface;
 use Sylius\Component\Core\ProductReviewTransitions;
 use Sylius\Component\Resource\Factory\FactoryInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
@@ -65,11 +65,11 @@ final class ProductReviewContext implements Context
     }
 
     /**
-     * @Given /^(this product) has one review$/
+     * @Given /^(this product) has one review from (customer "[^"]+")$/
      */
-    public function productHasAReview(ProductInterface $product)
+    public function productHasAReview(ProductInterface $product, CustomerInterface $customer)
     {
-        $review = $this->createProductReview($product, 'Title', 5, 'Comment');
+        $review = $this->createProductReview($product, 'Title', 5, 'Comment', $customer);
 
         $this->productReviewRepository->add($review);
     }

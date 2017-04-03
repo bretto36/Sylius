@@ -7,6 +7,7 @@ Sylius\Component\Core\Model\TaxRate:
     relations:
         - rel: zone
           href:
-                route: sylius_api_zone_show
+                route: sylius_admin_api_zone_show
                 parameters:
-                    id: expr(object.getZone().getId())
+                    code: expr(object.getZone().getCode())
+                    version: 1

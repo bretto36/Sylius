@@ -15,6 +15,7 @@ use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Sylius\Component\Core\Distributor\ProportionalIntegerDistributorInterface;
 use Sylius\Component\Core\Model\AdjustmentInterface;
+use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Model\OrderItemInterface;
 use Sylius\Component\Core\Model\OrderItemUnitInterface;
@@ -28,6 +29,7 @@ use Sylius\Component\Promotion\Model\PromotionSubjectInterface;
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  * @author Saša Stamenković <umpirsky@gmail.com>
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
+ * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
  */
 final class FixedDiscountPromotionActionCommandSpec extends ObjectBehavior
 {
@@ -35,7 +37,10 @@ final class FixedDiscountPromotionActionCommandSpec extends ObjectBehavior
         ProportionalIntegerDistributorInterface $proportionalIntegerDistributor,
         UnitsPromotionAdjustmentsApplicatorInterface $unitsPromotionAdjustmentsApplicator
     ) {
-        $this->beConstructedWith($proportionalIntegerDistributor, $unitsPromotionAdjustmentsApplicator);
+        $this->beConstructedWith(
+            $proportionalIntegerDistributor,
+            $unitsPromotionAdjustmentsApplicator
+        );
     }
 
     function it_is_initializable()
@@ -49,6 +54,7 @@ final class FixedDiscountPromotionActionCommandSpec extends ObjectBehavior
     }
 
     function it_uses_a_distributor_and_applicator_to_execute_promotion_action(
+        ChannelInterface $channel,
         OrderInterface $order,
         OrderItemInterface $firstItem,
         OrderItemInterface $secondItem,
@@ -56,6 +62,10 @@ final class FixedDiscountPromotionActionCommandSpec extends ObjectBehavior
         ProportionalIntegerDistributorInterface $proportionalIntegerDistributor,
         UnitsPromotionAdjustmentsApplicatorInterface $unitsPromotionAdjustmentsApplicator
     ) {
+        $order->getCurrencyCode()->willReturn('USD');
+        $order->getChannel()->willReturn($channel);
+        $channel->getCode()->willReturn('WEB_US');
+
         $order->countItems()->willReturn(2);
 
         $order
@@ -70,10 +80,11 @@ final class FixedDiscountPromotionActionCommandSpec extends ObjectBehavior
         $proportionalIntegerDistributor->distribute([6000, 4000], -1000)->willReturn([-600, -400]);
         $unitsPromotionAdjustmentsApplicator->apply($order, $promotion, [-600, -400])->shouldBeCalled();
 
-        $this->execute($order, ['amount' => 1000], $promotion);
+        $this->execute($order, ['WEB_US' => ['amount' => 1000]], $promotion)->shouldReturn(true);
     }
 
-    function it_does_not_apply_bigger_promotion_than_promotion_subject_total(
+    function it_does_not_apply_bigger_discount_than_promotion_subject_total(
+        ChannelInterface $channel,
         OrderInterface $order,
         OrderItemInterface $firstItem,
         OrderItemInterface $secondItem,
@@ -81,6 +92,10 @@ final class FixedDiscountPromotionActionCommandSpec extends ObjectBehavior
         ProportionalIntegerDistributorInterface $proportionalIntegerDistributor,
         UnitsPromotionAdjustmentsApplicatorInterface $unitsPromotionAdjustmentsApplicator
     ) {
+        $order->getCurrencyCode()->willReturn('USD');
+        $order->getChannel()->willReturn($channel);
+        $channel->getCode()->willReturn('WEB_US');
+
         $order->countItems()->willReturn(2);
 
         $order
@@ -95,52 +110,80 @@ final class FixedDiscountPromotionActionCommandSpec extends ObjectBehavior
         $proportionalIntegerDistributor->distribute([6000, 4000], -10000)->willReturn([-6000, -4000]);
         $unitsPromotionAdjustmentsApplicator->apply($order, $promotion, [-6000, -4000])->shouldBeCalled();
 
-        $this->execute($order, ['amount' => 15000], $promotion);
+        $this->execute($order, ['WEB_US' => ['amount' => 15000]], $promotion)->shouldReturn(true);
     }
 
-    function it_does_nothing_if_order_has_no_items(OrderInterface $order, PromotionInterface $promotion)
-    {
+    function it_does_not_apply_discount_if_order_has_no_items(
+        ChannelInterface $channel,
+        OrderInterface $order,
+        PromotionInterface $promotion
+    ) {
+        $order->getChannel()->willReturn($channel);
+        $channel->getCode()->willReturn('WEB_US');
+
         $order->countItems()->willReturn(0);
         $order->getPromotionSubjectTotal()->shouldNotBeCalled();
 
-        $this->execute($order, ['amount' => 1000], $promotion);
+        $this->execute($order, ['WEB_US' => ['amount' => 1000]], $promotion)->shouldReturn(false);
     }
 
-    function it_does_nothing_if_subject_total_is_0(
+    function it_does_not_apply_discount_if_subject_total_is_0(
+        ChannelInterface $channel,
         OrderInterface $order,
         PromotionInterface $promotion,
         ProportionalIntegerDistributorInterface $proportionalIntegerDistributor
     ) {
+        $order->getChannel()->willReturn($channel);
+        $channel->getCode()->willReturn('WEB_US');
+
         $order->countItems()->willReturn(0);
         $order->getPromotionSubjectTotal()->willReturn(0);
         $proportionalIntegerDistributor->distribute(Argument::any())->shouldNotBeCalled();
 
-        $this->execute($order, ['amount' => 1000], $promotion);
+        $this->execute($order, ['WEB_US' => ['amount' => 1000]], $promotion)->shouldReturn(false);
     }
 
-    function it_does_nothing_if_promotion_amount_is_0(
+    function it_does_not_apply_discount_if_promotion_amount_is_0(
+        ChannelInterface $channel,
         OrderInterface $order,
         PromotionInterface $promotion,
         ProportionalIntegerDistributorInterface $proportionalIntegerDistributor
     ) {
+        $order->getChannel()->willReturn($channel);
+        $channel->getCode()->willReturn('WEB_US');
+
         $order->countItems()->willReturn(0);
         $order->getPromotionSubjectTotal()->willReturn(1000);
         $proportionalIntegerDistributor->distribute(Argument::any())->shouldNotBeCalled();
 
-        $this->execute($order, ['amount' => 0], $promotion);
+        $this->execute($order, ['WEB_US' => ['amount' => 0]], $promotion)->shouldReturn(false);
     }
 
-    function it_throws_an_exception_if_configuration_is_invalid(OrderInterface $order, PromotionInterface $promotion)
-    {
-        $this
-            ->shouldThrow(\InvalidArgumentException::class)
-            ->during('execute', [$order, [], $promotion])
-        ;
+    function it_does_not_apply_discount_if_amount_for_order_channel_is_not_configured(
+        ChannelInterface $channel,
+        OrderInterface $order,
+        PromotionInterface $promotion
+    ) {
+        $order->getChannel()->willReturn($channel);
+        $channel->getCode()->willReturn('WEB_US');
 
-        $this
-            ->shouldThrow(\InvalidArgumentException::class)
-            ->during('execute', [$order, ['amount' => 'string'], $promotion])
-        ;
+        $order->countItems()->willReturn(1);
+        $order->getPromotionSubjectTotal()->shouldNotBeCalled();
+
+        $this->execute($order, ['WEB_PL' => ['amount' => 1000]], $promotion)->shouldReturn(false);
+    }
+
+    function it_does_not_apply_discount_if_configuration_is_invalid(
+        ChannelInterface $channel,
+        OrderInterface $order,
+        PromotionInterface $promotion
+    ) {
+        $order->getChannel()->willReturn($channel, $channel);
+        $channel->getCode()->willReturn('WEB_US', 'WEB_US');
+        $order->countItems()->willReturn(1, 1);
+
+        $this->execute($order, ['WEB_US' => []], $promotion)->shouldReturn(false);
+        $this->execute($order, ['WEB_US' => ['amount' => 'string']], $promotion)->shouldReturn(false);
     }
 
     function it_throws_an_exception_if_subject_is_not_an_order(
@@ -198,10 +241,5 @@ final class FixedDiscountPromotionActionCommandSpec extends ObjectBehavior
             ->shouldThrow(\InvalidArgumentException::class)
             ->during('revert', [$subject, [], $promotion])
         ;
-    }
-
-    function it_has_a_configuration_form_type()
-    {
-        $this->getConfigurationFormType()->shouldReturn('sylius_promotion_action_fixed_discount_configuration');
     }
 }

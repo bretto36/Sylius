@@ -11,8 +11,10 @@
 
 namespace Sylius\Component\Core\Model;
 
-use Sylius\Component\Core\Pricing\Calculators;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Product\Model\ProductVariant as BaseVariant;
+use Sylius\Component\Shipping\Model\ShippingCategoryInterface;
 use Sylius\Component\Taxation\Model\TaxCategoryInterface;
 use Webmozart\Assert\Assert;
 
@@ -24,22 +26,7 @@ class ProductVariant extends BaseVariant implements ProductVariantInterface
     /**
      * @var int
      */
-    protected $price;
-
-    /**
-     * @var int
-     */
-    protected $originalPrice;
-
-    /**
-     * @var string
-     */
-    protected $pricingCalculator = Calculators::STANDARD;
-
-    /**
-     * @var array
-     */
-    protected $pricingConfiguration = [];
+    protected $version = 1;
 
     /**
      * @var int
@@ -82,11 +69,33 @@ class ProductVariant extends BaseVariant implements ProductVariantInterface
     protected $taxCategory;
 
     /**
+     * @var ShippingCategoryInterface
+     */
+    protected $shippingCategory;
+
+    /**
+     * @var Collection
+     */
+    protected $channelPricings;
+
+    /**
+     * @var bool
+     */
+    protected $shippingRequired = true;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->channelPricings = new ArrayCollection();
+    }
+
+    /**
      * @return string
      */
     public function __toString()
     {
-        $string = $this->getProduct()->getName();
+        $string = (string) $this->getProduct()->getName();
 
         if (!$this->getOptionValues()->isEmpty()) {
             $string .= '(';
@@ -104,73 +113,17 @@ class ProductVariant extends BaseVariant implements ProductVariantInterface
     /**
      * {@inheritdoc}
      */
-    public function getPrice()
+    public function getVersion()
     {
-        return $this->price;
+        return $this->version;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setPrice($price)
+    public function setVersion($version)
     {
-        if (!is_int($price)) {
-            throw new \InvalidArgumentException('Price must be an integer.');
-        }
-
-        $this->price = $price;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getOriginalPrice()
-    {
-        return $this->originalPrice;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setOriginalPrice($originalPrice)
-    {
-        if (null !== $originalPrice && !is_int($originalPrice)) {
-            throw new \InvalidArgumentException('Original price must be an integer.');
-        }
-
-        $this->originalPrice = $originalPrice;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getPricingCalculator()
-    {
-        return $this->pricingCalculator;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setPricingCalculator($calculator)
-    {
-        $this->pricingCalculator = $calculator;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getPricingConfiguration()
-    {
-        return $this->pricingConfiguration;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setPricingConfiguration(array $configuration)
-    {
-        $this->pricingConfiguration = $configuration;
+        $this->version = $version;
     }
 
     /**
@@ -244,7 +197,15 @@ class ProductVariant extends BaseVariant implements ProductVariantInterface
      */
     public function getShippingCategory()
     {
-        return $this->getProduct()->getShippingCategory();
+        return $this->shippingCategory;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setShippingCategory(ShippingCategoryInterface $category = null)
+    {
+        $this->shippingCategory = $category;
     }
 
     /**
@@ -354,14 +315,6 @@ class ProductVariant extends BaseVariant implements ProductVariantInterface
     /**
      * {@inheritdoc}
      */
-    public function isPriceReduced()
-    {
-        return $this->originalPrice > $this->price;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getTaxCategory()
     {
         return $this->taxCategory;
@@ -373,5 +326,79 @@ class ProductVariant extends BaseVariant implements ProductVariantInterface
     public function setTaxCategory(TaxCategoryInterface $category = null)
     {
         $this->taxCategory = $category;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getChannelPricings()
+    {
+        return $this->channelPricings;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getChannelPricingForChannel(ChannelInterface $channel)
+    {
+        if ($this->channelPricings->containsKey($channel->getCode())) {
+            return $this->channelPricings->get($channel->getCode());
+        }
+
+        return null;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasChannelPricingForChannel(ChannelInterface $channel)
+    {
+        return null !== $this->getChannelPricingForChannel($channel);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasChannelPricing(ChannelPricingInterface $channelPricing)
+    {
+        return $this->channelPricings->contains($channelPricing);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function addChannelPricing(ChannelPricingInterface $channelPricing)
+    {
+        if (!$this->hasChannelPricing($channelPricing)) {
+            $channelPricing->setProductVariant($this);
+            $this->channelPricings->set($channelPricing->getChannelCode(), $channelPricing);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function removeChannelPricing(ChannelPricingInterface $channelPricing)
+    {
+        if ($this->hasChannelPricing($channelPricing)) {
+            $channelPricing->setProductVariant(null);
+            $this->channelPricings->remove($channelPricing->getChannelCode());
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function isShippingRequired()
+    {
+        return $this->shippingRequired;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setShippingRequired($shippingRequired)
+    {
+        $this->shippingRequired = $shippingRequired;
     }
 }

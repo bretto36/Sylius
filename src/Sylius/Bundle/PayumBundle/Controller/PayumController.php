@@ -15,16 +15,20 @@ use FOS\RestBundle\View\View;
 use Payum\Core\Payum;
 use Payum\Core\Security\GenericTokenFactoryInterface;
 use Payum\Core\Security\HttpRequestVerifierInterface;
-use Sylius\Bundle\PayumBundle\Request\AfterCapture;
 use Sylius\Bundle\PayumBundle\Request\GetStatus;
 use Sylius\Bundle\PayumBundle\Request\ResolveNextRoute;
 use Sylius\Bundle\ResourceBundle\Controller\RequestConfigurationFactoryInterface;
 use Sylius\Bundle\ResourceBundle\Controller\ViewHandlerInterface;
-use Sylius\Component\Core\Repository\PaymentRepositoryInterface;
+use Sylius\Bundle\ResourceBundle\Form\Registry\FormTypeRegistryInterface;
+use Sylius\Component\Core\Model\OrderInterface;
+use Sylius\Component\Order\Repository\OrderRepositoryInterface;
+use Sylius\Component\Payment\Model\PaymentInterface;
 use Sylius\Component\Resource\Metadata\MetadataInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Webmozart\Assert\Assert;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
@@ -37,14 +41,19 @@ final class PayumController
     private $payum;
 
     /**
-     * @var PaymentRepositoryInterface
+     * @var OrderRepositoryInterface
      */
-    private $paymentRepository;
+    private $orderRepository;
+
+    /**
+     * @var FormTypeRegistryInterface
+     */
+    private $gatewayConfigurationTypeRegistry;
 
     /**
      * @var MetadataInterface
      */
-    private $paymentMetadata;
+    private $orderMetadata;
 
     /**
      * @var RequestConfigurationFactoryInterface
@@ -57,46 +66,69 @@ final class PayumController
     private $viewHandler;
 
     /**
+     * @var RouterInterface
+     */
+    private $router;
+
+    /**
      * @param Payum $payum
-     * @param PaymentRepositoryInterface $paymentRepository
-     * @param MetadataInterface $paymentMetadata
+     * @param OrderRepositoryInterface $orderRepository
+     * @param FormTypeRegistryInterface $gatewayConfigurationTypeRegistry
+     * @param MetadataInterface $orderMetadata
      * @param RequestConfigurationFactoryInterface $requestConfigurationFactory
      * @param ViewHandlerInterface $viewHandler
+     * @param RouterInterface $router
      */
     public function __construct(
         Payum $payum,
-        PaymentRepositoryInterface $paymentRepository,
-        MetadataInterface $paymentMetadata,
+        OrderRepositoryInterface $orderRepository,
+        FormTypeRegistryInterface $gatewayConfigurationTypeRegistry,
+        MetadataInterface $orderMetadata,
         RequestConfigurationFactoryInterface $requestConfigurationFactory,
-        ViewHandlerInterface $viewHandler
+        ViewHandlerInterface $viewHandler,
+        RouterInterface $router
     ) {
         $this->payum = $payum;
-        $this->paymentRepository = $paymentRepository;
-        $this->paymentMetadata = $paymentMetadata;
+        $this->orderRepository = $orderRepository;
+        $this->gatewayConfigurationTypeRegistry = $gatewayConfigurationTypeRegistry;
+        $this->orderMetadata = $orderMetadata;
         $this->requestConfigurationFactory = $requestConfigurationFactory;
         $this->viewHandler = $viewHandler;
+        $this->router = $router;
     }
 
     /**
      * @param Request $request
-     * @param mixed $paymentId
+     * @param mixed $tokenValue
      *
      * @return Response
      */
-    public function prepareCaptureAction(Request $request, $paymentId)
+    public function prepareCaptureAction(Request $request, $tokenValue)
     {
-        $configuration = $this->requestConfigurationFactory->create($this->paymentMetadata, $request);
+        $configuration = $this->requestConfigurationFactory->create($this->orderMetadata, $request);
 
-        $payment = $this->paymentRepository->find($paymentId);
-        Assert::notNull($payment);
+        /** @var OrderInterface $order */
+        $order = $this->orderRepository->findOneByTokenValue($tokenValue);
 
-        $request->getSession()->set('sylius_order_id', $payment->getOrder()->getId());
+        if (null === $order) {
+            throw new NotFoundHttpException(sprintf('Order with token "%s" does not exist.', $tokenValue));
+        }
+
+        $request->getSession()->set('sylius_order_id', $order->getId());
+        $options = $configuration->getParameters()->get('redirect');
+
+        $payment = $order->getLastPayment(PaymentInterface::STATE_NEW);
+
+        if (null === $payment) {
+            $url = $this->router->generate('sylius_shop_order_thank_you');
+            return new RedirectResponse($url);
+        }
 
         $captureToken = $this->getTokenFactory()->createCaptureToken(
-            $payment->getMethod()->getGateway(),
+            $payment->getMethod()->getGatewayConfig()->getGatewayName(),
             $payment,
-            $configuration->getParameters()->get('redirect[route]', null, true),
-            $configuration->getParameters()->get('redirect[parameters]', [], true)
+            isset($options['route']) ? $options['route'] : null,
+            isset($options['parameters']) ? $options['parameters'] : []
         );
 
         $view = View::createRedirect($captureToken->getTargetUrl());
@@ -111,7 +143,7 @@ final class PayumController
      */
     public function afterCaptureAction(Request $request)
     {
-        $configuration = $this->requestConfigurationFactory->create($this->paymentMetadata, $request);
+        $configuration = $this->requestConfigurationFactory->create($this->orderMetadata, $request);
 
         $token = $this->getHttpRequestVerifier()->verify($request);
 
@@ -121,6 +153,10 @@ final class PayumController
         $this->payum->getGateway($token->getGatewayName())->execute($resolveNextRoute);
 
         $this->getHttpRequestVerifier()->invalidate($token);
+
+        if (PaymentInterface::STATE_NEW !== $status->getValue()) {
+            $request->getSession()->getBag('flashes')->add('info', sprintf('sylius.payment.%s', $status->getValue()));
+        }
 
         return $this->viewHandler->handle(
             $configuration,

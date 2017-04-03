@@ -9,6 +9,7 @@ sylius:
                     association_types: Vrste združenj
                     attributes: Atributi
                     header: Katalog
+                    inventory: Inventar
                     options: Možnosti
                 configuration:
                     channels: Kanali
@@ -31,5 +32,3 @@ sylius:
                 sales:
                     header: Prodaja
                     orders: Naročila
-                content:
-                    routes: Poti

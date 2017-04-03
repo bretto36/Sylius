@@ -12,6 +12,8 @@
 namespace spec\Sylius\Component\Core\Provider;
 
 use PhpSpec\ObjectBehavior;
+use Sylius\Component\Core\Calculator\ProductVariantPriceCalculatorInterface;
+use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Provider\ProductVariantsPricesProvider;
 use Sylius\Component\Core\Model\ProductInterface;
 use Sylius\Component\Core\Model\ProductVariantInterface;
@@ -23,6 +25,11 @@ use Sylius\Component\Product\Model\ProductOptionValueInterface;
  */
 final class ProductVariantsPricesProviderSpec extends ObjectBehavior
 {
+    function let(ProductVariantPriceCalculatorInterface $productVariantPriceCalculator)
+    {
+        $this->beConstructedWith($productVariantPriceCalculator);
+    }
+
     function it_is_initializable()
     {
         $this->shouldHaveType(ProductVariantsPricesProvider::class);
@@ -34,6 +41,7 @@ final class ProductVariantsPricesProviderSpec extends ObjectBehavior
     }
 
     function it_provides_array_containing_product_variant_options_map_with_corresponding_price(
+        ChannelInterface $channel,
         ProductInterface $tShirt,
         ProductOptionValueInterface $black,
         ProductOptionValueInterface $large,
@@ -42,7 +50,8 @@ final class ProductVariantsPricesProviderSpec extends ObjectBehavior
         ProductVariantInterface $blackLargeTShirt,
         ProductVariantInterface $blackSmallTShirt,
         ProductVariantInterface $whiteLargeTShirt,
-        ProductVariantInterface $whiteSmallTShirt
+        ProductVariantInterface $whiteSmallTShirt,
+        ProductVariantPriceCalculatorInterface $productVariantPriceCalculator
     ) {
         $tShirt->getVariants()->willReturn([
             $blackSmallTShirt,
@@ -56,40 +65,40 @@ final class ProductVariantsPricesProviderSpec extends ObjectBehavior
         $blackLargeTShirt->getOptionValues()->willReturn([$black, $large]);
         $whiteLargeTShirt->getOptionValues()->willReturn([$white, $large]);
 
-        $blackSmallTShirt->getPrice()->willReturn(1000);
-        $whiteSmallTShirt->getPrice()->willReturn(1500);
-        $blackLargeTShirt->getPrice()->willReturn(2000);
-        $whiteLargeTShirt->getPrice()->willReturn(2500);
+        $productVariantPriceCalculator->calculate($blackSmallTShirt, ['channel' => $channel])->willReturn(1000);
+        $productVariantPriceCalculator->calculate($whiteSmallTShirt, ['channel' => $channel])->willReturn(1500);
+        $productVariantPriceCalculator->calculate($blackLargeTShirt, ['channel' => $channel])->willReturn(2000);
+        $productVariantPriceCalculator->calculate($whiteLargeTShirt, ['channel' => $channel])->willReturn(2500);
 
         $black->getOptionCode()->willReturn('t_shirt_color');
         $white->getOptionCode()->willReturn('t_shirt_color');
         $small->getOptionCode()->willReturn('t_shirt_size');
         $large->getOptionCode()->willReturn('t_shirt_size');
 
-        $black->getValue()->willReturn('Black');
-        $white->getValue()->willReturn('White');
-        $small->getValue()->willReturn('Small');
-        $large->getValue()->willReturn('Large');
+        $black->getCode()->willReturn('black');
+        $white->getCode()->willReturn('white');
+        $small->getCode()->willReturn('small');
+        $large->getCode()->willReturn('large');
 
-        $this->provideVariantsPrices($tShirt)->shouldReturn([
+        $this->provideVariantsPrices($tShirt, $channel)->shouldReturn([
             [
-                't_shirt_color' => 'Black',
-                't_shirt_size' => 'Small',
+                't_shirt_color' => 'black',
+                't_shirt_size' => 'small',
                 'value' => 1000,
             ],
             [
-                't_shirt_color' => 'White',
-                't_shirt_size' => 'Small',
+                't_shirt_color' => 'white',
+                't_shirt_size' => 'small',
                 'value' => 1500,
             ],
             [
-                't_shirt_color' => 'Black',
-                't_shirt_size' => 'Large',
+                't_shirt_color' => 'black',
+                't_shirt_size' => 'large',
                 'value' => 2000,
             ],
             [
-                't_shirt_color' => 'White',
-                't_shirt_size' => 'Large',
+                't_shirt_color' => 'white',
+                't_shirt_size' => 'large',
                 'value' => 2500,
             ]
         ]);

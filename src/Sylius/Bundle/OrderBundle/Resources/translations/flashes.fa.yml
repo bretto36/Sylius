@@ -3,6 +3,4 @@
 
 sylius:
     cart:
-        cart_save_completed: سبد خرید با موفقیت به روز شد.
-        item_add_completed: کالا با موفقیت به سبد خرید اضافه شد.
-        item_remove_completed: محصول از سبد خرید حذف شد.
+        add_item: 'کالا با موفقیت به سبد خرید اضافه شد'

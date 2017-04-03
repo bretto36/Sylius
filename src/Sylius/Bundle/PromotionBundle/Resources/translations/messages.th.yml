@@ -12,6 +12,7 @@ sylius:
             ends_at: สิ้นสุด
             exclusive: พิเศษ
             name: ชื่อ
+            priority: ระดับความสำคัญ
             rules: เงื่อนไข
             starts_at: เริ่มต้น
             usage_limit: ขีดจำกัดการใช้งาน
@@ -29,6 +30,8 @@ sylius:
             code_length: ความยาวของรหัส
             expires_at: หมดอายุ
             usage_limit: ขีดจำกัดการใช้งาน
+        promotion_filter:
+            price_range: กรองช่วงราคา
         promotion_rule:
             cart_quantity_configuration:
                 count: จำนวน

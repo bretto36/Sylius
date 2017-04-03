@@ -25,7 +25,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class ProductOptionValueCollectionType extends AbstractType
+final class ProductOptionValueCollectionType extends AbstractType
 {
     /**
      * {@inheritdoc}
@@ -45,10 +45,11 @@ class ProductOptionValueCollectionType extends AbstractType
                 );
             }
 
-            $builder->add((string) $option->getCode(), 'sylius_product_option_value_choice', [
+            $builder->add((string) $option->getCode(), ProductOptionValueChoiceType::class, [
                 'label' => $option->getName() ?: $option->getCode(),
                 'option' => $option,
                 'property_path' => '['.$i.']',
+                'block_name' => 'entry',
             ]);
         }
     }
@@ -66,7 +67,7 @@ class ProductOptionValueCollectionType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'sylius_product_option_value_collection';
     }

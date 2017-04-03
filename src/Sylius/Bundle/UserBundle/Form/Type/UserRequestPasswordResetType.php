@@ -11,16 +11,14 @@
 
 namespace Sylius\Bundle\UserBundle\Form\Type;
 
-use Sylius\Bundle\UserBundle\Form\Model\PasswordResetRequest;
-use Symfony\Component\Form\AbstractType;
+use Sylius\Bundle\ResourceBundle\Form\Type\AbstractResourceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
  */
-class UserRequestPasswordResetType extends AbstractType
+final class UserRequestPasswordResetType extends AbstractResourceType
 {
     /**
      * {@inheritdoc}
@@ -37,18 +35,7 @@ class UserRequestPasswordResetType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        $resolver->setDefaults([
-            'data_class' => PasswordResetRequest::class,
-            'validation_groups' => ['sylius'],
-        ]);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'sylius_user_request_password_reset';
     }

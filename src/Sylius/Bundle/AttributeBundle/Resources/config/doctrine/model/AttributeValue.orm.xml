@@ -21,12 +21,15 @@
             <generator strategy="AUTO" />
         </id>
 
+        <field type="string" name="localeCode" column="locale_code" />
+
         <field name="text" column="text_value" type="text" nullable="true" />
         <field name="boolean" column="boolean_value" type="boolean" nullable="true" />
         <field name="integer" column="integer_value" type="integer" nullable="true" />
         <field name="float" column="float_value" type="float" nullable="true" />
         <field name="datetime" column="datetime_value" type="datetime" nullable="true" />
         <field name="date" column="date_value" type="date" nullable="true" />
+        <field name="json" column="json_value" type="json_array" nullable="true" />
     </mapped-superclass>
 
 </doctrine-mapping>

@@ -12,8 +12,8 @@
 namespace Sylius\Behat\Page\Shop\Product;
 
 use Behat\Mink\Driver\Selenium2Driver;
-use Behat\Mink\Exception\ElementNotFoundException;
 use Sylius\Behat\Page\SymfonyPage;
+use Sylius\Behat\Page\UnexpectedPageException;
 use Sylius\Component\Product\Model\ProductInterface;
 use Sylius\Component\Product\Model\ProductOptionInterface;
 use Webmozart\Assert\Assert;
@@ -38,6 +38,10 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
     public function addToCart()
     {
         $this->getDocument()->pressButton('Add to cart');
+
+        if ($this->getDriver() instanceof Selenium2Driver) {
+            sleep(3); #TODO Kopytko
+        }
     }
 
     /**
@@ -47,6 +51,10 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
     {
         $this->getDocument()->fillField('Quantity', $quantity);
         $this->getDocument()->pressButton('Add to cart');
+
+        if ($this->getDriver() instanceof Selenium2Driver) {
+            sleep(3); #TODO Kopytko
+        }
     }
 
     /**
@@ -64,7 +72,7 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
      */
     public function addToCartWithOption(ProductOptionInterface $option, $optionValue)
     {
-        $select = $this->getDocument()->find('css', sprintf('select#sylius_cart_item_variant_%s', $option->getCode()));
+        $select = $this->getDocument()->find('css', sprintf('select#sylius_add_to_cart_cartItem_variant_%s', $option->getCode()));
 
         $this->getDocument()->selectFieldOption($select->getAttribute('name'), $optionValue);
         $this->getDocument()->pressButton('Add to cart');
@@ -90,12 +98,22 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
     /**
      * {@inheritdoc}
      */
-    public function hasAttributeWithValue($name, $value)
+    public function getCurrentVariantName()
     {
-        $tableWithAttributes = $this->getElement('attributes');
+        $currentVariantRow = $this->getElement('current_variant_input')->getParent()->getParent();
+
+        return $currentVariantRow->find('css', 'td:first-child')->getText();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAttributeByName($name)
+    {
+        $attributesTable = $this->getElement('attributes');
 
         $nameTdSelector = sprintf('tr > td.sylius-product-attribute-name:contains("%s")', $name);
-        $nameTd = $tableWithAttributes->find('css', $nameTdSelector);
+        $nameTd = $attributesTable->find('css', $nameTdSelector);
 
         if (null === $nameTd) {
             return false;
@@ -103,7 +121,17 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
 
         $row = $nameTd->getParent();
 
-        return $value === trim($row->find('css', 'td.sylius-product-attribute-value')->getText());
+        return trim($row->find('css', 'td.sylius-product-attribute-value')->getText());
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getAttributes()
+    {
+        $attributesTable = $this->getElement('attributes');
+
+        return $attributesTable->findAll('css', 'tr > td.sylius-product-attribute-name');
     }
 
     /**
@@ -203,7 +231,8 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
      */
     public function hasAddToCartButton()
     {
-        return $this->getDocument()->hasButton('Add to cart');
+        return $this->getDocument()->hasButton('Add to cart')
+            && false === $this->getDocument()->findButton('Add to cart')->hasAttribute('disabled');
     }
 
     /**
@@ -238,12 +267,33 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
      */
     public function hasProductInAssociation($productName, $productAssociationName)
     {
-        $associationHeader = $this->getElement('association', ['%association-name%' => $productAssociationName]);
-        $associations = $associationHeader->getParent()->find('css', '.four');
+        $products = $this->getElement('association', ['%association-name%' => $productAssociationName]);
 
-        Assert::notNull($associations);
+        Assert::notNull($products);
 
-        return null !== $associations->find('css', sprintf('.sylius-product-name:contains("%s")', $productName));
+        return null !== $products->find('css', sprintf('.sylius-product-name:contains("%s")', $productName));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function open(array $urlParameters = [])
+    {
+        $start = microtime(true);
+        $end = $start + 5;
+        do {
+            try {
+                parent::open($urlParameters);
+                $isOpen = true;
+            } catch (UnexpectedPageException $exception) {
+                $isOpen = false;
+                sleep(1);
+            }
+        } while(!$isOpen && microtime(true) < $end);
+
+        if (!$isOpen) {
+            throw new UnexpectedPageException();
+        }
     }
 
     /**
@@ -252,16 +302,17 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
     protected function getDefinedElements()
     {
         return array_merge(parent::getDefinedElements(), [
-            'association' => 'h4:contains("%association-name%")',
+            'association' => '#sylius-product-association-%association-name%',
             'attributes' => '#sylius-product-attributes',
             'average_rating' => '#average-rating',
+            'current_variant_input' => '#sylius-product-variants td input:checked',
             'main_image' => '#main-image',
             'name' => '#sylius-product-name',
-            'option_select' => '#sylius_cart_item_variant_%option-name%',
+            'option_select' => '#sylius_add_to_cart_cartItem_variant_%option-name%',
             'out_of_stock' => '#sylius-product-out-of-stock',
             'product_price' => '#product-price',
             'reviews' => '[data-tab="reviews"] .comments',
-            'selecting_variants' => "#sylius-product-selecting-variant",
+            'selecting_variants' => '#sylius-product-selecting-variant',
             'validation_errors' => '.sylius-validation-error',
             'variant_radio' => '#sylius-product-variants tbody tr:contains("%variant-name%") input',
         ]);

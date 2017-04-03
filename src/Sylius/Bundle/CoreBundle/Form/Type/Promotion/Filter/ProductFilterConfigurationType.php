@@ -11,37 +11,26 @@
 
 namespace Sylius\Bundle\CoreBundle\Form\Type\Promotion\Filter;
 
-use Sylius\Component\Core\Repository\ProductRepositoryInterface;
+use Sylius\Bundle\ProductBundle\Form\Type\ProductAutocompleteChoiceType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
  */
-class ProductFilterConfigurationType extends AbstractType
+final class ProductFilterConfigurationType extends AbstractType
 {
-    /**
-     * @var ProductRepositoryInterface
-     */
-    protected $productRepository;
-
     /**
      * @var DataTransformerInterface
      */
     private $productsToCodesTransformer;
 
     /**
-     * @param ProductRepositoryInterface $productRepository
      * @param DataTransformerInterface $productsToCodesTransformer
      */
-    public function __construct(
-        ProductRepositoryInterface $productRepository,
-        DataTransformerInterface $productsToCodesTransformer
-    ) {
-        $this->productRepository = $productRepository;
+    public function __construct(DataTransformerInterface $productsToCodesTransformer)
+    {
         $this->productsToCodesTransformer = $productsToCodesTransformer;
     }
 
@@ -51,10 +40,9 @@ class ProductFilterConfigurationType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('products', 'sylius_product_choice', [
-                'label' => 'sylius.form.promotion_rule.product.products',
+            ->add('products', ProductAutocompleteChoiceType::class, [
+                'label' => 'sylius.form.promotion_filter.products',
                 'multiple' => true,
-                'required' => false,
             ])
         ;
 
@@ -64,7 +52,7 @@ class ProductFilterConfigurationType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'sylius_promotion_action_filter_product_configuration';
     }

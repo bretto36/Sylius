@@ -11,10 +11,12 @@
 
 namespace Sylius\Bundle\PayumBundle;
 
+use Sylius\Bundle\PayumBundle\DependencyInjection\Compiler\RegisterGatewayConfigTypePass;
 use Sylius\Bundle\ResourceBundle\AbstractResourceBundle;
 use Sylius\Bundle\ResourceBundle\SyliusResourceBundle;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 
-class SyliusPayumBundle extends AbstractResourceBundle
+final class SyliusPayumBundle extends AbstractResourceBundle
 {
     /**
      * {@inheritdoc}
@@ -24,6 +26,16 @@ class SyliusPayumBundle extends AbstractResourceBundle
         return [
             SyliusResourceBundle::DRIVER_DOCTRINE_ORM,
         ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function build(ContainerBuilder $container)
+    {
+        parent::build($container);
+
+        $container->addCompilerPass(new RegisterGatewayConfigTypePass());
     }
 
     /**

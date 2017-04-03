@@ -18,10 +18,12 @@ use Sylius\Component\Promotion\Exception\UnsupportedTypeException;
 use Sylius\Component\Promotion\Model\PromotionSubjectInterface;
 
 /**
- * @author Antonio Perić <antonio@locastic.com>
+ * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
  */
-final class CustomerGroupRuleChecker implements RuleCheckerInterface
+class CustomerGroupRuleChecker implements RuleCheckerInterface
 {
+    const TYPE = 'customer_group';
+
     /**
      * {@inheritdoc}
      */
@@ -43,18 +45,6 @@ final class CustomerGroupRuleChecker implements RuleCheckerInterface
             return false;
         }
 
-        if ($configuration['group'] === $customer->getGroup()->getId()) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfigurationFormType()
-    {
-        return 'sylius_promotion_rule_customer_group_configuration';
+        return $configuration['group_code'] === $customer->getGroup()->getCode();
     }
 }

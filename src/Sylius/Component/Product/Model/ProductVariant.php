@@ -14,6 +14,7 @@ namespace Sylius\Component\Product\Model;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Resource\Model\TimestampableTrait;
+use Sylius\Component\Resource\Model\TranslatableTrait;
 
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
@@ -21,6 +22,9 @@ use Sylius\Component\Resource\Model\TimestampableTrait;
 class ProductVariant implements ProductVariantInterface
 {
     use TimestampableTrait;
+    use TranslatableTrait {
+        __construct as private initializeTranslationsCollection;
+    }
 
     /**
      * @var mixed
@@ -33,11 +37,6 @@ class ProductVariant implements ProductVariantInterface
     protected $code;
 
     /**
-     * @var string
-     */
-    protected $name;
-
-    /**
      * @var ProductInterface
      */
     protected $product;
@@ -48,21 +47,16 @@ class ProductVariant implements ProductVariantInterface
     protected $optionValues;
 
     /**
-     * @var \DateTime
+     * @var int
      */
-    protected $availableOn;
-
-    /**
-     * @var \DateTime
-     */
-    protected $availableUntil;
+    protected $position;
 
     public function __construct()
     {
+        $this->initializeTranslationsCollection();
         $this->optionValues = new ArrayCollection();
 
         $this->createdAt = new \DateTime();
-        $this->availableOn = new \DateTime();
     }
 
     /**
@@ -74,7 +68,7 @@ class ProductVariant implements ProductVariantInterface
     }
 
     /**
-     * @return string
+     * {@inheritdoc}
      */
     public function getCode()
     {
@@ -82,7 +76,7 @@ class ProductVariant implements ProductVariantInterface
     }
 
     /**
-     * @param string $code
+     * {@inheritdoc}
      */
     public function setCode($code)
     {
@@ -94,7 +88,7 @@ class ProductVariant implements ProductVariantInterface
      */
     public function getName()
     {
-        return $this->name;
+        return $this->getTranslation()->getName();
     }
 
     /**
@@ -102,7 +96,17 @@ class ProductVariant implements ProductVariantInterface
      */
     public function setName($name)
     {
-        $this->name = $name;
+        $this->getTranslation()->setName($name);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getDescriptor()
+    {
+        $name = empty($this->getName()) ? $this->getProduct()->getName() : $this->getName();
+
+        return trim(sprintf('%s (%s)', $name, $this->code));
     }
 
     /**
@@ -160,40 +164,24 @@ class ProductVariant implements ProductVariantInterface
     /**
      * {@inheritdoc}
      */
-    public function isAvailable()
+    public function getPosition()
     {
-        return (new DateRange($this->availableOn, $this->availableUntil))->isInRange();
+        return $this->position;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getAvailableOn()
+    public function setPosition($position)
     {
-        return $this->availableOn;
+        $this->position = $position;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function setAvailableOn(\DateTime $availableOn = null)
+    protected function createTranslation()
     {
-        $this->availableOn = $availableOn;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getAvailableUntil()
-    {
-        return $this->availableUntil;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setAvailableUntil(\DateTime $availableUntil = null)
-    {
-        $this->availableUntil = $availableUntil;
+        return new ProductVariantTranslation();
     }
 }

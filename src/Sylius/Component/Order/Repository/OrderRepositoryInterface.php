@@ -25,11 +25,6 @@ interface OrderRepositoryInterface extends RepositoryInterface
     public function count();
 
     /**
-     * @return int
-     */
-    public function getTotalSales();
-
-    /**
      * @param int $count
      *
      * @return OrderInterface[]
@@ -42,6 +37,13 @@ interface OrderRepositoryInterface extends RepositoryInterface
      * @return OrderInterface|null
      */
     public function findOneByNumber($number);
+
+    /**
+     * @param string $tokenValue
+     *
+     * @return OrderInterface|null
+     */
+    public function findOneByTokenValue($tokenValue);
 
     /**
      * @param mixed $id
@@ -58,9 +60,7 @@ interface OrderRepositoryInterface extends RepositoryInterface
     public function findCartsNotModifiedSince(\DateTime $terminalDate);
 
     /**
-     * @param \DateTime $terminalDate
-     *
-     * @return OrderInterface[]
+     * @return \Doctrine\ORM\QueryBuilder
      */
-    public function findOrdersUnpaidSince(\DateTime $terminalDate);
+    public function createCartQueryBuilder();
 }

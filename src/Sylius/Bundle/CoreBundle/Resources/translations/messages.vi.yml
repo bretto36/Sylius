@@ -17,7 +17,7 @@ sylius:
             locales: Miền địa phương
             payment_methods: Phương thức thanh toán
         image:
-            code: Mã
+            type: Phân loại
             file: Hình ảnh
         locale:
             code: Mã
@@ -49,6 +49,8 @@ sylius:
             width: Chiều rộng
         product_association_type:
             name: Tên
+        payment_method:
+            channels: Kênh
     installer:
         extensions:
             "off": false

@@ -9,23 +9,33 @@ sylius_grid:
                 options:
                     class: "%sylius.model.product.class%"
                     repository:
-                        method: createQueryBuilderForEnabledByTaxonCodeAndChannelAndLocale
+                        method: createShopListQueryBuilder
                         arguments:
-                            code: $code
-                            channel: 'expr:service("sylius.context.channel").getChannel()'
-                            locale: '%locale%'
+                            channel: "expr:service('sylius.context.channel').getChannel()"
+                            taxon: "expr:notFoundOnNull(service('sylius.repository.taxon').findOneBySlug($slug, service('sylius.context.locale').getLocaleCode()))"
+                            locale: "expr:service('sylius.context.locale').getLocaleCode()"
+                            sorting: "expr:service('request_stack').getCurrentRequest().get('sorting', [])"
             sorting:
-                createdAt: asc
+                position: asc
+            limits: [9, 18, 27]
             fields:
                 createdAt:
                     type: datetime
-                    label: sylius.ui.date
                     sortable: ~
-                    options:
-                        format: m/d/Y
+                position:
+                    type: string 
+                    sortable: productTaxon.position
+                name:
+                    type: string 
+                    sortable: translation.name
+                price:
+                    type: int
+                    sortable: channelPricing.price
             filters:
                 search:
                     type: string
-                    label: sylius.ui.search
+                    label: false
                     options:
                         fields: [translation.name]
+                    form_options:
+                        type: contains

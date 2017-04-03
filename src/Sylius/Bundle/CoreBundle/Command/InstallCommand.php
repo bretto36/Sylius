@@ -13,6 +13,7 @@ namespace Sylius\Bundle\CoreBundle\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Process\Exception\RuntimeException;
 
 final class InstallCommand extends AbstractInstallCommand
@@ -40,11 +41,6 @@ final class InstallCommand extends AbstractInstallCommand
     ];
 
     /**
-     * @var bool
-     */
-    private $isErrored = false;
-
-    /**
      * {@inheritdoc}
      */
     protected function configure()
@@ -64,38 +60,75 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $output->writeln('<info>Installing Sylius...</info>');
-        $output->writeln('');
+        $outputStyle = new SymfonyStyle($input, $output);
+        $outputStyle->writeln('<info>Installing Sylius...</info>');
+        $outputStyle->writeln($this->getSyliusLogo());
 
-        $this->ensureDirectoryExistsAndIsWritable(self::APP_CACHE, $output);
+        $this->ensureDirectoryExistsAndIsWritable($this->getContainer()->getParameter('kernel.cache_dir'), $output);
 
+        $errored = false;
         foreach ($this->commands as $step => $command) {
             try {
-                $output->writeln(sprintf('<comment>Step %d of %d.</comment> <info>%s</info>', $step + 1, count($this->commands), $command['message']));
+                $outputStyle->newLine();
+                $outputStyle->section(sprintf(
+                    'Step %d of %d. <info>%s</info>',
+                    $step + 1,
+                    count($this->commands),
+                    $command['message']
+                ));
                 $this->commandExecutor->runCommand('sylius:install:'.$command['command'], [], $output);
-                $output->writeln('');
             } catch (RuntimeException $exception) {
-                $this->isErrored = true;
-
-                continue;
+                $errored = true;
             }
         }
 
         $frontControllerPath = 'prod' === $this->getEnvironment() ? '/' : sprintf('/app_%s.php', $this->getEnvironment());
 
-        $output->writeln($this->getProperFinalMessage());
-        $output->writeln(sprintf('You can now open your store at the following path under the website root: <info>%s.</info>', $frontControllerPath));
+        $outputStyle->newLine(2);
+        $outputStyle->success($this->getProperFinalMessage($errored));
+        $outputStyle->writeln(sprintf(
+            'You can now open your store at the following path under the website root: <info>%s.</info>',
+            $frontControllerPath
+        ));
+    }
+
+    /**
+     * @param bool $errored
+     *
+     * @return string
+     */
+    private function getProperFinalMessage($errored)
+    {
+        if ($errored) {
+            return 'Sylius has been installed, but some error occurred.';
+        }
+
+        return 'Sylius has been successfully installed.';
     }
 
     /**
      * @return string
      */
-    private function getProperFinalMessage()
+    private function getSyliusLogo()
     {
-        if ($this->isErrored) {
-            return '<info>Sylius has been installed, but some error occurred.</info>';
-        }
-
-        return '<info>Sylius has been successfully installed.</info>';
+        return '                                                                  
+           <info>,</info>                                                       
+         <info>,;:,</info>                                                      
+       <info>`;;;.:`</info>                                                     
+      <info>`::;`  :`</info>                                                    
+       <info>:::`   `</info>          .\'++:           \'\'.   \'.                  
+       <info>`:::</info>             :+\',;+\'          :+;  `+.                  
+        <info>::::</info>            +\'   :\'          `+;                       
+        <info>`:::,</info>           \'+`     ++    :+.`+; `++. ;+\'    \'\'  ,++++.
+         <info>,:::`</info>          `++\'.   .+:  `+\' `+;  .+,  ;+    +\'  +;  \'\'
+          <info>::::`</info>           ,+++.  \'+` :+. `+;  `+,  ;+    +\'  \'+.   
+   <info>,.     .::::</info>             .++` `+: +\'  `+;  `+,  ;+    +\'  `;++; 
+<info>`;;.:::`   :::::</info>             :+.  \'+,+.  `+;  `+,  ;+   `+\'     .++
+ <info>.;;;;;;::`.::::,</info>       +\'` `++   `++\'   `+;  `+:  :+. `++\'  \'.  ;+
+  <info>,;;;;;;;;;:::::</info>       .+++++`    ;+,    ++;  ++, `\'+++,\'+\' :++++,
+   <info>,;;;;;;;;;:::</info>`                  ;\'                              
+    <info>:;;;;;;;;;:,</info>                :.:+,                              
+     <info>;;;;;;;;;:</info>                 ;++,'
+        ;
     }
 }

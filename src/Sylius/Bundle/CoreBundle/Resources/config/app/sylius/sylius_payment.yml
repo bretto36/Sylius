@@ -9,4 +9,6 @@ sylius_payment:
                 repository: Sylius\Bundle\CoreBundle\Doctrine\ORM\PaymentRepository
         payment_method:
             classes:
+                model: Sylius\Component\Core\Model\PaymentMethod
                 repository: Sylius\Bundle\CoreBundle\Doctrine\ORM\PaymentMethodRepository
+                controller: Sylius\Bundle\CoreBundle\Controller\PaymentMethodController

@@ -13,8 +13,8 @@ namespace Sylius\Behat\Context\Domain;
 
 use Behat\Behat\Context\Context;
 use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
-use Sylius\Component\Core\Model\PromotionInterface;
 use Sylius\Behat\Service\SharedStorageInterface;
+use Sylius\Component\Core\Model\PromotionInterface;
 use Sylius\Component\Promotion\Model\PromotionCouponInterface;
 use Sylius\Component\Promotion\Repository\PromotionCouponRepositoryInterface;
 use Webmozart\Assert\Assert;
@@ -61,7 +61,7 @@ final class ManagingPromotionCouponsContext implements Context
         try {
             $promotion->removeCoupon($coupon);
             $this->couponRepository->remove($coupon);
-        } catch(ForeignKeyConstraintViolationException $exception) {
+        } catch (ForeignKeyConstraintViolationException $exception) {
             $this->sharedStorage->set('last_exception', $exception);
         }
     }
@@ -71,10 +71,7 @@ final class ManagingPromotionCouponsContext implements Context
      */
     public function couponShouldNotExistInTheRegistry(PromotionCouponInterface $coupon)
     {
-        Assert::null(
-            $this->couponRepository->findOneBy(['code' => $coupon->getCode()]),
-            sprintf('The coupon with code %s should not exist', $coupon->getCode())
-        );
+        Assert::null($this->couponRepository->findOneBy(['code' => $coupon->getCode()]));
     }
 
     /**
@@ -90,9 +87,6 @@ final class ManagingPromotionCouponsContext implements Context
      */
     public function couponShouldStillExistInTheRegistry(PromotionCouponInterface $coupon)
     {
-        Assert::notNull(
-            $this->couponRepository->find($coupon->getId()),
-            sprintf('The coupon with id %s should exist', $coupon->getId())
-        );
+        Assert::notNull($this->couponRepository->find($coupon->getId()));
     }
 }

@@ -12,19 +12,24 @@ sylius:
             ends_at: Termina em
             exclusive: Exclusivo
             name: Nome
+            priority: Prioridade
             rules: Regras
             starts_at: Começa em
             usage_limit: Limite de utilização
         promotion_action:
             type: Tipo
         promotion_coupon:
+            expires_at: Expira em
             usage_limit: Limite de utilização
         promotion_coupon_generator_instruction:
+            expires_at: Expira em
             usage_limit: Limite de utilização
         promotion_rule:
             cart_quantity_configuration:
                 count: Contagem
                 equal: Igual
+            contains_product_configuration:
+                variants: Produtos
             shipping_country_configuration:
                 country: País
             type: Tipo

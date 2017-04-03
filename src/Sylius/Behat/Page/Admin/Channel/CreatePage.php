@@ -38,6 +38,14 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
     /**
      * {@inheritdoc}
      */
+    public function setContactEmail($contactEmail)
+    {
+        $this->getDocument()->fillField('Contact email', $contactEmail);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function defineColor($color)
     {
         $this->getDocument()->fillField('Color', $color);
@@ -62,22 +70,6 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
     /**
      * {@inheritdoc}
      */
-    public function chooseShippingMethod($shippingMethod)
-    {
-        $this->getDocument()->selectFieldOption('Shipping Methods', $shippingMethod);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function choosePaymentMethod($paymentMethod)
-    {
-        $this->getDocument()->selectFieldOption('Payment Methods', $paymentMethod);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function chooseDefaultTaxZone($taxZone)
     {
         $this->getDocument()->selectFieldOption('Default tax zone', $taxZone);
@@ -97,11 +89,11 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
     /**
      * {@inheritdoc}
      */
-    public function chooseDefaultCurrency($currency)
+    public function chooseBaseCurrency($currency)
     {
         if (null !== $currency) {
             $this->getElement('currencies')->selectOption($currency);
-            $this->getElement('default_currency')->selectOption($currency);
+            $this->getElement('base_currency')->selectOption($currency);
         }
     }
 
@@ -111,6 +103,16 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
     public function chooseTaxCalculationStrategy($taxZone)
     {
         $this->getDocument()->selectFieldOption('Tax calculation strategy', $taxZone);
+    }
+
+    public function allowToSkipShippingStep()
+    {
+        $this->getDocument()->checkField('Skip shipping step if only one shipping method is available?');
+    }
+
+    public function allowToSkipPaymentStep()
+    {
+        $this->getDocument()->checkField('Skip payment step if only one payment method is available?');
     }
 
     /**
@@ -129,7 +131,7 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
         return array_merge(parent::getDefinedElements(), [
             'code' => '#sylius_channel_code',
             'currencies' => '#sylius_channel_currencies',
-            'default_currency' => '#sylius_channel_defaultCurrency',
+            'base_currency' => '#sylius_channel_baseCurrency',
             'default_locale' => '#sylius_channel_defaultLocale',
             'enabled' => '#sylius_channel_enabled',
             'locales' => '#sylius_channel_locales',

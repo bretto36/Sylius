@@ -47,6 +47,17 @@ final class FilterSpec extends ObjectBehavior
         $this->getLabel()->shouldReturn('Search by keyword');
     }
 
+    function it_has_no_template_by_default()
+    {
+        $this->getTemplate()->shouldReturn(null);
+    }
+
+    function its_template_is_mutable()
+    {
+        $this->setTemplate('SyliusGridBundle:Filter:template.html.twig');
+        $this->getTemplate()->shouldReturn('SyliusGridBundle:Filter:template.html.twig');
+    }
+
     function it_has_no_options_by_default()
     {
         $this->getOptions()->shouldReturn([]);
@@ -56,5 +67,30 @@ final class FilterSpec extends ObjectBehavior
     {
         $this->setOptions(['fields' => ['firstName', 'lastName', 'email']]);
         $this->getOptions()->shouldReturn(['fields' => ['firstName', 'lastName', 'email']]);
+    }
+
+    function it_has_last_position_by_default()
+    {
+        $this->getPosition()->shouldReturn(100);
+    }
+
+    function its_position_is_mutable()
+    {
+        $this->setPosition(1);
+        $this->getPosition()->shouldReturn(1);
+    }
+
+    function it_has_no_criteria_by_default()
+    {
+        $this->getCriteria()->shouldReturn(null);
+    }
+
+    function its_criteria_is_mutable()
+    {
+        $this->setCriteria('false');
+        $this->getCriteria()->shouldReturn('false');
+
+        $this->setCriteria(['type' => 'contains']);
+        $this->getCriteria()->shouldReturn(['type' => 'contains']);
     }
 }

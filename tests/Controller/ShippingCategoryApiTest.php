@@ -12,35 +12,58 @@
 namespace Sylius\Tests\Controller;
 
 use Lakion\ApiTestCase\JsonApiTestCase;
+use Sylius\Component\Shipping\Model\ShippingCategoryInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
  */
-class ShippingCategoryApiTest extends JsonApiTestCase
+final class ShippingCategoryApiTest extends JsonApiTestCase
 {
-    public function testCreateShippingCategoryAccessDeniedResponse()
+    /**
+     * @var array
+     */
+    private static $authorizedHeaderWithContentType = [
+        'HTTP_Authorization' => 'Bearer SampleTokenNjZkNjY2MDEwMTAzMDkxMGE0OTlhYzU3NzYyMTE0ZGQ3ODcyMDAwM2EwMDZjNDI5NDlhMDdlMQ',
+        'CONTENT_TYPE' => 'application/json',
+    ];
+
+    /**
+     * @var array
+     */
+    private static $authorizedHeaderWithAccept = [
+        'HTTP_Authorization' => 'Bearer SampleTokenNjZkNjY2MDEwMTAzMDkxMGE0OTlhYzU3NzYyMTE0ZGQ3ODcyMDAwM2EwMDZjNDI5NDlhMDdlMQ',
+        'Accept' => 'application/json',
+    ];
+
+    /**
+     * @test
+     */
+    public function it_denies_creating_shipping_category_for_non_authenticated_user()
     {
-        $this->client->request('POST', '/api/shipping-categories/');
+        $this->client->request('POST', '/api/v1/shipping-categories/');
 
         $response = $this->client->getResponse();
         $this->assertResponse($response, 'authentication/access_denied_response', Response::HTTP_UNAUTHORIZED);
     }
 
-    public function testCreateShippingCategoryValidationFailResponse()
+    /**
+     * @test
+     */
+    public function it_does_not_allow_to_create_shipping_category_without_specifying_required_data()
     {
         $this->loadFixturesFromFile('authentication/api_administrator.yml');
 
-        $this->client->request('POST', '/api/shipping-categories/', [], [], [
-            'HTTP_Authorization' => 'Bearer SampleTokenNjZkNjY2MDEwMTAzMDkxMGE0OTlhYzU3NzYyMTE0ZGQ3ODcyMDAwM2EwMDZjNDI5NDlhMDdlMQ',
-            'CONTENT_TYPE' => 'application/json',
-        ]);
+        $this->client->request('POST', '/api/v1/shipping-categories/', [], [], static::$authorizedHeaderWithContentType);
 
         $response = $this->client->getResponse();
         $this->assertResponse($response, 'shipping_category/create_validation_fail_response', Response::HTTP_BAD_REQUEST);
     }
 
-    public function testCreateShippingCategoryResponse()
+    /**
+     * @test
+     */
+    public function it_allows_to_create_shipping_category()
     {
         $this->loadFixturesFromFile('authentication/api_administrator.yml');
 
@@ -53,110 +76,129 @@ class ShippingCategoryApiTest extends JsonApiTestCase
         }
 EOT;
 
-        $this->client->request('POST', '/api/shipping-categories/', [], [], [
-            'HTTP_Authorization' => 'Bearer SampleTokenNjZkNjY2MDEwMTAzMDkxMGE0OTlhYzU3NzYyMTE0ZGQ3ODcyMDAwM2EwMDZjNDI5NDlhMDdlMQ',
-            'CONTENT_TYPE' => 'application/json',
-        ], $data);
+        $this->client->request('POST', '/api/v1/shipping-categories/', [], [], static::$authorizedHeaderWithContentType, $data);
 
         $response = $this->client->getResponse();
         $this->assertResponse($response, 'shipping_category/create_response', Response::HTTP_CREATED);
     }
 
-    public function testGetShippingCategoriesListAccessDeniedResponse()
+    /**
+     * @test
+     */
+    public function it_denies_getting_shipping_categories_for_non_authenticated_user()
     {
-        $this->client->request('GET', '/api/shipping-categories/');
+        $this->client->request('GET', '/api/v1/shipping-categories/');
 
         $response = $this->client->getResponse();
         $this->assertResponse($response, 'authentication/access_denied_response', Response::HTTP_UNAUTHORIZED);
     }
 
-    public function testGetShippingCategoriesListResponse()
+    /**
+     * @test
+     */
+    public function it_allows_to_get_shipping_categories_list()
     {
         $this->loadFixturesFromFile('authentication/api_administrator.yml');
         $this->loadFixturesFromFile('resources/shipping_categories.yml');
 
-        $this->client->request('GET', '/api/shipping-categories/', [], [], [
-            'HTTP_Authorization' => 'Bearer SampleTokenNjZkNjY2MDEwMTAzMDkxMGE0OTlhYzU3NzYyMTE0ZGQ3ODcyMDAwM2EwMDZjNDI5NDlhMDdlMQ',
-        ]);
+        $this->client->request('GET', '/api/v1/shipping-categories/', [], [], static::$authorizedHeaderWithContentType);
 
         $response = $this->client->getResponse();
         $this->assertResponse($response, 'shipping_category/index_response', Response::HTTP_OK);
     }
 
-    public function testGetShippingCategoryAccessDeniedResponse()
+    /**
+     * @test
+     */
+    public function it_denies_getting_shipping_category_for_non_authenticated_user()
     {
-        $this->client->request('GET', '/api/shipping-categories/1');
+        $this->client->request('GET', '/api/v1/shipping-categories/1');
 
         $response = $this->client->getResponse();
         $this->assertResponse($response, 'authentication/access_denied_response', Response::HTTP_UNAUTHORIZED);
     }
 
-    public function testGetShippingCategoryWhichDoesNotExistResponse()
+    /**
+     * @test
+     */
+    public function it_returns_not_found_response_when_requesting_details_of_a_shipping_category_which_does_not_exist()
     {
         $this->loadFixturesFromFile('authentication/api_administrator.yml');
 
-        $this->client->request('GET', '/api/shipping-categories/-1', [], [], [
-            'HTTP_Authorization' => 'Bearer SampleTokenNjZkNjY2MDEwMTAzMDkxMGE0OTlhYzU3NzYyMTE0ZGQ3ODcyMDAwM2EwMDZjNDI5NDlhMDdlMQ',
-            'ACCEPT' => 'application/json',
-        ]);
+        $this->client->request('GET', '/api/v1/shipping-categories/-1', [], [], static::$authorizedHeaderWithAccept);
 
         $response = $this->client->getResponse();
         $this->assertResponse($response, 'error/not_found_response', Response::HTTP_NOT_FOUND);
     }
 
-    public function testGetShippingCategoryResponse()
+    /**
+     * @test
+     */
+    public function it_allows_to_get_shipping_category()
     {
         $this->loadFixturesFromFile('authentication/api_administrator.yml');
         $shippingCategories = $this->loadFixturesFromFile('resources/shipping_categories.yml');
 
-        $this->client->request('GET', '/api/shipping-categories/'.$shippingCategories['shipping_category_1']->getId(), [], [], [
-            'HTTP_Authorization' => 'Bearer SampleTokenNjZkNjY2MDEwMTAzMDkxMGE0OTlhYzU3NzYyMTE0ZGQ3ODcyMDAwM2EwMDZjNDI5NDlhMDdlMQ',
-            'ACCEPT' => 'application/json',
-        ]);
+        /** @var ShippingCategoryInterface $shippingCategory */
+        $shippingCategory = $shippingCategories['shipping_category_2'];
+
+        $this->client->request('GET', $this->getShippingCategoryUrl($shippingCategory), [], [], static::$authorizedHeaderWithAccept);
 
         $response = $this->client->getResponse();
         $this->assertResponse($response, 'shipping_category/show_response', Response::HTTP_OK);
     }
 
-    public function testFullUpdateShippingCategoryAccessDeniedResponse()
+    /**
+     * @test
+     */
+    public function it_denies_updating_shipping_category_for_non_authenticated_user()
     {
-        $this->client->request('PUT', '/api/shipping-categories/1');
+        $this->client->request('PUT', '/api/v1/shipping-categories/1');
 
         $response = $this->client->getResponse();
         $this->assertResponse($response, 'authentication/access_denied_response', Response::HTTP_UNAUTHORIZED);
     }
 
-    public function testFullUpdateShippingCategoryWhichDoesNotExistResponse()
+    /**
+     * @test
+     */
+    public function it_returns_not_found_response_when_updating_shipping_category_which_does_not_exist()
     {
         $this->loadFixturesFromFile('authentication/api_administrator.yml');
 
-        $this->client->request('PUT', '/api/shipping-categories/-1', [], [], [
-            'HTTP_Authorization' => 'Bearer SampleTokenNjZkNjY2MDEwMTAzMDkxMGE0OTlhYzU3NzYyMTE0ZGQ3ODcyMDAwM2EwMDZjNDI5NDlhMDdlMQ',
-            'ACCEPT' => 'application/json',
-        ]);
+        $this->client->request('PUT', '/api/v1/shipping-categories/-1', [], [], static::$authorizedHeaderWithAccept);
 
         $response = $this->client->getResponse();
         $this->assertResponse($response, 'error/not_found_response', Response::HTTP_NOT_FOUND);
     }
 
-    public function testFullUpdateShippingCategoryValidationFailResponse()
+    /**
+     * @test
+     */
+    public function it_does_not_allow_to_update_shipping_category_without_specifying_required_data()
     {
         $this->loadFixturesFromFile('authentication/api_administrator.yml');
         $shippingCategories = $this->loadFixturesFromFile('resources/shipping_categories.yml');
 
-        $this->client->request('PUT', '/api/shipping-categories/'.$shippingCategories['shipping_category_1']->getId(), [], [], [
-            'HTTP_Authorization' => 'Bearer SampleTokenNjZkNjY2MDEwMTAzMDkxMGE0OTlhYzU3NzYyMTE0ZGQ3ODcyMDAwM2EwMDZjNDI5NDlhMDdlMQ',
-            'CONTENT_TYPE' => 'application/json',
-        ]);
+        /** @var ShippingCategoryInterface $shippingCategory */
+        $shippingCategory = $shippingCategories['shipping_category_1'];
+
+        $this->client->request('PUT', $this->getShippingCategoryUrl($shippingCategory), [], [], static::$authorizedHeaderWithContentType);
 
         $response = $this->client->getResponse();
         $this->assertResponse($response, 'shipping_category/update_validation_fail_response', Response::HTTP_BAD_REQUEST);
     }
 
-    public function testFullUpdateShippingCategoryResponse()
+    /**
+     * @test
+     */
+    public function it_allows_to_update_shipping_category()
     {
         $this->loadFixturesFromFile('authentication/api_administrator.yml');
         $shippingCategories = $this->loadFixturesFromFile('resources/shipping_categories.yml');
+
+        /** @var ShippingCategoryInterface $shippingCategory */
+        $shippingCategory = $shippingCategories['shipping_category_1'];
 
         $data =
 <<<EOT
@@ -166,40 +208,40 @@ EOT;
         }
 EOT;
 
-        $this->client->request('PUT', '/api/shipping-categories/'.$shippingCategories['shipping_category_1']->getId(), [], [], [
-            'HTTP_Authorization' => 'Bearer SampleTokenNjZkNjY2MDEwMTAzMDkxMGE0OTlhYzU3NzYyMTE0ZGQ3ODcyMDAwM2EwMDZjNDI5NDlhMDdlMQ',
-            'CONTENT_TYPE' => 'application/json',
-        ], $data);
+        $this->client->request('PUT', $this->getShippingCategoryUrl($shippingCategory), [], [], static::$authorizedHeaderWithContentType, $data);
 
         $response = $this->client->getResponse();
         $this->assertResponseCode($response, Response::HTTP_NO_CONTENT);
 
-        $this->client->request('GET', '/api/shipping-categories/'.$shippingCategories['shipping_category_1']->getId(), [], [], [
-            'HTTP_Authorization' => 'Bearer SampleTokenNjZkNjY2MDEwMTAzMDkxMGE0OTlhYzU3NzYyMTE0ZGQ3ODcyMDAwM2EwMDZjNDI5NDlhMDdlMQ',
-            'ACCEPT' => 'application/json',
-        ]);
+        $this->client->request('GET', $this->getShippingCategoryUrl($shippingCategory), [], [], static::$authorizedHeaderWithAccept);
 
         $response = $this->client->getResponse();
         $this->assertResponse($response, 'shipping_category/update_response', Response::HTTP_OK);
     }
 
-    public function testPartialUpdateShippingCategoryWhichDoesNotExistResponse()
+    /**
+     * @test
+     */
+    public function it_returns_not_found_response_when_partially_updating_shipping_category_which_does_not_exist()
     {
         $this->loadFixturesFromFile('authentication/api_administrator.yml');
 
-        $this->client->request('PATCH', '/api/shipping-categories/-1', [], [], [
-            'HTTP_Authorization' => 'Bearer SampleTokenNjZkNjY2MDEwMTAzMDkxMGE0OTlhYzU3NzYyMTE0ZGQ3ODcyMDAwM2EwMDZjNDI5NDlhMDdlMQ',
-            'ACCEPT' => 'application/json',
-        ]);
+        $this->client->request('PATCH', '/api/v1/shipping-categories/-1', [], [], static::$authorizedHeaderWithAccept);
 
         $response = $this->client->getResponse();
         $this->assertResponse($response, 'error/not_found_response', Response::HTTP_NOT_FOUND);
     }
 
-    public function testPartialUpdateShippingCategoryResponse()
+    /**
+     * @test
+     */
+    public function it_allows_to_partially_update_shipping_category()
     {
         $this->loadFixturesFromFile('authentication/api_administrator.yml');
         $shippingCategories = $this->loadFixturesFromFile('resources/shipping_categories.yml');
+
+        /** @var ShippingCategoryInterface $shippingCategory */
+        $shippingCategory = $shippingCategories['shipping_category_1'];
 
         $data =
 <<<EOT
@@ -209,55 +251,59 @@ EOT;
         }
 EOT;
 
-        $this->client->request('PATCH', '/api/shipping-categories/'.$shippingCategories['shipping_category_1']->getId(), [], [], [
-            'HTTP_Authorization' => 'Bearer SampleTokenNjZkNjY2MDEwMTAzMDkxMGE0OTlhYzU3NzYyMTE0ZGQ3ODcyMDAwM2EwMDZjNDI5NDlhMDdlMQ',
-            'CONTENT_TYPE' => 'application/json',
-        ], $data);
+        $this->client->request('PATCH', $this->getShippingCategoryUrl($shippingCategory), [], [], static::$authorizedHeaderWithContentType, $data);
 
         $response = $this->client->getResponse();
         $this->assertResponseCode($response, Response::HTTP_NO_CONTENT);
 
-        $this->client->request('GET', '/api/shipping-categories/'.$shippingCategories['shipping_category_1']->getId(), [], [], [
-            'HTTP_Authorization' => 'Bearer SampleTokenNjZkNjY2MDEwMTAzMDkxMGE0OTlhYzU3NzYyMTE0ZGQ3ODcyMDAwM2EwMDZjNDI5NDlhMDdlMQ',
-            'ACCEPT' => 'application/json',
-        ]);
+        $this->client->request('GET', $this->getShippingCategoryUrl($shippingCategory), [], [], static::$authorizedHeaderWithAccept);
 
         $response = $this->client->getResponse();
         $this->assertResponse($response, 'shipping_category/update_response', Response::HTTP_OK);
     }
 
-    public function testDeleteShippingCategoryWhichDoesNotExistResponse()
+    /**
+     * @test
+     */
+    public function it_returns_not_found_response_when_trying_to_delete_shipping_category_which_does_not_exist()
     {
         $this->loadFixturesFromFile('authentication/api_administrator.yml');
 
-        $this->client->request('DELETE', '/api/shipping-categories/-1', [], [], [
-            'HTTP_Authorization' => 'Bearer SampleTokenNjZkNjY2MDEwMTAzMDkxMGE0OTlhYzU3NzYyMTE0ZGQ3ODcyMDAwM2EwMDZjNDI5NDlhMDdlMQ',
-            'ACCEPT' => 'application/json',
-        ]);
+        $this->client->request('DELETE', '/api/v1/shipping-categories/-1', [], [], static::$authorizedHeaderWithAccept);
 
         $response = $this->client->getResponse();
         $this->assertResponse($response, 'error/not_found_response', Response::HTTP_NOT_FOUND);
     }
 
-    public function testDeleteShippingCategoryResponse()
+    /**
+     * @test
+     */
+    public function it_allows_to_delete_shipping_category()
     {
         $this->loadFixturesFromFile('authentication/api_administrator.yml');
         $shippingCategories = $this->loadFixturesFromFile('resources/shipping_categories.yml');
 
-        $this->client->request('DELETE', '/api/shipping-categories/'.$shippingCategories['shipping_category_1']->getId(), [], [], [
-            'HTTP_Authorization' => 'Bearer SampleTokenNjZkNjY2MDEwMTAzMDkxMGE0OTlhYzU3NzYyMTE0ZGQ3ODcyMDAwM2EwMDZjNDI5NDlhMDdlMQ',
-            'CONTENT_TYPE' => 'application/json',
-        ], []);
+        /** @var ShippingCategoryInterface $shippingCategory */
+        $shippingCategory = $shippingCategories['shipping_category_2'];
+
+        $this->client->request('DELETE', $this->getShippingCategoryUrl($shippingCategory), [], [], static::$authorizedHeaderWithContentType, []);
 
         $response = $this->client->getResponse();
         $this->assertResponseCode($response, Response::HTTP_NO_CONTENT);
 
-        $this->client->request('GET', '/api/shipping-categories/'.$shippingCategories['shipping_category_1']->getId(), [], [], [
-            'HTTP_Authorization' => 'Bearer SampleTokenNjZkNjY2MDEwMTAzMDkxMGE0OTlhYzU3NzYyMTE0ZGQ3ODcyMDAwM2EwMDZjNDI5NDlhMDdlMQ',
-            'ACCEPT' => 'application/json',
-        ]);
+        $this->client->request('GET', $this->getShippingCategoryUrl($shippingCategory), [], [], static::$authorizedHeaderWithAccept);
 
         $response = $this->client->getResponse();
         $this->assertResponse($response, 'error/not_found_response', Response::HTTP_NOT_FOUND);
+    }
+
+    /**
+     * @param ShippingCategoryInterface $shippingCategory
+     *
+     * @return string
+     */
+    private function getShippingCategoryUrl(ShippingCategoryInterface $shippingCategory)
+    {
+        return '/api/v1/shipping-categories/' . $shippingCategory->getCode();
     }
 }

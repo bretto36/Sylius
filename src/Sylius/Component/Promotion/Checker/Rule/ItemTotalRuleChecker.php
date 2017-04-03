@@ -27,12 +27,4 @@ final class ItemTotalRuleChecker implements RuleCheckerInterface
     {
         return $subject->getPromotionSubjectTotal() >= $configuration['amount'];
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfigurationFormType()
-    {
-        return 'sylius_promotion_rule_item_total_configuration';
-    }
 }

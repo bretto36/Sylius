@@ -3,6 +3,4 @@
 
 sylius:
     cart:
-        cart_save_completed: O carrinho foi atualizado com sucesso.
-        item_add_completed: O produto foi adicionado ao carrinho.
-        item_remove_completed: O produto foi removido do carrinho.
+        add_item: 'O item foi adicionado ao carrinho'

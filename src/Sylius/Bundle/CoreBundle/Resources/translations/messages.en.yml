@@ -16,27 +16,29 @@ sylius:
         promotion_action:
             add_product_configuration:
                 product: Product
-            customer_group:
-                Customer group
         promotion_coupon:
             per_customer_usage_limit: Per-Customer Usage Limit
         group:
             name: Name
             roles: Roles
         channel:
-            taxonomies: Taxonomies
+            contact_email: Contact email
+            currencies: Currencies
+            currency_base: Base currency
+            account_verification_required: Is account verification required?
+            hostname: Hostname
             locale_default: Default locale
             locales: Locales
-            currency_default: Default currency
-            currencies: Currencies
-            shipping_methods: Shipping Methods
             payment_methods: Payment Methods
+            shipping_methods: Shipping Methods
+            skipping_shipping_step_allowed: Skip shipping step if only one shipping method is available?
+            skipping_payment_step_allowed: Skip payment step if only one payment method is available?
             tax_calculation_strategy: Tax calculation strategy
             tax_zone_default: Default tax zone
+            taxonomies: Taxonomies
             theme: Theme
-            hostname: Hostname
         image:
-            code: Code
+            type: Type
             file: Image
         locale:
             code: Code
@@ -56,7 +58,6 @@ sylius:
         product:
             images: Images
             restricted_zone: Restricted zone
-            shipping_category: Shipping category
             short_description: Short description
             variant_selection_method: Variant selection method
             main_taxon: Main taxon
@@ -67,6 +68,7 @@ sylius:
             code: Code
         product_variant:
             tax_category: Tax category
+            shipping_category: Shipping category
         shipment_filter:
             created_at_from: From
             created_at_to: To
@@ -104,8 +106,8 @@ sylius:
             height: Height
             on_hand: Current stock
             price: Price
-            original_price: Original price
             sku: SKU
+            shipping_required: Is shipping required?
             weight: Weight
             width: Width
         attribute:
@@ -119,17 +121,27 @@ sylius:
             type: Association type
         product_association_type:
             name: Name
+        promotion_filter:
+            products: Products filter
+            taxons: Taxons filter
         promotion_rule:
-            contains_taxon:
-                taxon: Taxon
-                count: Count
-            taxon:
+            customer_group:
+                group: Customer group
+            has_taxon:
                 taxons: Taxons
             product:
                 products: Products
             total_of_items_from_taxon:
                 taxon: Taxon
                 amount: Amount
+        payment_method:
+            channels: Channels
+        product_attribute:
+            position: Position
+        zone:
+            scopes:
+                shipping: Shipping
+                tax: Tax
 
     installer:
         extensions:
@@ -190,26 +202,6 @@ sylius:
                 help: Timezone %timezone% is deprecated. Fix your php.ini file (list of deprecated timezones http://php.net/manual/en/timezones.others.php).
             version: PHP version
             version_recommended: Recommended PHP version
-
-    email:
-        order_confirmation:
-            name: Order confirmation
-            content: Your order no. %number% has been successfully placed.<br/><br/>Thank you for shopping at our store!
-        order_comment:
-            name: Order comment
-        shipment_confirmation:
-            name: Shipment confirmation
-            content: Your order no. %number% has been sent using %method%.<br/>You can check it's location with the "%tracking%" tracking code.<br/><br/>Thank you for a successful transaction.
-        user_confirmation:
-            name: User confirmation
-            subject: Welcome to our store
-            content: Welcome to our store<br/><br/>You have just been registered.<br/>Thank you %username%.
-        password_reset:
-            name: Password reset
-            content: <h3>Hello %username%</h3>To reset your password - please visit %url% <br/><br/>Regards, the Team.
-        verification:
-            name: Email address verification
-            content: To verify your email address - please visit %url%
 
     payum_gateway:
         cash_on_delivery: Cash on delivery

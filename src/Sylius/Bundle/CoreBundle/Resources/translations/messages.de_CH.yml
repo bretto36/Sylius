@@ -18,10 +18,9 @@ sylius:
             name: Name
             roles: Rollen
         channel:
-            currency_default: Standardwährung
             tax_zone_default: Standard Steuerzone
         image:
-            code: Code
+            type: Typ
             file: Bild
         locale:
             code: Code
@@ -39,7 +38,6 @@ sylius:
             title: Titel
         product:
             restricted_zone: Beschränktes Versandgebiet
-            shipping_category: Versandkategorie
             short_description: Kurzbeschreibung
             variant_selection_method: Varianten
             enabled: Aktiviert
@@ -48,6 +46,7 @@ sylius:
             code: Code
         product_variant:
             tax_category: Steuerkategorie
+            shipping_category: Versandkategorie
         shipment_filter:
             created_at_from: Von
             created_at_to: zu

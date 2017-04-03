@@ -11,42 +11,35 @@
 
 namespace Sylius\Bundle\PromotionBundle\Form\Type;
 
-use Sylius\Bundle\PromotionBundle\Form\EventListener\BuildPromotionActionFormSubscriber;
-use Sylius\Bundle\PromotionBundle\Form\Type\Core\AbstractConfigurationType;
 use Symfony\Component\Form\FormBuilderInterface;
 
 /**
  * @author Saša Stamenković <umpirsky@gmail.com>
  * @author Arnaud Langlade <arn0d.dev@gmail.com>
  */
-class PromotionActionType extends AbstractConfigurationType
+final class PromotionActionType extends AbstractConfigurablePromotionElementType
 {
     /**
      * {@inheritdoc}
      */
     public function buildForm(FormBuilderInterface $builder, array $options = [])
     {
+        parent::buildForm($builder, $options);
+
         $builder
-            ->add('type', 'sylius_promotion_action_choice', [
+            ->add('type', PromotionActionChoiceType::class, [
                 'label' => 'sylius.form.promotion_action.type',
                 'attr' => [
                     'data-form-collection' => 'update',
                 ],
             ])
-            ->addEventSubscriber(
-                new BuildPromotionActionFormSubscriber(
-                    $this->registry,
-                    $builder->getFormFactory(),
-                    (isset($options['configuration_type'])) ? $options['configuration_type'] : null
-                )
-            )
         ;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'sylius_promotion_action';
     }

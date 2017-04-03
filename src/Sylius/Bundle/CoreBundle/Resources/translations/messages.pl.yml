@@ -19,30 +19,32 @@ sylius:
         promotion_action:
             add_product_configuration:
                 product: Produkt
-            customer_group: Grupa klientów
         promotion_coupon:
             per_customer_usage_limit: Limit użycia na 1 klienta
         group:
             name: Nazwa
             roles: Role
         channel:
-            taxonomies: Kategorie
+            contact_email: E-mail do kontaktu
+            currencies: Waluty
+            currency_base: Waluta podstawowa
+            account_verification_required: Czy weryfikacja konta jest wymagana?
+            hostname: Nazwa hosta
             locale_default: Domyślne ustawienia regionalne
             locales: Ustawienia regionalne
-            currency_default: Domyślna waluta
-            currencies: Waluty
-            shipping_methods: Metody wysyłki
             payment_methods: Metody płatności
+            shipping_methods: Metody wysyłki
+            skipping_shipping_step_allowed: Czy pomijać krok wysyłki, jeżeli dostępna jest tylko jedna metoda wysyłki?
             tax_calculation_strategy: Strategia obliczania podatku
             tax_zone_default: Domyślna strefa podatkowa
+            taxonomies: Kategorie
             theme: Motyw
-            hostname: Nazwa hosta
         image:
-            code: Kod
+            type: Typ
             file: Zdjęcie
         locale:
             code: Kod
-            enabled: Włączone
+            enabled: Aktywne
         order_filter:
             created_at_from: Stworzony po
             created_at_to: Stworzony przed
@@ -58,17 +60,17 @@ sylius:
         product:
             images: Zdjęcia
             restricted_zone: Strefa
-            shipping_category: Kategoria wysyłki
             short_description: Krótki opis
             variant_selection_method: Metody wyboru wariantu
             main_taxon: Główne grupy
             channels: Kanały
-            enabled: Włączone
+            enabled: Aktywne
         product_filter:
             name: Nazwa
             code: Kod
         product_variant:
             tax_category: Kategoria podatkowa
+            shipping_category: Kategoria wysyłki
         shipment_filter:
             created_at_from: Od
             created_at_to: Do
@@ -106,8 +108,8 @@ sylius:
             height: Wysokość
             on_hand: Dostępny
             price: Cena
-            original_price: Oryginalna cena
             sku: SKU
+            shipping_required: Czy wymagana jest dostawa?
             weight: Waga
             width: Szerokość
         attribute:
@@ -121,17 +123,27 @@ sylius:
             type: Rodzaj powiązania
         product_association_type:
             name: Nazwa
+        promotion_filter:
+            products: Filtr produktów
+            taxons: Filtr taksonomii
         promotion_rule:
-            contains_taxon:
-                taxon: Takson
-                count: Ilość
-            taxon:
-                taxons: Podatki
+            customer_group:
+                group: Grupa klientów
+            has_taxon:
+                taxons: Taksonomie
             product:
                 products: Produkty
             total_of_items_from_taxon:
                 taxon: Takson
                 amount: Kwota
+        payment_method:
+            channels: Kanały
+        product_attribute:
+            position: Położenie
+        zone:
+            scopes:
+                shipping: Wysyłka
+                tax: Podatek
     installer:
         extensions:
             header: rozszerzenia
@@ -191,25 +203,6 @@ sylius:
                 help: 'Strefa czasowa %timezone% jest przestarzała. Popraw wpis w pliku php.ini (lista przestarzałych stref czasowych: http://php.net/manual/en/timezones.others.php).'
             version: Wersja PHP
             version_recommended: Rekomendowana wersja PHP
-    email:
-        order_confirmation:
-            name: Potwierdzenie zamówienia
-            content: Twoje zamówienie nr %number% zostało złożone.<br/> <br/> Dziękujemy za zakupy w naszym sklepie!
-        order_comment:
-            name: Uwagi dotyczące zamówienia
-        shipment_confirmation:
-            name: Potwierdzenie dostawy
-            content: Twoje zamówienie nr %number% zostało wysłane przy użyciu %method%. <br/> Możesz je namierzyć korzystając z kodu śledzenia "%tracking%". <br/> <br/> Dziękujemy za udaną transakcję.
-        user_confirmation:
-            name: Potwierdzenia przez użytkownika
-            subject: Zapraszamy do naszego sklepu
-            content: Zapraszamy do naszego sklepu <br/> <br/> Twoja rejestracja przebiegła pomyślnie. <br/> Dziękujemy %username%.
-        password_reset:
-            name: Resetowanie hasła
-            content: <h3>Witaj %username%</h3> Aby ustawić nowe hasło, odwiedź %url% <br/> <br/> Pozdrawiamy, zespół.
-        verification:
-            name: Weryfikacja adresu e-mail
-            content: Aby zweryfikować swój adres e-mail - proszę odwiedzić %url%
     payum_gateway:
         cash_on_delivery: Opłata za pobraniem
         offline: Tryb offline

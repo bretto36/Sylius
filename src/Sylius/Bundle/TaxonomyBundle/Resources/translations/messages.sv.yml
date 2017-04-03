@@ -7,6 +7,6 @@ sylius:
             description: Beskrivning
             name: Namn
             parent: Förälder
-            permalink: Permalänk
+            slug: Permalänk
         taxonomy:
             name: Namn

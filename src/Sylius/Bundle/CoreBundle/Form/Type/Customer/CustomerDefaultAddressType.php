@@ -11,6 +11,7 @@
 
 namespace Sylius\Bundle\CoreBundle\Form\Type\Customer;
 
+use Sylius\Bundle\CoreBundle\Form\Type\AddressChoiceType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -18,7 +19,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * @author Jan Góralski <jan.goralski@lakion.com>
  */
-class CustomerDefaultAddressType extends AbstractType
+final class CustomerDefaultAddressType extends AbstractType
 {
     /**
      * {@inheritdoc}
@@ -26,10 +27,8 @@ class CustomerDefaultAddressType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('defaultAddress', 'sylius_address_choice', [
-                'choices_as_values' => true,
-                'customer' => $options['customerId'],
-                'choice_value' => 'id',
+            ->add('defaultAddress', AddressChoiceType::class, [
+                'customer' => $options['customer'],
             ])
         ;
     }
@@ -39,14 +38,13 @@ class CustomerDefaultAddressType extends AbstractType
      */
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setRequired('customerId');
-        $resolver->setDefault('csrf_protection', false);
+        $resolver->setRequired('customer');
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'sylius_customer_default_address';
     }

@@ -31,6 +31,10 @@ final class ArrayGridProvider implements GridProviderInterface
     public function __construct(ArrayToDefinitionConverterInterface $converter, array $gridConfigurations)
     {
         foreach ($gridConfigurations as $code => $gridConfiguration) {
+            if (isset($gridConfiguration['extends']) && isset($gridConfigurations[$gridConfiguration['extends']])) {
+                $gridConfiguration = $this->extend($gridConfiguration, $gridConfigurations[$gridConfiguration['extends']]);
+            }
+
             $this->grids[$code] = $converter->convert($code, $gridConfiguration);
         }
     }
@@ -44,6 +48,18 @@ final class ArrayGridProvider implements GridProviderInterface
             throw new UndefinedGridException($code);
         }
 
-        return $this->grids[$code];
+        // Need to clone grid definition in case of displaying on one page two grids using the same grid definition
+        return clone $this->grids[$code];
+    }
+
+    private function extend(array $gridConfiguration, array $parentGridConfiguration)
+    {
+        unset($parentGridConfiguration['sorting']); // Do not inherit sorting.
+
+        $configuration = array_replace_recursive($parentGridConfiguration, $gridConfiguration);
+
+        unset($configuration['extends']);
+
+        return $configuration;
     }
 }

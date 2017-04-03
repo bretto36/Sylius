@@ -9,6 +9,7 @@ sylius:
                     association_types: Tipi i lidhjes
                     attributes: Atributet
                     header: Katalogu
+                    inventory: Gjendja e magazinës
                     options: Opsionet
                     taxons: Tipologjite
                 configuration:
@@ -33,5 +34,3 @@ sylius:
                 sales:
                     header: Shitjet
                     orders: Porositë
-                content:
-                    routes: Rrugët

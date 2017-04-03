@@ -14,6 +14,7 @@ namespace Sylius\Component\Core\Promotion\Action;
 use Sylius\Component\Core\Distributor\ProportionalIntegerDistributorInterface;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Promotion\Applicator\UnitsPromotionAdjustmentsApplicatorInterface;
+use Sylius\Component\Promotion\Action\PromotionActionCommandInterface;
 use Sylius\Component\Promotion\Model\PromotionInterface;
 use Sylius\Component\Promotion\Model\PromotionSubjectInterface;
 
@@ -22,7 +23,7 @@ use Sylius\Component\Promotion\Model\PromotionSubjectInterface;
  * @author Saša Stamenković <umpirsky@gmail.com>
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
  */
-final class PercentageDiscountPromotionActionCommand extends DiscountPromotionActionCommand
+final class PercentageDiscountPromotionActionCommand extends DiscountPromotionActionCommand implements PromotionActionCommandInterface
 {
     const TYPE = 'order_percentage_discount';
 
@@ -55,14 +56,18 @@ final class PercentageDiscountPromotionActionCommand extends DiscountPromotionAc
     {
         /** @var OrderInterface $subject */
         if (!$this->isSubjectValid($subject)) {
-            return;
+            return false;
         }
 
-        $this->isConfigurationValid($configuration);
+        try {
+            $this->isConfigurationValid($configuration);
+        } catch (\InvalidArgumentException $exception) {
+            return false;
+        }
 
         $promotionAmount = $this->calculateAdjustmentAmount($subject->getPromotionSubjectTotal(), $configuration['percentage']);
         if (0 === $promotionAmount) {
-            return;
+            return false;
         }
 
         $itemsTotal = [];
@@ -72,14 +77,8 @@ final class PercentageDiscountPromotionActionCommand extends DiscountPromotionAc
 
         $splitPromotion = $this->distributor->distribute($itemsTotal, $promotionAmount);
         $this->unitsPromotionAdjustmentsApplicator->apply($subject, $promotion, $splitPromotion);
-    }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfigurationFormType()
-    {
-        return 'sylius_promotion_action_percentage_discount_configuration';
+        return true;
     }
 
     /**

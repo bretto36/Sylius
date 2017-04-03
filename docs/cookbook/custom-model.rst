@@ -14,14 +14,18 @@ A Supplier needs three essential fields: ``name``, ``description`` and ``enabled
 2. Generate the entity
 ----------------------
 
-Sylius provides the `SensioGeneratorBundle <http://symfony.com/doc/current/bundles/SensioGeneratorBundle/index.html>`_,
+Symfony, the framework Sylius uses, provides the `SensioGeneratorBundle <http://symfony.com/doc/current/bundles/SensioGeneratorBundle/index.html>`_,
 that simplifies the process of adding a model.
+
+.. warning::
+
+    Remember to have the ``SensioGeneratorBundle`` imported in the AppKernel, as it is not there by default.
 
 You need to use such a command in your project directory.
 
 .. code-block:: bash
 
-    $ php app/console generate:doctrine:entity
+    $ php bin/console generate:doctrine:entity
 
 The generator will ask you for the entity name and fields. See how it should look like to match our assumptions.
 
@@ -35,14 +39,14 @@ Assuming that your database was up-to-date before adding the new entity, run:
 
 .. code-block:: bash
 
-    $ php app/console doctrine:migrations:diff
+    $ php bin/console doctrine:migrations:diff
 
 This will generate a new migration file which adds the Supplier entity to your database.
 Then update the database using the generated migration:
 
 .. code-block:: bash
 
-    $ php app/console doctrine:migrations:migrate
+    $ php bin/console doctrine:migrations:migrate
 
 4. Add ResourceInterface to your model class
 --------------------------------------------
@@ -81,7 +85,7 @@ And add these few lines in the ``resources.yml`` file:
     sylius_resource:
         resources:
             app.supplier:
-                driver: doctrine/orm
+                driver: doctrine/orm # You can use also different driver here
                 classes:
                     model: AppBundle\Entity\Supplier
 
@@ -89,7 +93,7 @@ To check if the process was run correctly run such a command:
 
 .. code-block:: bash
 
-    $ php app/console debug:container | grep supplier
+    $ php bin/console debug:container | grep supplier
 
 The output should be:
 
@@ -131,7 +135,7 @@ To have templates for your Entity administration out of the box you can use Grid
                         type: twig
                         label: sylius.ui.enabled
                         options:
-                            template: SyliusAdminBundle:Grid/Field:enabled.html.twig
+                            template: "@SyliusUi/Grid/Field/enabled.html.twig"
                 actions:
                     main:
                         create:

@@ -28,13 +28,13 @@ class TestAppKernel extends AppKernel
             return;
         }
 
-        if (!in_array($this->environment, ['test', 'test_cached'], true)) {
+        if (!in_array($this->getEnvironment(), ['test', 'test_cached'], true)) {
             parent::shutdown();
 
             return;
         }
 
-        $container = $this->container;
+        $container = $this->getContainer();
         parent::shutdown();
         $this->cleanupContainer($container);
     }
@@ -77,5 +77,13 @@ class TestAppKernel extends AppKernel
     protected function getContainerBaseClass()
     {
         return MockerContainer::class;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function registerBundles()
+    {
+        return array_merge(parent::registerBundles(), [new DAMA\DoctrineTestBundle\DAMADoctrineTestBundle()]);
     }
 }

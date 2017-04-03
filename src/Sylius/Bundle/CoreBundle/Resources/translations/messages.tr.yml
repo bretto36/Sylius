@@ -23,15 +23,14 @@ sylius:
             name: Ad
             roles: Roller
         channel:
-            taxonomies: Kategoriler
-            locales: Diller
-            currency_default: Varsayılan para birimi
             currencies: Para birimi
-            shipping_methods: Kargolama Yöntemleri
+            locales: Diller
             payment_methods: Ödeme Yöntemleri
+            shipping_methods: Kargolama Yöntemleri
             tax_zone_default: Varsayılan vergi bölgesi
+            taxonomies: Kategoriler
         image:
-            code: Kod
+            type: Türü
             file: Resim
         locale:
             code: Kod
@@ -51,7 +50,6 @@ sylius:
         product:
             images: Resimleri
             restricted_zone: Kısıtlı bölge
-            shipping_category: Teslimat kategorisi
             short_description: Kısa açıklama
             variant_selection_method: Varyant seçme yöntemi
             channels: Kanallar
@@ -61,6 +59,7 @@ sylius:
             code: Kod
         product_variant:
             tax_category: Vergi kategorisi
+            shipping_category: Teslimat kategorisi
         shipment_filter:
             created_at_from: Kaynak
             created_at_to: Hedef
@@ -110,10 +109,10 @@ sylius:
         product_association_type:
             name: Ad
         promotion_rule:
-            contains_taxon:
-                count: Sayısı
             total_of_items_from_taxon:
                 amount: Miktar
+        payment_method:
+            channels: Kanallar
     installer:
         extensions:
             header: Eklentiler
@@ -167,12 +166,3 @@ sylius:
                 header: Kullanılmayan Zaman Dilimi
                 help: '%timezone% zaman dilimi kaldırılmıştır. php.ini dosyanızda gerekli düzenlemeyi yapın. (Kaldırılan tüm zaman dilimleri http://php.net/manual/en/timezones.others.php).'
             version: PHP versiyon
-    email:
-        order_confirmation:
-            name: Sipariş Onayı
-        order_comment:
-            name: Sipariş yorumu
-        shipment_confirmation:
-            name: Sevk İrsaliyesi onay
-        user_confirmation:
-            name: Kullanıcı onayı

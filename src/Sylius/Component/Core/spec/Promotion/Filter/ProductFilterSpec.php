@@ -18,8 +18,6 @@ use Sylius\Component\Core\Promotion\Filter\FilterInterface;
 use Sylius\Component\Core\Promotion\Filter\ProductFilter;
 
 /**
- * @mixin ProductFilter
- *
  * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
  */
 final class ProductFilterSpec extends ObjectBehavior
@@ -52,5 +50,10 @@ final class ProductFilterSpec extends ObjectBehavior
     function it_returns_all_items_if_configuration_is_invalid(OrderItemInterface $item)
     {
         $this->filter([$item], [])->shouldReturn([$item]);
+    }
+
+    function it_returns_all_items_if_configuration_is_empty(OrderItemInterface $item)
+    {
+        $this->filter([$item], ['filters' => ['products_filter' => ['products' => []]]])->shouldReturn([$item]);
     }
 }

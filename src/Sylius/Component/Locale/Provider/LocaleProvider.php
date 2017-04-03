@@ -46,23 +46,12 @@ final class LocaleProvider implements LocaleProviderInterface
      */
     public function getAvailableLocalesCodes()
     {
-        $locales = $this->localeRepository->findBy(['enabled' => true]);
-
-        return array_map(
-            function (LocaleInterface $locale) { return $locale->getCode(); },
-            $locales
-        );
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getDefinedLocalesCodes()
-    {
         $locales = $this->localeRepository->findAll();
 
         return array_map(
-            function (LocaleInterface $locale) { return $locale->getCode(); },
+            function (LocaleInterface $locale) {
+                return $locale->getCode();
+            },
             $locales
         );
     }

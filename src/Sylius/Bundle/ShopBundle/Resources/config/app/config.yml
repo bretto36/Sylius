@@ -2,15 +2,17 @@
 # (c) Paweł Jędrzejewski
 
 imports:
+    - { resource: "@SyliusShopBundle/Resources/config/app/sylius/sylius_mailer.yml" }
     - { resource: "@SyliusShopBundle/Resources/config/grids/account/order.yml" }
     - { resource: "@SyliusShopBundle/Resources/config/grids/product.yml" }
 
 sylius_grid:
     templates:
         action:
-            show_order: "SyliusShopBundle:Grid/Action:show_order.html.twig"
+            show: "@SyliusUi/Grid/Action/show.html.twig"
+            pay: "@SyliusShop/Account/Order/Grid/Action/pay.html.twig"
         filter:
-            string: "@SyliusShop/Grid/Filter/string.html.twig"
+            string: "@SyliusUi/Grid/Filter/string.html.twig"
 
 sylius_shop:
     checkout_resolver:
@@ -22,11 +24,16 @@ sylius_shop:
                 route: sylius_shop_checkout_select_shipping
             shipping_selected:
                 route: sylius_shop_checkout_select_payment
+            shipping_skipped:
+                route: sylius_shop_checkout_select_payment
             payment_selected:
+                route: sylius_shop_checkout_complete
+            payment_skipped:
                 route: sylius_shop_checkout_complete
 
 liip_imagine:
     filter_sets:
+        sylius_shop_product_original: ~
         sylius_shop_product_tiny_thumbnail:
             filters:
                 thumbnail: { size: [64, 64], mode: outbound }
@@ -39,3 +46,6 @@ liip_imagine:
         sylius_shop_product_large_thumbnail:
             filters:
                 thumbnail: { size: [550, 412], mode: outbound }
+
+sonata_block:
+    default_contexts: ~

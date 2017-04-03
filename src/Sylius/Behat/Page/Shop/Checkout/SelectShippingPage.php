@@ -48,7 +48,7 @@ class SelectShippingPage extends SymfonyPage implements SelectShippingPageInterf
      */
     public function getShippingMethods()
     {
-        $inputs = $this->getSession()->getPage()->findAll('css', '#shipping_methods .item .content label');
+        $inputs = $this->getSession()->getPage()->findAll('css', '#sylius-shipping-methods .item .content label');
 
         $shippingMethods = [];
         foreach ($inputs as $input) {
@@ -91,7 +91,7 @@ class SelectShippingPage extends SymfonyPage implements SelectShippingPageInterf
 
         $subtotalTable = $this->getElement('checkout_subtotal');
 
-        return $subtotalTable->find('css', sprintf('#item-%s-subtotal', $itemSlug))->getText();
+        return $subtotalTable->find('css', sprintf('#sylius-item-%s-subtotal', $itemSlug))->getText();
     }
 
     public function nextStep()
@@ -107,6 +107,14 @@ class SelectShippingPage extends SymfonyPage implements SelectShippingPageInterf
     public function changeAddressByStepLabel()
     {
         $this->getElement('address')->click();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPurchaserEmail()
+    {
+        return $this->getElement('purchaser-email')->getText();
     }
 
     /**
@@ -146,13 +154,29 @@ class SelectShippingPage extends SymfonyPage implements SelectShippingPageInterf
     /**
      * {@inheritdoc}
      */
+    public function hasShippingMethod($shippingMethodName)
+    {
+        $inputs = $this->getSession()->getPage()->findAll('css', '#sylius-shipping-methods .item .content label');
+
+        $shippingMethods = [];
+        foreach ($inputs as $input) {
+            $shippingMethods[] = trim($input->getText());
+        }
+
+        return in_array($shippingMethodName, $shippingMethods);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function getDefinedElements()
     {
         return array_merge(parent::getDefinedElements(), [
             'address' => '.steps a:contains("Address")',
-            'checkout_subtotal' => '#checkout-subtotal',
+            'checkout_subtotal' => '#sylius-checkout-subtotal',
             'next_step' => '#next-step',
             'order_cannot_be_shipped_message' => '#sylius-order-cannot-be-shipped',
+            'purchaser-email' => '#purchaser-email',
             'shipment' => '.items',
             'shipping_method' => '[name="sylius_checkout_select_shipping[shipments][0][method]"]',
             'shipping_method_fee' => '.item:contains("%shipping_method%") .fee',

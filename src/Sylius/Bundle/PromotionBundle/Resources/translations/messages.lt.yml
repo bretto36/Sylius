@@ -12,6 +12,7 @@ sylius:
             ends_at: Baigiasi
             exclusive: Išskirtinis
             name: Pavadinimas
+            priority: Prioritetas
             rules: Taisyklės
             starts_at: Prasideda
             usage_limit: Naudojimo limitas

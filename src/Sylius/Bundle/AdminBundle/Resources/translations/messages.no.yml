@@ -6,6 +6,7 @@ sylius:
         admin:
             main:
                 catalog:
+                    inventory: Lager
                     options: Instillinger
                 configuration:
                     countries: Land
@@ -22,5 +23,3 @@ sylius:
                 sales:
                     header: Salg
                     orders: Bestillinger
-                content:
-                    routes: Ruter

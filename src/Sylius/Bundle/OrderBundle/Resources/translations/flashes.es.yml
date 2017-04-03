@@ -3,6 +3,7 @@
 
 sylius:
     cart:
-        cart_save_completed: El carrito se ha actualizado correctamente.
-        item_add_completed: El item se ha añadido al carrito.
-        item_remove_completed: El item se ha borrado del carrito.
+        add_item: 'El producto se ha añadido al carrito'
+        cannot_modify: 'Ya se ha enviado un pedido para el carrito que está tratando de modificar.'
+        remove_item: 'El producto se ha eliminado del carrito'
+        save: 'El carrito se ha actualizado correctamente'

@@ -9,6 +9,7 @@ sylius:
                     association_types: Типи асоціювання
                     attributes: Атрибути
                     header: Каталог
+                    inventory: Інвентаризація
                     options: Опції
                     products: Продукція
                     taxons: Таксони
@@ -35,7 +36,3 @@ sylius:
                 sales:
                     header: Продажі
                     orders: Замовлення
-                content:
-                    header: Вміст
-                    static_contents: Статичний вміст
-                    routes: Маршрути

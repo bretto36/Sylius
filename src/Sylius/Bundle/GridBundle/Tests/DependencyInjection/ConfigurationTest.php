@@ -41,6 +41,7 @@ final class ConfigurationTest extends \PHPUnit_Framework_TestCase
                             'options' => [],
                         ],
                         'sorting' => [],
+                        'limits' => [10, 25, 50],
                         'fields' => [],
                         'filters' => [],
                         'actions' => [],
@@ -117,6 +118,54 @@ final class ConfigurationTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
+    public function its_base_sorting_can_be_overwritten()
+    {
+        $this->assertProcessedConfigurationEquals(
+            [
+                ['grids' => [
+                    'sylius_admin_tax_category' => [
+                        'sorting' => ['code' => 'asc'],
+                    ],
+                ]],
+                ['grids' => [
+                    'sylius_admin_tax_category' => [
+                        'sorting' => ['name' => 'desc'],
+                    ],
+                ]],
+            ],
+            ['grids' => [
+                'sylius_admin_tax_category' => [
+                    'sorting' => ['name' => 'desc'],
+                ],
+            ]],
+            'grids.*.sorting'
+        );
+
+        $this->assertProcessedConfigurationEquals(
+            [
+                ['grids' => [
+                    'sylius_admin_tax_category' => [
+                        'sorting' => ['code' => 'asc'],
+                    ],
+                ]],
+                ['grids' => [
+                    'sylius_admin_tax_category' => [
+                        'sorting' => null,
+                    ],
+                ]],
+            ],
+            ['grids' => [
+                'sylius_admin_tax_category' => [
+                    'sorting' => [],
+                ],
+            ]],
+            'grids.*.sorting'
+        );
+    }
+
+    /**
+     * @test
+     */
     public function its_sorting_order_can_be_only_ascending_or_descending()
     {
         $this->assertConfigurationIsValid([[
@@ -150,6 +199,92 @@ final class ConfigurationTest extends \PHPUnit_Framework_TestCase
                 ],
             ],
         ]]);
+    }
+
+    /**
+     * @test
+     */
+    public function its_limits_can_only_be_a_collection_of_integers()
+    {
+        $this->assertConfigurationIsValid([[
+            'grids' => [
+                'sylius_admin_tax_category' => [
+                    'limits' => [10],
+                ]
+            ]
+        ]]);
+
+        $this->assertConfigurationIsValid([[
+            'grids' => [
+                'sylius_admin_tax_category' => [
+                    'limits' => [10, 25],
+                ]
+            ]
+        ]]);
+
+        $this->assertConfigurationIsInvalid([[
+            'grids' => [
+                'sylius_admin_tax_category' => [
+                    'limits' => [10.0, 25.0]
+                ]
+            ]
+        ]]);
+
+        $this->assertConfigurationIsInvalid([[
+            'grids' => [
+                'sylius_admin_tax_category' => [
+                    'limits' => [10, 25, 'surprise!']
+                ]
+            ]
+        ]]);
+    }
+
+    /**
+     * @test
+     */
+    public function its_base_limits_can_be_overwritten()
+    {
+        $this->assertProcessedConfigurationEquals(
+            [
+                ['grids' => [
+                    'sylius_admin_tax_category' => [
+                        'limits' => [10, 25],
+                    ],
+                ]],
+                ['grids' => [
+                    'sylius_admin_tax_category' => [
+                        'limits' => [6, 12, 24],
+                    ],
+                ]],
+            ],
+            ['grids' => [
+                'sylius_admin_tax_category' => [
+                    'limits' => [6, 12, 24],
+                ],
+            ]],
+            'grids.*.limits'
+        );
+
+        $this->assertProcessedConfigurationEquals(
+            [
+                ['grids' => [
+                    'sylius_admin_tax_category' => [
+                        'limits' => [10, 25, 50],
+                    ],
+                ]],
+                ['grids' => [
+                    'sylius_admin_tax_category' => [
+                        'limits' => null,
+                    ],
+                ]],
+            ],
+            ['grids' => [
+                'sylius_admin_tax_category' => [
+                    'limits' => [],
+                ],
+            ]],
+            'grids.*.limits'
+        );
     }
 
     /**

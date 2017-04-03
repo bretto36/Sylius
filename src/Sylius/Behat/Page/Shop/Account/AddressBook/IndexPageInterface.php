@@ -26,7 +26,7 @@ interface IndexPageInterface extends SymfonyPageInterface
 
     /**
      * @param string $fullName
-     * 
+     *
      * @return bool
      */
     public function hasAddressOf($fullName);
@@ -43,6 +43,8 @@ interface IndexPageInterface extends SymfonyPageInterface
 
     /**
      * @return string
+     *
+     * @throws \InvalidArgumentException
      */
     public function getFullNameOfDefaultAddress();
 

@@ -16,6 +16,8 @@ use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
 use Sylius\Behat\Behaviour\ChecksCodeImmutability;
 use Sylius\Behat\Page\Admin\Crud\UpdatePage as BaseUpdatePage;
+use Sylius\Behat\Service\AutocompleteHelper;
+use Sylius\Behat\Service\SlugGenerationHelper;
 use Sylius\Component\Core\Model\TaxonInterface;
 use Webmozart\Assert\Assert;
 
@@ -31,7 +33,7 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
      */
     public function chooseParent(TaxonInterface $taxon)
     {
-        $this->getElement('parent')->selectOption($taxon->getName(), false);
+        AutocompleteHelper::chooseValue($this->getSession(), $this->getElement('parent')->getParent(), $taxon->getName());
     }
 
     /**
@@ -47,31 +49,37 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
      */
     public function nameIt($name, $languageCode)
     {
+        $this->activateLanguageTab($languageCode);
         $this->getDocument()->fillField(sprintf('sylius_taxon_translations_%s_name', $languageCode), $name);
 
-        $this->waitForSlugGenerationIfNecessary();
+        if ($this->getDriver() instanceof Selenium2Driver) {
+            SlugGenerationHelper::waitForSlugGeneration(
+                $this->getSession(),
+                $this->getElement('slug', ['%language%' => $languageCode])
+            );
+        }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function specifySlug($slug)
+    public function specifySlug($slug, $languageCode)
     {
-        $this->getDocument()->fillField('Slug', $slug);
+        $this->getDocument()->fillField(sprintf('sylius_taxon_translations_%s_slug', $languageCode), $slug);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function attachImage($path, $code = null)
+    public function attachImage($path, $type = null)
     {
         $filesPath = $this->getParameter('files_path');
 
         $this->getDocument()->find('css', '[data-form-collection="add"]')->click();
 
         $imageForm = $this->getLastImageElement();
-        if (null !== $code) {
-            $imageForm->fillField('Code', $code);
+        if (null !== $type) {
+            $imageForm->fillField('Type', $type);
         }
 
         $imageForm->find('css', 'input[type="file"]')->attachFile($filesPath.$path);
@@ -80,9 +88,9 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
     /**
      * {@inheritdoc}
      */
-    public function isImageWithCodeDisplayed($code)
+    public function isImageWithTypeDisplayed($type)
     {
-        $imageElement = $this->getImageElementByCode($code);
+        $imageElement = $this->getImageElementByType($type);
 
         if (null === $imageElement) {
             return false;
@@ -99,17 +107,20 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
     /**
      * {@inheritdoc}
      */
-    public function isSlugReadOnly()
+    public function isSlugReadonly($languageCode = 'en_US')
     {
-        return 'readonly' === $this->getElement('slug')->getAttribute('readonly');
+        return SlugGenerationHelper::isSlugReadonly(
+            $this->getSession(),
+            $this->getElement('slug', ['%language%' => $languageCode])
+        );
     }
 
     /**
      * {@inheritdoc}
      */
-    public function removeImageWithCode($code)
+    public function removeImageWithType($type)
     {
-        $imageElement = $this->getImageElementByCode($code);
+        $imageElement = $this->getImageElementByType($type);
         $imageElement->clickLink('Delete');
     }
 
@@ -119,9 +130,15 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
         $imageElement->clickLink('Delete');
     }
 
-    public function enableSlugModification()
+    /**
+     * {@inheritdoc}
+     */
+    public function enableSlugModification($languageCode = 'en_US')
     {
-        $this->getElement('toggle_taxon_slug_modification_button')->press();
+        SlugGenerationHelper::enableSlugModification(
+            $this->getSession(),
+            $this->getElement('toggle_taxon_slug_modification_button', ['%locale%' => $languageCode])
+        );
     }
 
     /**
@@ -137,16 +154,27 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
     /**
      * {@inheritdoc}
      */
-    public function changeImageWithCode($code, $path)
+    public function changeImageWithType($type, $path)
     {
         $filesPath = $this->getParameter('files_path');
 
-        $imageForm = $this->getImageElementByCode($code);
+        $imageForm = $this->getImageElementByType($type);
         $imageForm->find('css', 'input[type="file"]')->attachFile($filesPath.$path);
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
+     */
+    public function modifyFirstImageType($type)
+    {
+        $firstImage = $this->getFirstImageElement();
+
+        $typeField = $firstImage->findField('Type');
+        $typeField->setValue($type);
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function getParent()
     {
@@ -156,11 +184,19 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
     /**
      * {@inheritdoc}
      */
+    public function getSlug($languageCode = 'en_US')
+    {
+        return $this->getElement('slug', ['%language%' => $languageCode])->getValue();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getValidationMessageForImage()
     {
-        $provinceForm = $this->getLastImageElement();
+        $lastImageElement = $this->getLastImageElement();
 
-        $foundElement = $provinceForm->find('css', '.sylius-validation-error');
+        $foundElement = $lastImageElement->find('css', '.sylius-validation-error');
         if (null === $foundElement) {
             throw new ElementNotFoundException($this->getSession(), 'Tag', 'css', '.sylius-validation-error');
         }
@@ -171,10 +207,10 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
     /**
      * {@inheritdoc}
      */
-    public function getValidationMessageForImageAtPlace($place) {
-        
+    public function getValidationMessageForImageAtPlace($place)
+    {
         $images = $this->getImageElements();
-        
+
         $foundElement = $images[$place]->find('css', '.sylius-validation-error');
         if (null === $foundElement) {
             throw new ElementNotFoundException($this->getSession(), 'Tag', 'css', '.sylius-validation-error');
@@ -184,11 +220,34 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
     }
 
     /**
-     * @return bool
+     * {@inheritdoc}
      */
-    public function isImageCodeDisabled()
+    public function activateLanguageTab($locale)
     {
-        return 'disabled' === $this->getLastImageElement()->findField('Code')->getAttribute('disabled');
+        if (!$this->getDriver() instanceof Selenium2Driver) {
+            return;
+        }
+
+        $languageTabTitle = $this->getElement('language_tab', ['%locale%' => $locale]);
+        if (!$languageTabTitle->hasClass('active')) {
+            $languageTabTitle->click();
+        }
+
+        $this->getDocument()->waitFor(10, function () use ($languageTabTitle) {
+            return $languageTabTitle->hasClass('active');
+        });
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getElement($name, array $parameters = [])
+    {
+        if (!isset($parameters['%language%'])) {
+            $parameters['%language%'] = 'en_US';
+        }
+
+        return parent::getElement($name, $parameters);
     }
 
     /**
@@ -208,10 +267,11 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
             'code' => '#sylius_taxon_code',
             'description' => '#sylius_taxon_translations_en_US_description',
             'images' => '#sylius_taxon_images',
+            'language_tab' => '[data-locale="%locale%"] .title',
             'name' => '#sylius_taxon_translations_en_US_name',
             'parent' => '#sylius_taxon_parent',
-            'slug' => '#sylius_taxon_translations_en_US_slug',
-            'toggle_taxon_slug_modification_button' => '#toggle-taxon-slug-modification',
+            'slug' => '#sylius_taxon_translations_%language%_slug',
+            'toggle_taxon_slug_modification_button' => '[data-locale="%locale%"] .toggle-taxon-slug-modification',
         ]);
     }
 
@@ -234,6 +294,8 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
     {
         $imageElements = $this->getImageElements();
 
+        Assert::notEmpty($imageElements);
+
         return reset($imageElements);
     }
 
@@ -248,36 +310,19 @@ class UpdatePage extends BaseUpdatePage implements UpdatePageInterface
     }
 
     /**
-     * @param string $code
+     * @param string $type
      *
      * @return NodeElement
      */
-    private function getImageElementByCode($code)
+    private function getImageElementByType($type)
     {
         $images = $this->getElement('images');
-        $inputCode = $images->find('css', 'input[value="'.$code.'"]');
+        $typeInput = $images->find('css', 'input[value="'.$type.'"]');
 
-        if (null === $inputCode) {
+        if (null === $typeInput) {
             return null;
         }
 
-        return $inputCode->getParent()->getParent()->getParent();
-    }
-
-    private function waitForSlugGenerationIfNecessary()
-    {
-        if (!$this->getDriver() instanceof Selenium2Driver) {
-            return;
-        }
-
-        $slugElement = $this->getElement('slug');
-        if ($slugElement->hasAttribute('readonly')) {
-            return;
-        }
-
-        $value = $slugElement->getValue();
-        $this->getDocument()->waitFor(10, function () use ($slugElement, $value) {
-            return $value !== $slugElement->getValue();
-        });
+        return $typeInput->getParent()->getParent()->getParent();
     }
 }

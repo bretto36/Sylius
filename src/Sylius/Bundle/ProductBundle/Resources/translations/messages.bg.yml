@@ -5,8 +5,8 @@ sylius:
     form:
         product:
             options: Опцйи
-        product_variant:
-            available_on: На разположение на
+        association_type:
+            translations: Преводи
         option:
             values: Възможни стойности
         option_value:

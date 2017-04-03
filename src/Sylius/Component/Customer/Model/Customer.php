@@ -76,6 +76,14 @@ class Customer implements CustomerInterface
     }
 
     /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->getEmail();
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function getId()
@@ -214,7 +222,7 @@ class Customer implements CustomerInterface
     /**
      * {@inheritdoc}
      */
-    public function setGroup(CustomerGroupInterface $group)
+    public function setGroup(CustomerGroupInterface $group = null)
     {
         $this->group = $group;
     }
@@ -249,10 +257,5 @@ class Customer implements CustomerInterface
     public function setSubscribedToNewsletter($subscribedToNewsletter)
     {
         $this->subscribedToNewsletter = $subscribedToNewsletter;
-    }
-
-    public function __toString()
-    {
-        return $this->getEmail();
     }
 }

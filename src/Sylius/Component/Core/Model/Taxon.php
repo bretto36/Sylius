@@ -25,11 +25,6 @@ class Taxon extends BaseTaxon implements TaxonInterface
     use TimestampableTrait;
 
     /**
-     * @var Collection|ProductInterface
-     */
-    protected $products;
-
-    /**
      * @var Collection|ImageInterface[]
      */
     protected $images;
@@ -54,15 +49,11 @@ class Taxon extends BaseTaxon implements TaxonInterface
     /**
      * {@inheritdoc}
      */
-    public function getImageByCode($code)
+    public function getImagesByType($type)
     {
-        foreach ($this->images as $image) {
-            if ($code === $image->getCode()) {
-                return $image;
-            }
-        }
-
-        return null;
+        return $this->images->filter(function (ImageInterface $image) use ($type) {
+            return $type === $image->getType();
+        });
     }
 
     /**
@@ -99,22 +90,6 @@ class Taxon extends BaseTaxon implements TaxonInterface
             $image->setOwner(null);
             $this->images->removeElement($image);
         }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getProducts()
-    {
-        return $this->products;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setProducts($products)
-    {
-        $this->products = $products;
     }
 
     /**

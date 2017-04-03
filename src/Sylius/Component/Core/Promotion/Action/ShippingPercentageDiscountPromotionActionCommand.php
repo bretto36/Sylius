@@ -49,11 +49,21 @@ final class ShippingPercentageDiscountPromotionActionCommand implements Promotio
             throw new UnexpectedTypeException($subject, OrderInterface::class);
         }
 
-        $adjustment = $this->createAdjustment($promotion);
-        $adjustmentAmount = (int) round($subject->getAdjustmentsTotal(AdjustmentInterface::SHIPPING_ADJUSTMENT) * $configuration['percentage']);
-        $adjustment->setAmount(-$adjustmentAmount);
+        if (!isset($configuration['percentage'])) {
+            return false;
+        }
 
+        $adjustment = $this->createAdjustment($promotion);
+
+        $adjustmentAmount = (int) round($subject->getAdjustmentsTotal(AdjustmentInterface::SHIPPING_ADJUSTMENT) * $configuration['percentage']);
+        if (0 === $adjustmentAmount) {
+            return false;
+        }
+
+        $adjustment->setAmount(-$adjustmentAmount);
         $subject->addAdjustment($adjustment);
+
+        return true;
     }
 
     /**
@@ -73,14 +83,6 @@ final class ShippingPercentageDiscountPromotionActionCommand implements Promotio
                 $subject->removeAdjustment($adjustment);
             }
         }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfigurationFormType()
-    {
-        return 'sylius_promotion_action_percentage_discount_configuration';
     }
 
     /**

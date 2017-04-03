@@ -19,26 +19,26 @@ sylius:
         promotion_action:
             add_product_configuration:
                 product: สินค้า
-            customer_group: กลุ่มลูกค้า
         promotion_coupon:
             per_customer_usage_limit: จำกัดการใช้งานสำหรับลูกค้าแต่ละคน
         group:
             name: ชื่อ
             roles: Roles
         channel:
-            taxonomies: การจัดประเภท
+            contact_email: ติดต่ออีเมล์
+            currencies: สกุลเงิน
+            currency_base: ฐานสกุลเงิน
+            hostname: Hostname
             locale_default: ตำแหน่งที่ตั้งเริ่มต้น
             locales: ภาษาที่ใช้
-            currency_default: สกุลเงินหลัก
-            currencies: สกุลเงิน
-            shipping_methods: วิธีการจัดส่ง
             payment_methods: วิธีการชำระเงิน
+            shipping_methods: วิธีการจัดส่ง
             tax_calculation_strategy: กลยุทธ์การคำนวณภาษี
             tax_zone_default: เขตภาษีเริ่มต้น
+            taxonomies: การจัดประเภท
             theme: ธีม
-            hostname: Hostname
         image:
-            code: รหัส
+            type: ชนิด
             file: รูปภาพ
         locale:
             code: รหัส
@@ -58,7 +58,6 @@ sylius:
         product:
             images: ภาพ
             restricted_zone: จำกัดโซน
-            shipping_category: ประเภทการจัดส่ง
             short_description: คำอธิบายโดยย่อ
             variant_selection_method: วิธีการเลือกตัวแปร
             main_taxon: หมวดหมู่หลัก
@@ -69,6 +68,7 @@ sylius:
             code: รหัส
         product_variant:
             tax_category: ประเภทภาษี
+            shipping_category: ประเภทการจัดส่ง
         shipment_filter:
             created_at_from: จาก
             created_at_to: ถึง
@@ -106,7 +106,6 @@ sylius:
             height: ความสูง
             on_hand: จำนวนสินค้าปัจจุบัน
             price: ราคา
-            original_price: ราคาทุน
             sku: SKU
             weight: น้ำหนัก
             width: ความกว้าง
@@ -121,17 +120,27 @@ sylius:
             type: ชนิดสินค้าที่เกี่ยวข้อง
         product_association_type:
             name: ชื่อ
+        promotion_filter:
+            products: ตัวกรองสินค้า
+            taxons: ตัวกรอง taxons
         promotion_rule:
-            contains_taxon:
-                taxon: หมวดหมู่
-                count: จำนวน
-            taxon:
+            customer_group:
+                group: กลุ่มลูกค้า
+            has_taxon:
                 taxons: การจัดหมวดหมู่
             product:
                 products: สินค้า
             total_of_items_from_taxon:
                 taxon: หมวดหมู่
                 amount: ยอดเงิน
+        payment_method:
+            channels: ช่องทางจำหน่าย
+        product_attribute:
+            position: ตำแหน่ง
+        zone:
+            scopes:
+                shipping: จัดส่ง
+                tax: ภาษี
     installer:
         extensions:
             header: ส่วนขยาย
@@ -191,25 +200,6 @@ sylius:
                 help: 'Timezone %timezone% is deprecated. Fix your php.ini file (list of deprecated timezones http://php.net/manual/en/timezones.others.php).'
             version: PHP เวอร์ชัน
             version_recommended: PHP เวอร์ชันที่แนะนำ
-    email:
-        order_confirmation:
-            name: รายละเอียดใบสั่งซื้อ
-            content: ได้รับหมายเลขใบสั่งซื้อของคุณ %number% เรียบร้อยแล้ว <br/> <br/> ขอบคุณสำหรับการช้อปปิ้งที่ร้านของเรา
-        order_comment:
-            name: ความเห็นเกี่ยวกับการสั่งซื้อ
-        shipment_confirmation:
-            name: รายละเอียดการจัดส่ง
-            content: หมายเลขใบสั่งของคุณ %number% ถูกจัดส่งด้วย %method% <br/> คุณสามารถตรวจสอบสถานะการจัดส่งโดยใช้รหัสติดตามการจัดส่งนี้ "%tracking%" <br/> <br/> ขอบคุณที่ใช้บริการ
-        user_confirmation:
-            name: ยืนยันการสั่งซื้อ
-            subject: ยินดีต้อนรับสู่ร้านของเรา
-            content: ยินดีต้อนรับสู่ร้าน <br/> <br/> คุณได้ทำการลงทะเบียนสำเร็จแล้ว <br/> ขอบคุณ %username%
-        password_reset:
-            name: ตั้งรหัสผ่านใหม่
-            content: <h3>สวัสดี %username%</h3> รีเซ็ตรหัสผ่าน - กดลิ้งค์ %url% <br/> <br/> ขอแสดงความนับถือ
-        verification:
-            name: ยืนยันอีเมล
-            content: ยืนยันอีเมลของคุณ - กดลิ้งค์ %url%
     payum_gateway:
         cash_on_delivery: ชำระด้วยเงินสด
         offline: ออฟไลน์

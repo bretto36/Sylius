@@ -11,8 +11,6 @@
 
 namespace Sylius\Behat\Page\Admin\PaymentMethod;
 
-use Behat\Mink\Element\NodeElement;
-use Behat\Mink\Exception\ElementNotFoundException;
 use Sylius\Behat\Behaviour\ChecksCodeImmutability;
 use Sylius\Behat\Behaviour\SpecifiesItsCode;
 use Sylius\Behat\Behaviour\Toggles;
@@ -40,9 +38,9 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
     /**
      * {@inheritdoc}
      */
-    public function chooseGateway($gateway)
+    public function checkChannel($channelName)
     {
-        $this->getElement('gateway')->selectOption($gateway);
+        $this->getDocument()->checkField($channelName);
     }
 
     /**
@@ -63,6 +61,46 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
         $this->getDocument()->fillField(
             sprintf('sylius_payment_method_translations_%s_instructions', $languageCode), $instructions
         );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setPaypalGatewayUsername($username)
+    {
+        $this->getDocument()->fillField('Username', $username);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setPaypalGatewayPassword($password)
+    {
+        $this->getDocument()->fillField('Password', $password);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setPaypalGatewaySignature($signature)
+    {
+        $this->getDocument()->fillField('Signature', $signature);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setStripeSecretKey($secretKey)
+    {
+        $this->getDocument()->fillField('Secret key', $secretKey);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setStripePublishableKey($publishableKey)
+    {
+        $this->getDocument()->fillField('Publishable key', $publishableKey);
     }
 
     /**
@@ -97,8 +135,9 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
         return array_merge(parent::getDefinedElements(), [
             'code' => '#sylius_payment_method_code',
             'enabled' => '#sylius_payment_method_enabled',
-            'gateway' => '#sylius_payment_method_gateway',
+            'gateway_name' => '#sylius_payment_method_gatewayConfig_gatewayName',
             'name' => '#sylius_payment_method_translations_en_US_name',
+            'paypal_password' => '#sylius_payment_method_gatewayConfig_config_password',
         ]);
     }
 }

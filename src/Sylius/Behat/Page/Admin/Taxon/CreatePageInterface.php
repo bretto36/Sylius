@@ -21,9 +21,6 @@ use Sylius\Component\Core\Model\TaxonInterface;
  */
 interface CreatePageInterface extends BaseCreatePageInterface
 {
-    const MOVE_DIRECTION_UP = 'up';
-    const MOVE_DIRECTION_DOWN = 'down';
-
     /**
      * @return int
      */
@@ -48,11 +45,6 @@ interface CreatePageInterface extends BaseCreatePageInterface
     public function describeItAs($description, $languageCode);
 
     /**
-     * @param TaxonInterface $taxon
-     */
-    public function chooseParent(TaxonInterface $taxon);
-
-    /**
      * @param string $name
      *
      * @return bool
@@ -72,37 +64,15 @@ interface CreatePageInterface extends BaseCreatePageInterface
 
     /**
      * @param string $slug
+     * @param string $languageCode
      */
-    public function specifySlug($slug);
+    public function specifySlug($slug, $languageCode);
 
     /**
      * @param string $path
-     * @param string $code
+     * @param string $type
      */
-    public function attachImage($path, $code = null);
-
-    /**
-     * @param TaxonInterface $taxon
-     */
-    public function moveUp(TaxonInterface $taxon);
-
-    /**
-     * @param TaxonInterface $taxon
-     */
-    public function moveDown(TaxonInterface $taxon);
-
-    /**
-     * @param TaxonInterface|null $parentTaxon
-     *
-     * @return string
-     */
-    public function getFirstLeafName(TaxonInterface $parentTaxon = null);
-
-    /**
-     * @param TaxonInterface $draggableTaxon
-     * @param TaxonInterface $targetTaxon
-     */
-    public function insertBefore(TaxonInterface $draggableTaxon, TaxonInterface $targetTaxon);
+    public function attachImage($path, $type = null);
 
     /**
      * @param TaxonInterface|null $parentTaxon
@@ -112,4 +82,9 @@ interface CreatePageInterface extends BaseCreatePageInterface
      * @throws ElementNotFoundException
      */
     public function getLeaves(TaxonInterface $parentTaxon = null);
+
+    /**
+     * @param string $locale
+     */
+    public function activateLanguageTab($locale);
 }

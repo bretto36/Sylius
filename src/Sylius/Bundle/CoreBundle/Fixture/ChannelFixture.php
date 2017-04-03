@@ -16,7 +16,7 @@ use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 /**
  * @author Kamil Kokot <kamil.kokot@lakion.com>
  */
-final class ChannelFixture extends AbstractResourceFixture
+class ChannelFixture extends AbstractResourceFixture
 {
     /**
      * {@inheritdoc}
@@ -37,15 +37,17 @@ final class ChannelFixture extends AbstractResourceFixture
                 ->scalarNode('code')->cannotBeEmpty()->end()
                 ->scalarNode('hostname')->cannotBeEmpty()->end()
                 ->scalarNode('color')->cannotBeEmpty()->end()
+                ->scalarNode('default_tax_zone')->end()
                 ->scalarNode('tax_calculation_strategy')->end()
                 ->booleanNode('enabled')->end()
+                ->booleanNode('skipping_shipping_step_allowed')->end()
+                ->booleanNode('skipping_payment_step_allowed')->end()
                 ->scalarNode('default_locale')->cannotBeEmpty()->end()
                 ->arrayNode('locales')->prototype('scalar')->end()->end()
-                ->scalarNode('default_currency')->cannotBeEmpty()->end()
+                ->scalarNode('base_currency')->cannotBeEmpty()->end()
                 ->arrayNode('currencies')->prototype('scalar')->end()->end()
-                ->arrayNode('payment_methods')->prototype('scalar')->end()->end()
-                ->arrayNode('shipping_methods')->prototype('scalar')->end()->end()
                 ->scalarNode('theme_name')->end()
+                ->scalarNode('contact_email')->end()
         ;
     }
 }

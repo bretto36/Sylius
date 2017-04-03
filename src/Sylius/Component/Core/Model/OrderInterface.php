@@ -131,16 +131,6 @@ interface OrderInterface extends
     public function setCurrencyCode($currencyCode);
 
     /**
-     * @return float
-     */
-    public function getExchangeRate();
-
-    /**
-     * @param float $exchangeRate
-     */
-    public function setExchangeRate($exchangeRate);
-
-    /**
      * @return string
      *
      * @throws \InvalidArgumentException
@@ -168,14 +158,11 @@ interface OrderInterface extends
     public function setShippingState($state);
 
     /**
-     * @return ShipmentInterface
+     * @param string|null $state
+     *
+     * @return PaymentInterface|null
      */
-    public function getLastShipment();
-
-    /**
-     * @return null|PaymentInterface
-     */
-    public function getLastNewPayment();
+    public function getLastPayment($state = null);
 
     /**
      * @return int
@@ -193,6 +180,11 @@ interface OrderInterface extends
     public function getOrderPromotionTotal();
 
     /**
+     * @return string
+     */
+    public function getTokenValue();
+
+    /**
      * @param string $tokenValue
      */
     public function setTokenValue($tokenValue);
@@ -200,5 +192,10 @@ interface OrderInterface extends
     /**
      * @return string
      */
-    public function getTokenValue();
+    public function getCustomerIp();
+
+    /**
+     * @param string $customerIp
+     */
+    public function setCustomerIp($customerIp);
 }

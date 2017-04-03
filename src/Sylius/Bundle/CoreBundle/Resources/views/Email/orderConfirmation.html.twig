@@ -1,9 +1,0 @@
-{% block subject %}
-    {{ 'sylius.email.order_confirmation.name'|trans }}
-{% endblock %}
-
-{% block body %}
-    {% autoescape %}
-        {{ 'sylius.email.order_confirmation.content'|trans({'%number%': order.number }) }}
-    {% endautoescape %}
-{% endblock %}

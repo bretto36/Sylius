@@ -12,7 +12,9 @@
 namespace Sylius\Bundle\PromotionBundle\Form\Type\Action;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\PercentType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Range;
 use Symfony\Component\Validator\Constraints\Type;
@@ -21,7 +23,7 @@ use Symfony\Component\Validator\Constraints\Type;
  * @author Saša Stamenković <umpirsky@gmail.com>
  * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
  */
-class PercentageDiscountConfigurationType extends AbstractType
+final class PercentageDiscountConfigurationType extends AbstractType
 {
     /**
      * {@inheritdoc}
@@ -29,16 +31,17 @@ class PercentageDiscountConfigurationType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('percentage', 'percent', [
+            ->add('percentage', PercentType::class, [
                 'label' => 'sylius.form.promotion_action.percentage_discount_configuration.percentage',
                 'constraints' => [
-                    new NotBlank(),
-                    new Type(['type' => 'numeric']),
+                    new NotBlank(['groups' => ['sylius']]),
+                    new Type(['type' => 'numeric', 'groups' => ['sylius']]),
                     new Range([
                         'min' => 0,
                         'max' => 1,
                         'minMessage' => 'sylius.promotion_action.percentage_discount_configuration.min',
                         'maxMessage' => 'sylius.promotion_action.percentage_discount_configuration.max',
+                        'groups' => ['sylius'],
                     ]),
                 ],
             ])
@@ -48,7 +51,7 @@ class PercentageDiscountConfigurationType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'sylius_promotion_action_percentage_discount_configuration';
     }

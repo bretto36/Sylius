@@ -25,7 +25,7 @@ interface SelectPaymentPageInterface extends SymfonyPageInterface
     
     /**
      * @param string $paymentMethodName
-     * 
+     *
      * @return bool
      */
     public function hasPaymentMethod($paymentMethodName);
@@ -54,4 +54,9 @@ interface SelectPaymentPageInterface extends SymfonyPageInterface
      * @return bool
      */
     public function isNextStepButtonUnavailable();
+
+    /**
+     * @return string[]
+     */
+    public function getPaymentMethods();
 }

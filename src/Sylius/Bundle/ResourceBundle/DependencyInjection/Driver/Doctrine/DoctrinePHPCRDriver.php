@@ -177,45 +177,7 @@ final class DoctrinePHPCRDriver extends AbstractDoctrineDriver
             $this->getClassMetadataDefinition($metadata),
         ]);
 
-        if ($metadata->hasParameter('translation')) {
-            $translationConfig = $metadata->getParameter('translation');
-
-            if (in_array(TranslatableRepositoryInterface::class, class_implements($repositoryClass))) {
-                if (isset($translationConfig['fields'])) {
-                    $definition->addMethodCall('setTranslatableFields', [$translationConfig['fields']]);
-                }
-            }
-        }
-
         $container->setDefinition($metadata->getServiceId('repository'), $definition);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function addDefaultForm(ContainerBuilder $container, MetadataInterface $metadata)
-    {
-        $builderDefinition = new Definition(DefaultFormBuilder::class);
-        $builderDefinition->setArguments([
-            new Reference($metadata->getServiceId('manager'))
-        ]);
-
-        $definition = new Definition(DefaultResourceType::class);
-        $definition
-            ->setArguments([
-                $this->getMetadataDefinition($metadata),
-                $builderDefinition,
-            ])
-            ->addTag('form.type', [
-                'alias' => sprintf('%s_%s', $metadata->getApplicationName(), $metadata->getName())
-            ])
-        ;
-
-        $container->setDefinition(sprintf(
-            '%s.form.type.%s',
-            $metadata->getApplicationName(),
-            $metadata->getName()
-        ), $definition);
     }
 
     /**

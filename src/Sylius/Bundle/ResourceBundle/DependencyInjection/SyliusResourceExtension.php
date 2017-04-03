@@ -31,7 +31,7 @@ final class SyliusResourceExtension extends Extension
      */
     public function load(array $config, ContainerBuilder $container)
     {
-        $config = $this->processConfiguration($this->getConfiguration($config, $container), $config);
+        $config = $this->processConfiguration($this->getConfiguration([], $container), $config);
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 
         $loader->load('services.xml');
@@ -44,8 +44,7 @@ final class SyliusResourceExtension extends Extension
         if ($config['translation']['enabled']) {
             $loader->load('services/integrations/translation.xml');
 
-            $container->setAlias('sylius_resource.translation.locale_provider', $config['translation']['locale_provider']);
-            $container->setAlias('sylius_resource.translation.locale_context', $config['translation']['locale_context']);
+            $container->setAlias('sylius.translation_locale_provider', $config['translation']['locale_provider']);
         }
 
         $container->setParameter('sylius.resource.settings', $config['settings']);

@@ -19,25 +19,25 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * @author Kamil Kokot <kamil.kokot@lakion.com>
  */
-final class TshirtProductFixture extends AbstractFixture
+class TshirtProductFixture extends AbstractFixture
 {
     /**
-     * @var TaxonFixture
+     * @var AbstractResourceFixture
      */
     private $taxonFixture;
 
     /**
-     * @var ProductAttributeFixture
+     * @var AbstractResourceFixture
      */
     private $productAttributeFixture;
 
     /**
-     * @var ProductOptionFixture
+     * @var AbstractResourceFixture
      */
     private $productOptionFixture;
 
     /**
-     * @var ProductFixture
+     * @var AbstractResourceFixture
      */
     private $productFixture;
 
@@ -52,16 +52,16 @@ final class TshirtProductFixture extends AbstractFixture
     private $optionsResolver;
 
     /**
-     * @param TaxonFixture $taxonFixture
-     * @param ProductAttributeFixture $productAttributeFixture
-     * @param ProductOptionFixture $productOptionFixture
-     * @param ProductFixture $productFixture
+     * @param AbstractResourceFixture $taxonFixture
+     * @param AbstractResourceFixture $productAttributeFixture
+     * @param AbstractResourceFixture $productOptionFixture
+     * @param AbstractResourceFixture $productFixture
      */
     public function __construct(
-        TaxonFixture $taxonFixture,
-        ProductAttributeFixture $productAttributeFixture,
-        ProductOptionFixture $productOptionFixture,
-        ProductFixture $productFixture
+        AbstractResourceFixture $taxonFixture,
+        AbstractResourceFixture $productAttributeFixture,
+        AbstractResourceFixture $productOptionFixture,
+        AbstractResourceFixture $productFixture
     ) {
         $this->taxonFixture = $taxonFixture;
         $this->productAttributeFixture = $productAttributeFixture;
@@ -98,14 +98,17 @@ final class TshirtProductFixture extends AbstractFixture
                 [
                     'code' => 't_shirts',
                     'name' => 'T-Shirts',
+                    'slug' => 't-shirts',
                     'children' => [
                         [
                             'code' => 'mens_t_shirts',
                             'name' => 'Men',
+                            'slug' => 't-shirts/men',
                         ],
                         [
                             'code' => 'womens_t_shirts',
                             'name' => 'Women',
+                            'slug' => 't-shirts/women',
                         ],
                     ],
                 ],
@@ -150,7 +153,7 @@ final class TshirtProductFixture extends AbstractFixture
                 'name' => sprintf('T-Shirt "%s"', $productsNames[$i]),
                 'code' => $this->faker->uuid,
                 'main_taxon' => $categoryTaxonCode,
-                'taxons' => [$categoryTaxonCode],
+                'taxons' => ['t_shirts', $categoryTaxonCode],
                 'product_attributes' => [
                     't_shirt_brand' => $this->faker->randomElement(['Nike', 'Adidas', 'JKM-476 Streetwear', 'Potato', 'Centipede Wear']),
                     't_shirt_collection' => sprintf('Sylius %s %s', $this->faker->randomElement(['Summer', 'Winter', 'Spring', 'Autumn']), mt_rand(1995, 2012)),
@@ -158,8 +161,8 @@ final class TshirtProductFixture extends AbstractFixture
                 ],
                 'product_options' => ['t_shirt_color', 't_shirt_size'],
                 'images' => [
-                    'main' => sprintf('%s/../Resources/fixtures/%s', __DIR__, 't-shirts.jpg'),
-                    'thumbnail' => sprintf('%s/../Resources/fixtures/%s', __DIR__, 't-shirts.jpg'),
+                    [sprintf('%s/../Resources/fixtures/%s', __DIR__, 't-shirts.jpg'), 'main'],
+                    [sprintf('%s/../Resources/fixtures/%s', __DIR__, 't-shirts.jpg'), 'thumbnail'],
                 ],
             ];
         }

@@ -26,6 +26,8 @@ sylius:
         promotion_rule:
             cart_quantity_configuration:
                 count: Număr
+            contains_product_configuration:
+                variants: Produse
             item_total_configuration:
                 amount: Sumă
             shipping_country_configuration:

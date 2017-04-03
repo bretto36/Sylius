@@ -12,8 +12,6 @@
 namespace Sylius\Bundle\OrderBundle\Doctrine\ORM;
 
 use Sylius\Bundle\ResourceBundle\Doctrine\ORM\EntityRepository;
-use Sylius\Component\Core\OrderCheckoutStates;
-use Sylius\Component\Core\OrderPaymentStates;
 use Sylius\Component\Order\Model\OrderInterface;
 use Sylius\Component\Order\Repository\OrderRepositoryInterface;
 
@@ -27,11 +25,10 @@ class OrderRepository extends EntityRepository implements OrderRepositoryInterfa
      */
     public function count()
     {
-        $queryBuilder = $this->createQueryBuilder('o');
-
-        return (int) $queryBuilder
+        return (int) $this->createQueryBuilder('o')
             ->select('COUNT(o.id)')
-            ->andWhere($queryBuilder->expr()->isNotNull('o.checkoutCompletedAt'))
+            ->andWhere('o.state != :state')
+            ->setParameter('state', OrderInterface::STATE_CART)
             ->getQuery()
             ->getSingleScalarResult()
         ;
@@ -40,15 +37,15 @@ class OrderRepository extends EntityRepository implements OrderRepositoryInterfa
     /**
      * {@inheritdoc}
      */
-    public function getTotalSales()
+    public function createCartQueryBuilder()
     {
-        $queryBuilder = $this->createQueryBuilder('o');
-
-        return (int) $queryBuilder
-            ->select('SUM(o.total)')
-            ->andWhere($queryBuilder->expr()->isNotNull('o.checkoutCompletedAt'))
-            ->getQuery()
-            ->getSingleScalarResult()
+        return $this->createQueryBuilder('o')
+            ->addSelect('channel')
+            ->addSelect('customer')
+            ->innerJoin('o.channel', 'channel')
+            ->leftJoin('o.customer', 'customer')
+            ->andWhere('o.state = :state')
+            ->setParameter('state', OrderInterface::STATE_CART)
         ;
     }
 
@@ -57,15 +54,11 @@ class OrderRepository extends EntityRepository implements OrderRepositoryInterfa
      */
     public function findLatest($count)
     {
-        $queryBuilder = $this->createQueryBuilder('o');
-
-        return $queryBuilder
-            ->addSelect('item')
-            ->leftJoin('o.items', 'item')
+        return $this->createQueryBuilder('o')
             ->andWhere('o.state != :state')
-            ->setMaxResults($count)
-            ->orderBy('o.checkoutCompletedAt', 'desc')
             ->setParameter('state', OrderInterface::STATE_CART)
+            ->addOrderBy('o.checkoutCompletedAt', 'DESC')
+            ->setMaxResults($count)
             ->getQuery()
             ->getResult()
         ;
@@ -76,23 +69,38 @@ class OrderRepository extends EntityRepository implements OrderRepositoryInterfa
      */
     public function findOneByNumber($number)
     {
-        $queryBuilder = $this->createQueryBuilder('o');
-
-        return $queryBuilder
-            ->andWhere($queryBuilder->expr()->isNotNull('o.checkoutCompletedAt'))
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.state != :state')
             ->andWhere('o.number = :number')
+            ->setParameter('state', OrderInterface::STATE_CART)
             ->setParameter('number', $number)
             ->getQuery()
             ->getOneOrNullResult()
         ;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findOneByTokenValue($tokenValue)
+    {
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.state != :state')
+            ->andWhere('o.tokenValue = :tokenValue')
+            ->setParameter('state', OrderInterface::STATE_CART)
+            ->setParameter('tokenValue', $tokenValue)
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+
     /**
      * {@inheritdoc}
      */
     public function findCartById($id)
     {
         return $this->createQueryBuilder('o')
-            ->where('o.id = :id')
+            ->andWhere('o.id = :id')
             ->andWhere('o.state = :state')
             ->setParameter('state', OrderInterface::STATE_CART)
             ->setParameter('id', $id)
@@ -107,28 +115,9 @@ class OrderRepository extends EntityRepository implements OrderRepositoryInterfa
     public function findCartsNotModifiedSince(\DateTime $terminalDate)
     {
         return $this->createQueryBuilder('o')
-            ->where('o.state = :state')
+            ->andWhere('o.state = :state')
             ->andWhere('o.updatedAt < :terminalDate')
             ->setParameter('state', OrderInterface::STATE_CART)
-            ->setParameter('terminalDate', $terminalDate)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function findOrdersUnpaidSince(\DateTime $terminalDate)
-    {
-        return $this->createQueryBuilder('o')
-            ->where('o.checkoutState = :checkoutState')
-            ->andWhere('o.paymentState != :paymentState')
-            ->andWhere('o.state = :orderState')
-            ->andWhere('o.checkoutCompletedAt < :terminalDate')
-            ->setParameter('checkoutState', OrderCheckoutStates::STATE_COMPLETED)
-            ->setParameter('paymentState', OrderPaymentStates::STATE_PAID)
-            ->setParameter('orderState', OrderInterface::STATE_NEW)
             ->setParameter('terminalDate', $terminalDate)
             ->getQuery()
             ->getResult()

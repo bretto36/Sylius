@@ -13,8 +13,8 @@ namespace Sylius\Behat\Page\Shop\Product;
 
 use Behat\Mink\Exception\ElementNotFoundException;
 use Sylius\Behat\Page\PageInterface;
-use Sylius\Component\Product\Model\ProductOptionInterface;
 use Sylius\Component\Product\Model\ProductInterface;
+use Sylius\Component\Product\Model\ProductOptionInterface;
 
 /**
  * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
@@ -55,17 +55,26 @@ interface ShowPageInterface extends PageInterface
     public function getName();
 
     /**
+     * @return string
+     */
+    public function getCurrentVariantName();
+
+    /**
      * @param string $url
      */
     public function visit($url);
 
     /**
      * @param string $attributeName
-     * @param string $AttributeValue
      *
-     * @return bool
+     * @return string
      */
-    public function hasAttributeWithValue($attributeName, $AttributeValue);
+    public function getAttributeByName($attributeName);
+
+    /**
+     * @return array
+     */
+    public function getAttributes();
 
     /**
      * @param ProductInterface $product

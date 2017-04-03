@@ -12,12 +12,12 @@ Provides output while running ``sylius:fixtures:load`` command.
 
     # Without logger
 
-    $ app/console sylius:fixtures:load my_suite
+    $ bin/console sylius:fixtures:load my_suite
     $ _
 
     # With logger
 
-    $ app/console sylius:fixtures:load my_suite
+    $ bin/console sylius:fixtures:load my_suite
     Running suite "my_suite"...
     Running fixture "country"...
     Running fixture "locale"...
@@ -43,6 +43,7 @@ Configuration options:
 
     - ``purge_mode`` - sets how database is purged, available values: ``delete`` (default), ``truncate``
     - ``managers`` - an array of entity managers' names used to purge the database, ``[null]`` by default
+    - ``exclude`` - an array of table/view names to be excluded from purge, ``[]`` by default
 
 Example configuration:
 
@@ -53,9 +54,12 @@ Example configuration:
             my_suite:
                 listeners:
                     orm_purger:
-                        purge_mode: truncate
-                        managers:
-                            - custom_manager
+                        options:
+                            purge_mode: truncate
+                            managers:
+                                - custom_manager
+                            exclude:
+                                - custom_entity_table_name
 
 PHPCR / MongoDB Purger (``phpcr_purger`` / ``mongodb_purger``)
 --------------------------------------------------------------
@@ -75,6 +79,7 @@ Example configuration:
             my_suite:
                 listeners:
                     phpcr_purger:
-                        managers:
-                            - custom_manager # Uses custom document manager
+                        options:
+                            managers:
+                                - custom_manager # Uses custom document manager
                     mongodb_purger: ~ # Uses default document manager

@@ -55,6 +55,11 @@ interface SelectShippingPageInterface extends SymfonyPageInterface
     public function changeAddressByStepLabel();
 
     /**
+     * @return mixed string
+     */
+    public function getPurchaserEmail();
+
+    /**
      * @return string
      */
     public function getValidationMessageForShipment();
@@ -68,4 +73,11 @@ interface SelectShippingPageInterface extends SymfonyPageInterface
      * @return bool
      */
     public function isNextStepButtonUnavailable();
+
+    /**
+     * @param string $shippingMethodName
+     *
+     * @return bool
+     */
+    public function hasShippingMethod($shippingMethodName);
 }

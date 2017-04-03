@@ -14,6 +14,7 @@ namespace spec\Sylius\Component\Core\Promotion\Filter;
 use PhpSpec\ObjectBehavior;
 use Sylius\Component\Core\Model\OrderItemInterface;
 use Sylius\Component\Core\Model\ProductInterface;
+use Sylius\Component\Core\Model\ProductTaxonInterface;
 use Sylius\Component\Core\Model\TaxonInterface;
 use Sylius\Component\Core\Promotion\Filter\FilterInterface;
 use Sylius\Component\Core\Promotion\Filter\TaxonFilter;
@@ -55,5 +56,10 @@ final class TaxonFilterSpec extends ObjectBehavior
     function it_returns_all_items_if_configuration_is_invalid(OrderItemInterface $item)
     {
         $this->filter([$item], [])->shouldReturn([$item]);
+    }
+
+    function it_returns_all_items_if_configuration_is_empty(OrderItemInterface $item)
+    {
+        $this->filter([$item], ['filters' => ['taxons_filter' => ['taxons' => []]]])->shouldReturn([$item]);
     }
 }

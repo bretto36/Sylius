@@ -13,10 +13,7 @@ namespace Sylius\Bundle\CustomerBundle\DependencyInjection;
 
 use Sylius\Bundle\CustomerBundle\Form\Type\CustomerGroupType;
 use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
-use Sylius\Bundle\ResourceBundle\Form\Type\ResourceChoiceType;
 use Sylius\Bundle\ResourceBundle\SyliusResourceBundle;
-use Sylius\Bundle\ResourceBundle\Form\Type\ResourceFromIdentifierType;
-use Sylius\Bundle\CustomerBundle\Form\Type\CustomerProfileType;
 use Sylius\Bundle\CustomerBundle\Form\Type\CustomerType;
 use Sylius\Component\Customer\Model\CustomerGroup;
 use Sylius\Component\Resource\Factory\Factory;
@@ -31,7 +28,7 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
  * @author Bartosz Siejka <bartosz.siejka@lakion.com>
  * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
  */
-class Configuration implements ConfigurationInterface
+final class Configuration implements ConfigurationInterface
 {
     /**
      * {@inheritdoc}
@@ -74,27 +71,7 @@ class Configuration implements ConfigurationInterface
                                         ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
                                         ->scalarNode('repository')->cannotBeEmpty()->end()
                                         ->scalarNode('factory')->defaultValue(Factory::class)->end()
-                                        ->arrayNode('form')
-                                            ->addDefaultsIfNotSet()
-                                            ->children()
-                                                ->scalarNode('default')->defaultValue(CustomerType::class)->cannotBeEmpty()->end()
-                                                ->scalarNode('profile')->defaultValue(CustomerProfileType::class)->cannotBeEmpty()->end()
-                                                ->scalarNode('choice')->defaultValue(ResourceChoiceType::class)->cannotBeEmpty()->end()
-                                            ->end()
-                                        ->end()
-                                    ->end()
-                                ->end()
-                                ->arrayNode('validation_groups')
-                                    ->addDefaultsIfNotSet()
-                                    ->children()
-                                        ->arrayNode('default')
-                                            ->prototype('scalar')->end()
-                                            ->defaultValue(['sylius'])
-                                        ->end()
-                                        ->arrayNode('profile')
-                                            ->prototype('scalar')->end()
-                                            ->defaultValue(['sylius', 'sylius_customer_profile'])
-                                        ->end()
+                                        ->scalarNode('form')->defaultValue(CustomerType::class)->cannotBeEmpty()->end()
                                     ->end()
                                 ->end()
                             ->end()
@@ -111,27 +88,7 @@ class Configuration implements ConfigurationInterface
                                         ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
                                         ->scalarNode('repository')->cannotBeEmpty()->end()
                                         ->scalarNode('factory')->defaultValue(Factory::class)->end()
-                                        ->arrayNode('form')
-                                            ->addDefaultsIfNotSet()
-                                            ->children()
-                                                ->scalarNode('default')->defaultValue(CustomerGroupType::class)->cannotBeEmpty()->end()
-                                                ->scalarNode('choice')->defaultValue(ResourceChoiceType::class)->cannotBeEmpty()->end()
-                                                ->scalarNode('from_identifier')->defaultValue(ResourceFromIdentifierType::class)->cannotBeEmpty()->end()
-                                            ->end()
-                                        ->end()
-                                    ->end()
-                                ->end()
-                                ->arrayNode('validation_groups')
-                                    ->addDefaultsIfNotSet()
-                                    ->children()
-                                        ->arrayNode('default')
-                                            ->prototype('scalar')->end()
-                                            ->defaultValue(['sylius'])
-                                        ->end()
-                                        ->arrayNode('from_identifier')
-                                            ->prototype('scalar')->end()
-                                            ->defaultValue(['sylius'])
-                                        ->end()
+                                        ->scalarNode('form')->defaultValue(CustomerGroupType::class)->cannotBeEmpty()->end()
                                     ->end()
                                 ->end()
                             ->end()

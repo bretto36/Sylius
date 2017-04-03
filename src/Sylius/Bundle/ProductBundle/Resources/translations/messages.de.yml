@@ -10,12 +10,13 @@ sylius:
             options: Optionen
             meta_keywords: Metastichwörter
             meta_description: Metabeschreibung
-            taxons: Klassifizierungen
+            slug: Produkt SEO-URL
+            taxons: Produktgruppen
         product_variant:
-            available_on: Verfügbar ab
-            available_until: Verfügbar bis
+            name: Name
         association_type:
             name: Name
+            translations: Übersetzungen
         association:
             type: Verbindungs-Typ
             product: Zugehöriges Produkt
@@ -23,6 +24,7 @@ sylius:
             name: Name
         option:
             name: Name
+            position: Position
             values: Mögliche Werte
         option_value:
             add_value: Wert hinzufügen

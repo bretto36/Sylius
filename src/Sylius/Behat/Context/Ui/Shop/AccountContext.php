@@ -84,7 +84,7 @@ final class AccountContext implements Context
     }
 
     /**
-     * @Given I want to modify my profile
+     * @When I want to modify my profile
      */
     public function iWantToModifyMyProfile()
     {
@@ -110,10 +110,10 @@ final class AccountContext implements Context
     }
 
     /**
-     * @When I specify the email as :email
-     * @When I remove the email
+     * @When I specify the customer email as :email
+     * @When I remove the customer email
      */
-    public function iSpecifyTheEmail($email = null)
+    public function iSpecifyCustomerTheEmail($email = null)
     {
         $this->profileUpdatePage->specifyEmail($email);
     }
@@ -143,10 +143,7 @@ final class AccountContext implements Context
     {
         $this->dashboardPage->open();
 
-        Assert::true(
-            $this->dashboardPage->hasCustomerName($name),
-            sprintf('Cannot find customer name "%s".', $name)
-        );
+        Assert::true($this->dashboardPage->hasCustomerName($name));
     }
 
     /**
@@ -157,10 +154,7 @@ final class AccountContext implements Context
     {
         $this->dashboardPage->open();
 
-        Assert::true(
-            $this->dashboardPage->hasCustomerEmail($email),
-            sprintf('Cannot find customer email "%s".', $email)
-        );
+        Assert::true($this->dashboardPage->hasCustomerEmail($email));
     }
 
     /**
@@ -294,11 +288,7 @@ final class AccountContext implements Context
      */
     public function iShouldSeeASingleOrderInTheList()
     {
-        Assert::same(
-            1,
-            $this->orderIndexPage->countOrders(),
-            '%s rows with orders should appear on page, %s rows have been found.'
-        );
+        Assert::same($this->orderIndexPage->countOrders(), 1);
     }
 
     /**
@@ -306,10 +296,7 @@ final class AccountContext implements Context
      */
     public function thisOrderShouldHaveNumber(OrderInterface $order)
     {
-        Assert::true(
-            $this->orderIndexPage->isOrderWithNumberInTheList($order->getNumber()),
-            sprintf('Cannot find order with number "%s" in the list.', $order->getNumber())
-        );
+        Assert::true($this->orderIndexPage->isOrderWithNumberInTheList($order->getNumber()));
     }
 
     /**
@@ -321,15 +308,20 @@ final class AccountContext implements Context
     }
 
     /**
+     * @When I am viewing the summary of my last order
+     */
+    public function iViewingTheSummaryOfMyLastOrder()
+    {
+        $this->orderIndexPage->open();
+        $this->orderIndexPage->openLastOrderPage();
+    }
+
+    /**
      * @Then it should has number :orderNumber
      */
     public function itShouldHasNumber($orderNumber)
     {
-        Assert::same(
-            $this->orderShowPage->getNumber(),
-            $orderNumber,
-            'The number of an order is %s, but should be %s.'
-        );
+        Assert::same($this->orderShowPage->getNumber(), $orderNumber);
     }
 
     /**
@@ -337,10 +329,7 @@ final class AccountContext implements Context
      */
     public function iShouldSeeAsShippingAddress($customerName, $street, $postcode, $city, $countryName)
     {
-        Assert::true(
-            $this->orderShowPage->hasShippingAddress($customerName, $street, $postcode, $city, $countryName),
-            sprintf('Cannot find shipping address "%s, %s %s, %s".', $street, $postcode, $city, $countryName)
-        );
+        Assert::true($this->orderShowPage->hasShippingAddress($customerName, $street, $postcode, $city, $countryName));
     }
 
     /**
@@ -348,10 +337,7 @@ final class AccountContext implements Context
      */
     public function itShouldBeShippedTo($customerName, $street, $postcode, $city, $countryName)
     {
-        Assert::true(
-            $this->orderShowPage->hasBillingAddress($customerName, $street, $postcode, $city, $countryName),
-            sprintf('Cannot find shipping address "%s, %s %s, %s".', $street, $postcode, $city, $countryName)
-        );
+        Assert::true($this->orderShowPage->hasBillingAddress($customerName, $street, $postcode, $city, $countryName));
     }
 
     /**
@@ -359,11 +345,7 @@ final class AccountContext implements Context
      */
     public function iShouldSeeAsOrderSTotal($total)
     {
-        Assert::same(
-            $this->orderShowPage->getTotal(),
-            $total,
-            'Total is %s, but should be %s.'
-        );
+        Assert::same($this->orderShowPage->getTotal(), $total);
     }
 
     /**
@@ -371,11 +353,7 @@ final class AccountContext implements Context
      */
     public function iShouldSeeAsOrderSSubtotal($subtotal)
     {
-        Assert::same(
-            $this->orderShowPage->getSubtotal(),
-            $subtotal,
-            'Subtotal is %s, but should be %s.'
-        );
+        Assert::same($this->orderShowPage->getSubtotal(), $subtotal);
     }
 
     /**
@@ -384,11 +362,7 @@ final class AccountContext implements Context
      */
     public function iShouldSeeIHaveToPayForThisOrder($paymentAmount)
     {
-        Assert::same(
-            $this->orderShowPage->getPaymentPrice(),
-            $paymentAmount,
-            'Payment total is %s, but should be %s.'
-        );
+        Assert::same($this->orderShowPage->getPaymentPrice(), $paymentAmount);
     }
 
     /**
@@ -396,11 +370,7 @@ final class AccountContext implements Context
      */
     public function iShouldSeeItemsInTheList($numberOfItems)
     {
-        Assert::same(
-            (int) $numberOfItems,
-            $this->orderShowPage->countItems(),
-            '%s items should appear on order page, but %s rows has been found.'
-        );
+        Assert::same($this->orderShowPage->countItems(), (int) $numberOfItems);
     }
 
     /**
@@ -408,10 +378,7 @@ final class AccountContext implements Context
      */
     public function theProductShouldBeInTheItemsList($productName)
     {
-        Assert::true(
-            $this->orderShowPage->isProductInTheList($productName),
-            sprintf('Product %s is not in the item list.', $productName)
-        );
+        Assert::true($this->orderShowPage->isProductInTheList($productName));
     }
 
     /**
@@ -419,11 +386,7 @@ final class AccountContext implements Context
      */
     public function iShouldSeeAsItemPrice($itemPrice)
     {
-        Assert::same(
-            $this->orderShowPage->getItemPrice(),
-            $itemPrice,
-            'Item price is %s, but should be %s.'
-        );
+        Assert::same($this->orderShowPage->getItemPrice(), $itemPrice);
     }
 
     /**
@@ -439,10 +402,7 @@ final class AccountContext implements Context
      */
     public function iShouldBeSubscribedToTheNewsletter()
     {
-        Assert::true(
-            $this->profileUpdatePage->isSubscribedToTheNewsletter(),
-            'I should be subscribed to the newsletter, but I am not.'
-        );
+        Assert::true($this->profileUpdatePage->isSubscribedToTheNewsletter());
     }
 
     /**
@@ -450,10 +410,7 @@ final class AccountContext implements Context
      */
     public function iShouldSeeAsProvinceInTheShippingAddress($provinceName)
     {
-        Assert::true(
-            $this->orderShowPage->hasShippingProvinceName($provinceName),
-            sprintf('Cannot find shipping address with province %s', $provinceName)
-        );
+        Assert::true($this->orderShowPage->hasShippingProvinceName($provinceName));
     }
 
     /**
@@ -461,10 +418,15 @@ final class AccountContext implements Context
      */
     public function iShouldSeeAsProvinceInTheBillingAddress($provinceName)
     {
-        Assert::true(
-            $this->orderShowPage->hasBillingProvinceName($provinceName),
-            sprintf('Cannot find shipping address with province %s', $provinceName)
-        );
+        Assert::true($this->orderShowPage->hasBillingProvinceName($provinceName));
+    }
+
+    /**
+     * @Then /^I should be able to change payment method for (this order)$/
+     */
+    public function iShouldBeAbleToChangePaymentMethodForThisOrder(OrderInterface $order)
+    {
+        Assert::true($this->orderIndexPage->isItPossibleToChangePaymentMethodForOrder($order));
     }
 
     /**
@@ -474,9 +436,6 @@ final class AccountContext implements Context
      */
     private function assertFieldValidationMessage(PageInterface $page, $element, $expectedMessage)
     {
-        Assert::true(
-            $page->checkValidationMessageFor($element, $expectedMessage),
-            sprintf('There should be a message: "%s".', $expectedMessage)
-        );
+        Assert::true($page->checkValidationMessageFor($element, $expectedMessage));
     }
 }

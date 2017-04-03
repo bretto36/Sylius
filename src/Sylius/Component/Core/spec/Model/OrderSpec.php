@@ -247,17 +247,6 @@ final class OrderSpec extends ObjectBehavior
         $this->getCurrencyCode()->shouldReturn('PLN');
     }
 
-    function it_has_a_default_exchange_rate_equal_to_1()
-    {
-        $this->getExchangeRate()->shouldReturn(1.0);
-    }
-
-    function its_exchange_rate_is_mutable()
-    {
-        $this->setExchangeRate(1.25);
-        $this->getExchangeRate()->shouldReturn(1.25);
-    }
-
     function it_has_no_default_locale_code()
     {
         $this->getLocaleCode()->shouldReturn(null);
@@ -294,32 +283,19 @@ final class OrderSpec extends ObjectBehavior
         $this->shouldNotHavePayment($payment);
     }
 
-    function it_returns_last_new_payment(PaymentInterface $payment1, PaymentInterface $payment2)
-    {
-        $payment1->getState()->willReturn(PaymentInterface::STATE_NEW);
-        $payment1->setOrder($this)->shouldBeCalled();
-        $payment2->getState()->willReturn(PaymentInterface::STATE_NEW);
-        $payment2->setOrder($this)->shouldBeCalled();
-
-        $this->addPayment($payment1);
-        $this->addPayment($payment2);
-
-        $this->getLastNewPayment()->shouldReturn($payment2);
-    }
-
-    function it_returns_last_new_payment_from_payments_in_various_states(
+    function it_returns_last_payment_with_given_state(
         PaymentInterface $payment1,
         PaymentInterface $payment2,
         PaymentInterface $payment3,
         PaymentInterface $payment4
     ) {
-        $payment1->getState()->willReturn(PaymentInterface::STATE_NEW);
+        $payment1->getState()->willReturn(PaymentInterface::STATE_CART);
         $payment1->setOrder($this)->shouldBeCalled();
 
         $payment2->getState()->willReturn(PaymentInterface::STATE_CANCELLED);
         $payment2->setOrder($this)->shouldBeCalled();
 
-        $payment3->getState()->willReturn(PaymentInterface::STATE_CART);
+        $payment3->getState()->willReturn(PaymentInterface::STATE_PROCESSING);
         $payment3->setOrder($this)->shouldBeCalled();
 
         $payment4->getState()->willReturn(PaymentInterface::STATE_FAILED);
@@ -330,12 +306,38 @@ final class OrderSpec extends ObjectBehavior
         $this->addPayment($payment3);
         $this->addPayment($payment4);
 
-        $this->getLastNewPayment()->shouldReturn($payment1);
+        $this->getLastPayment(OrderInterface::STATE_CART)->shouldReturn($payment1);
     }
 
-    function it_returns_a_null_if_there_is_no_payments_after_trying_to_get_new_payment()
+    function it_returns_a_null_if_there_is_no_payments_after_trying_to_get_last_payment()
     {
-        $this->getLastNewPayment()->shouldReturn(null);
+        $this->getLastPayment(OrderInterface::STATE_CART)->shouldReturn(null);
+    }
+
+    function it_returns_last_payment_with_any_state_if_there_is_no_target_state_specified(
+        PaymentInterface $payment1,
+        PaymentInterface $payment2,
+        PaymentInterface $payment3,
+        PaymentInterface $payment4
+    ) {
+        $payment1->getState()->willReturn(PaymentInterface::STATE_CART);
+        $payment1->setOrder($this)->shouldBeCalled();
+
+        $payment2->getState()->willReturn(PaymentInterface::STATE_CANCELLED);
+        $payment2->setOrder($this)->shouldBeCalled();
+
+        $payment3->getState()->willReturn(PaymentInterface::STATE_PROCESSING);
+        $payment3->setOrder($this)->shouldBeCalled();
+
+        $payment4->getState()->willReturn(PaymentInterface::STATE_FAILED);
+        $payment4->setOrder($this)->shouldBeCalled();
+
+        $this->addPayment($payment1);
+        $this->addPayment($payment2);
+        $this->addPayment($payment3);
+        $this->addPayment($payment4);
+
+        $this->getLastPayment()->shouldReturn($payment4);
     }
 
     function it_adds_and_removes_shipments(ShipmentInterface $shipment)
@@ -577,5 +579,11 @@ final class OrderSpec extends ObjectBehavior
         $this->setTokenValue('xyzasdxqwe');
 
         $this->getTokenValue()->shouldReturn('xyzasdxqwe');
+    }
+
+    function it_has_customer_ip()
+    {
+        $this->setCustomerIp('172.16.254.1');
+        $this->getCustomerIp()->shouldReturn('172.16.254.1');
     }
 }

@@ -9,6 +9,7 @@ The Customization Guide is helpful while wanting to adapt Sylius to your persona
     model
     form
     repository
+    factory
     controller
     validation
     menu
@@ -16,5 +17,6 @@ The Customization Guide is helpful while wanting to adapt Sylius to your persona
     translation
     flash
     state_machine
+    grid
 
 .. include:: /customization/map.rst.inc

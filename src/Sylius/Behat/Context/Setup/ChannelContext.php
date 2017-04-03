@@ -13,13 +13,12 @@ namespace Sylius\Behat\Context\Setup;
 
 use Behat\Behat\Context\Context;
 use Doctrine\Common\Persistence\ObjectManager;
+use Sylius\Behat\Service\SharedStorageInterface;
 use Sylius\Component\Addressing\Model\ZoneInterface;
-use Sylius\Component\Channel\Factory\ChannelFactoryInterface;
 use Sylius\Component\Channel\Repository\ChannelRepositoryInterface;
+use Sylius\Component\Core\Currency\CurrencyStorageInterface;
 use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Test\Services\DefaultChannelFactoryInterface;
-use Sylius\Behat\Service\SharedStorageInterface;
-use Sylius\Component\Currency\Model\CurrencyInterface;
 
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
@@ -43,11 +42,6 @@ final class ChannelContext implements Context
     private $defaultChannelFactory;
 
     /**
-     * @var ChannelFactoryInterface
-     */
-    private $channelFactory;
-
-    /**
      * @var ChannelRepositoryInterface
      */
     private $channelRepository;
@@ -61,7 +55,6 @@ final class ChannelContext implements Context
      * @param SharedStorageInterface $sharedStorage
      * @param DefaultChannelFactoryInterface $unitedStatesChannelFactory
      * @param DefaultChannelFactoryInterface $defaultChannelFactory
-     * @param ChannelFactoryInterface $channelFactory
      * @param ChannelRepositoryInterface $channelRepository
      * @param ObjectManager $channelManager
      */
@@ -69,14 +62,12 @@ final class ChannelContext implements Context
         SharedStorageInterface $sharedStorage,
         DefaultChannelFactoryInterface $unitedStatesChannelFactory,
         DefaultChannelFactoryInterface $defaultChannelFactory,
-        ChannelFactoryInterface $channelFactory,
         ChannelRepositoryInterface $channelRepository,
         ObjectManager $channelManager
     ) {
         $this->sharedStorage = $sharedStorage;
         $this->unitedStatesChannelFactory = $unitedStatesChannelFactory;
         $this->defaultChannelFactory = $defaultChannelFactory;
-        $this->channelFactory = $channelFactory;
         $this->channelRepository = $channelRepository;
         $this->channelManager = $channelManager;
     }
@@ -105,22 +96,24 @@ final class ChannelContext implements Context
 
     /**
      * @Given the store operates on a single channel
+     * @Given the store operates on a single channel in :currencyCode currency
      */
-    public function storeOperatesOnASingleChannel()
+    public function storeOperatesOnASingleChannel($currencyCode = null)
     {
-        $defaultData = $this->defaultChannelFactory->create();
+        $defaultData = $this->defaultChannelFactory->create(null, null, $currencyCode);
 
         $this->sharedStorage->setClipboard($defaultData);
         $this->sharedStorage->set('channel', $defaultData['channel']);
     }
 
     /**
-     * @Given /^the store operates on (?:a|another) channel named "([^"]+)"$/
+     * @Given /^the store(?:| also) operates on (?:a|another) channel named "([^"]+)"$/
+     * @Given /^the store(?:| also) operates on (?:a|another) channel named "([^"]+)" in "([^"]+)" currency$/
      * @Given the store operates on a channel identified by :code code
      */
-    public function theStoreOperatesOnAChannelNamed($channelIdentifier)
+    public function theStoreOperatesOnAChannelNamed($channelIdentifier, $currencyCode = null)
     {
-        $defaultData = $this->defaultChannelFactory->create($channelIdentifier, $channelIdentifier);
+        $defaultData = $this->defaultChannelFactory->create($channelIdentifier, $channelIdentifier, $currencyCode);
 
         $this->sharedStorage->setClipboard($defaultData);
         $this->sharedStorage->set('channel', $defaultData['channel']);
@@ -144,11 +137,61 @@ final class ChannelContext implements Context
     }
 
     /**
+     * @Given channel :channel has been deleted
+     */
+    public function iChannelHasBeenDeleted(ChannelInterface $channel)
+    {
+        $this->channelRepository->remove($channel);
+    }
+
+    /**
      * @Given /^(its) default tax zone is (zone "([^"]+)")$/
      */
     public function itsDefaultTaxRateIs(ChannelInterface $channel, ZoneInterface $defaultTaxZone)
     {
         $channel->setDefaultTaxZone($defaultTaxZone);
+        $this->channelManager->flush();
+    }
+
+    /**
+     * @Given /^(this channel) has contact email set as "([^"]+)"$/
+     * @Given /^(this channel) has no contact email set$/
+     */
+    public function thisChannelHasContactEmailSetAs(ChannelInterface $channel, $contactEmail = null)
+    {
+        $channel->setContactEmail($contactEmail);
+        $this->channelManager->flush();
+    }
+
+    /**
+     * @Given /^on (this channel) shipping step is skipped if only a single shipping method is available$/
+     */
+    public function onThisChannelShippingStepIsSkippedIfOnlyASingleShippingMethodIsAvailable(ChannelInterface $channel)
+    {
+        $channel->setSkippingShippingStepAllowed(true);
+
+        $this->channelManager->flush();
+    }
+
+    /**
+     * @Given /^on (this channel) payment step is skipped if only a single payment method is available$/
+     */
+    public function onThisChannelPaymentStepIsSkippedIfOnlyASinglePaymentMethodIsAvailable(
+        ChannelInterface $channel
+    )
+    {
+        $channel->setSkippingPaymentStepAllowed(true);
+
+        $this->channelManager->flush();
+    }
+
+    /**
+     * @Given /^on (this channel) account verification is not required$/
+     */
+    public function onThisChannelAccountVerificationIsNotRequired(ChannelInterface $channel)
+    {
+        $channel->setAccountVerificationRequired(false);
+
         $this->channelManager->flush();
     }
 

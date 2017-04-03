@@ -11,6 +11,7 @@
 
 namespace Sylius\Behat\Page\Admin\Crud;
 
+use Behat\Mink\Element\NodeElement;
 use Sylius\Behat\Page\SymfonyPageInterface;
 
 /**
@@ -53,7 +54,16 @@ interface IndexPageInterface extends SymfonyPageInterface
     public function deleteResourceOnPage(array $parameters);
 
     /**
+     * @param array $parameters
+     *
+     * @return NodeElement
+     */
+    public function getActionsForResource(array $parameters);
+
+    /**
      * @return int
      */
     public function countItems();
+
+    public function filter();
 }

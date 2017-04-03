@@ -122,27 +122,34 @@ class RequestConfiguration
     }
 
     /**
-     * @return mixed|null
+     * @return string|null
      */
     public function getFormType()
     {
-        $form = $this->parameters->get('form', sprintf('%s_%s', $this->metadata->getApplicationName(), $this->metadata->getName()));
-
-        if (is_array($form) && array_key_exists('type', $form)) {
+        $form = $this->parameters->get('form');
+        if (isset($form['type'])) {
             return $form['type'];
         }
 
-        return $form;
+        if (is_string($form)) {
+            return $form;
+        }
+
+        $form = $this->metadata->getClass('form');
+        if (is_string($form)) {
+            return $form;
+        }
+
+        return sprintf('%s_%s', $this->metadata->getApplicationName(), $this->metadata->getName());
     }
 
     /**
-     * @return mixed|null
+     * @return array
      */
     public function getFormOptions()
     {
-        $form = $this->parameters->get('form', sprintf('%s_%s', $this->metadata->getApplicationName(), $this->metadata->getName()));
-
-        if (is_array($form) && array_key_exists('options', $form)) {
+        $form = $this->parameters->get('form');
+        if (isset($form['options'])) {
             return $form['options'];
         }
 
@@ -188,14 +195,14 @@ class RequestConfiguration
     /**
      * Get url hash fragment (#text) which is you configured.
      *
-     * @return null|string
+     * @return string
      */
     public function getRedirectHash()
     {
         $redirect = $this->parameters->get('redirect');
 
         if (!is_array($redirect) || empty($redirect['hash'])) {
-            return null;
+            return '';
         }
 
         return '#'.$redirect['hash'];
@@ -205,7 +212,7 @@ class RequestConfiguration
      * Get redirect referer, This will detected by configuration
      * If not exists, The `referrer` from headers will be used.
      *
-     * @return null|string
+     * @return string
      */
     public function getRedirectReferer()
     {
@@ -577,7 +584,9 @@ class RequestConfiguration
      */
     public function getStateMachineGraph()
     {
-        return $this->parameters->get('state_machine[graph]', null, true);
+        $options = $this->parameters->get('state_machine');
+
+        return isset($options['graph']) ? $options['graph'] : null;
     }
 
     /**
@@ -585,7 +594,17 @@ class RequestConfiguration
      */
     public function getStateMachineTransition()
     {
-        return $this->parameters->get('state_machine[transition]', null, true);
+        $options = $this->parameters->get('state_machine');
+
+        return isset($options['transition']) ? $options['transition'] : null;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCsrfProtectionEnabled()
+    {
+        return $this->parameters->get('csrf_protection', true);
     }
 
     /**

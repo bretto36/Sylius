@@ -22,6 +22,14 @@ class ThankYouPage extends SymfonyPage implements ThankYouPageInterface
     /**
      * {@inheritdoc}
      */
+    public function goToOrderDetails()
+    {
+        $this->getElement('order_details')->click();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function hasThankYouMessage()
     {
         $thankYouMessage = $this->getElement('thank_you')->getText();
@@ -40,13 +48,19 @@ class ThankYouPage extends SymfonyPage implements ThankYouPageInterface
     /**
      * {@inheritdoc}
      */
-    public function waitForResponse($timeout, array $parameters = [])
+    public function hasInstructions()
     {
-        $this->getDocument()->waitFor($timeout, function () use ($parameters) {
-            return $this->isOpen($parameters);
-        });
+        return null !== $this->getDocument()->find('css', '#sylius-payment-method-instructions');
     }
-    
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasChangePaymentMethodButton()
+    {
+        return null !== $this->getDocument()->find('css', '#sylius-show-order');
+    }
+
     /**
      * @return string
      */
@@ -61,6 +75,7 @@ class ThankYouPage extends SymfonyPage implements ThankYouPageInterface
     protected function getDefinedElements()
     {
         return array_merge(parent::getDefinedElements(), [
+            'order_details' => '#sylius-show-order',
             'instructions' => '#sylius-payment-method-instructions',
             'thank_you' => '#sylius-thank-you',
         ]);

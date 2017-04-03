@@ -3,6 +3,6 @@
 
 sylius:
     cart:
-        cart_save_completed: Korgen har uppdaterats.
-        item_add_completed: Artikeln har lagts i korgen.
-        item_remove_completed: Artikeln har tagits bort från korgen.
+        add_item: 'Artikeln har lagts till i kundvagnen'
+        remove_item: 'Artikeln har tagits bort från kundvagnen'
+        save: 'Kundvagnen har uppdaterats'

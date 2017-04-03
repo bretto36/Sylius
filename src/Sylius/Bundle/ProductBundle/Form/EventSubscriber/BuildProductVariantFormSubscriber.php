@@ -11,6 +11,7 @@
 
 namespace Sylius\Bundle\ProductBundle\Form\EventSubscriber;
 
+use Sylius\Bundle\ProductBundle\Form\Type\ProductOptionValueCollectionType;
 use Sylius\Component\Product\Model\ProductVariantInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Form\FormEvent;
@@ -19,6 +20,7 @@ use Symfony\Component\Form\FormFactoryInterface;
 
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
+ * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
  */
 final class BuildProductVariantFormSubscriber implements EventSubscriberInterface
 {
@@ -28,11 +30,18 @@ final class BuildProductVariantFormSubscriber implements EventSubscriberInterfac
     private $factory;
 
     /**
-     * @param FormFactoryInterface $factory
+     * @var bool
      */
-    public function __construct(FormFactoryInterface $factory)
+    private $disabled;
+
+    /**
+     * @param FormFactoryInterface $factory
+     * @param bool $disabled
+     */
+    public function __construct(FormFactoryInterface $factory, $disabled = false)
     {
         $this->factory = $factory;
+        $this->disabled = $disabled;
     }
 
     /**
@@ -64,9 +73,15 @@ final class BuildProductVariantFormSubscriber implements EventSubscriberInterfac
             return;
         }
 
-        $form->add($this->factory->createNamed('optionValues', 'sylius_product_option_value_collection', $productVariant->getOptionValues(), [
-            'options' => $product->getOptions(),
-            'auto_initialize' => false,
-        ]));
+        $form->add($this->factory->createNamed(
+            'optionValues',
+            ProductOptionValueCollectionType::class,
+            $productVariant->getOptionValues(),
+            [
+                'disabled' => $this->disabled,
+                'options' => $product->getOptions(),
+                'auto_initialize' => false,
+            ]
+        ));
     }
 }

@@ -1,12 +1,12 @@
-Contributing
-============
+The Contribution Guide
+======================
 
 .. note::
 
     This section is based on the great `Symfony documentation <http://symfony.com/doc/current>`_.
 
-Install to Contribute
----------------------
+How to install Sylius to contribute?
+------------------------------------
 
 Before you start contributing you need to have your own local environment for editing things.
 
@@ -43,7 +43,7 @@ After everything is in place, run the following commands:
 .. code-block:: bash
 
     $ cd sylius # Move to the newly created directory
-    $ php app/console sylius:install
+    $ php bin/console sylius:install
 
 The ``sylius:install`` command actually runs several other commands, which will ask you some questions and check if everything is setup to run Sylius properly.
 
@@ -57,24 +57,35 @@ Having Node.js installed go to your project directory and run:
 
 .. code-block:: bash
 
-    $ npm install
+    $ yarn install
 
 And now you can use gulp for installing views, by just running a simple command:
 
 .. code-block:: bash
 
-    $ npm run gulp
+    $ yarn run gulp
 
 For the contributing process questions, please refer to the `Contributing Guide <http://docs.sylius.org/en/latest/contributing/index.html>`_ that comes up in the following chapters.
 
 .. _Gulp: http://gulpjs.com/
 .. _Node.js: https://nodejs.org/en/download/
 
+Contributing Code
+-----------------
+
 .. toctree::
-   :hidden:
+    :hidden:
 
-   code/index
-   community/index
-   documentation/index
+    code/index
 
-.. include:: /contributing/map.rst.inc
+.. include:: /contributing/code/map.rst.inc
+
+Contributing Documentation
+--------------------------
+
+.. toctree::
+    :hidden:
+
+    documentation/index
+
+.. include:: /contributing/documentation/map.rst.inc

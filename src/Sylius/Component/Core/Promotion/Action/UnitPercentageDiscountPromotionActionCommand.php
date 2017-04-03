@@ -69,22 +69,28 @@ final class UnitPercentageDiscountPromotionActionCommand extends UnitDiscountPro
             throw new UnexpectedTypeException($subject, OrderInterface::class);
         }
 
-        $filteredItems = $this->priceRangeFilter->filter($subject->getItems()->toArray(), $configuration);
-        $filteredItems = $this->taxonFilter->filter($filteredItems, $configuration);
-        $filteredItems = $this->productFilter->filter($filteredItems, $configuration);
+        $channelCode = $subject->getChannel()->getCode();
+        if (!isset($configuration[$channelCode]) || !isset($configuration[$channelCode]['percentage'])) {
+            return false;
+        }
+
+        $filteredItems = $this->priceRangeFilter->filter(
+            $subject->getItems()->toArray(),
+            array_merge(['channel' => $subject->getChannel()], $configuration[$channelCode])
+        );
+        $filteredItems = $this->taxonFilter->filter($filteredItems, $configuration[$channelCode]);
+        $filteredItems = $this->productFilter->filter($filteredItems, $configuration[$channelCode]);
+
+        if (empty($filteredItems)) {
+            return false;
+        }
 
         foreach ($filteredItems as $item) {
-            $promotionAmount = (int) round($item->getUnitPrice() * $configuration['percentage']);
+            $promotionAmount = (int) round($item->getUnitPrice() * $configuration[$channelCode]['percentage']);
             $this->setUnitsAdjustments($item, $promotionAmount, $promotion);
         }
-    }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfigurationFormType()
-    {
-        return 'sylius_promotion_action_unit_percentage_discount_configuration';
+        return true;
     }
 
     /**

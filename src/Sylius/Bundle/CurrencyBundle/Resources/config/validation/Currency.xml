@@ -29,10 +29,9 @@
                 <option name="exactMessage">sylius.currency.code.exact_length</option>
                 <option name="groups">sylius</option>
             </constraint>
-        </property>
-        <property name="exchangeRate">
-            <constraint name="NotBlank">
-                <option name="message">sylius.currency.exchange_rate.not_blank</option>
+            <constraint name="Regex">
+                <option name="message">sylius.currency.code.regex</option>
+                <option name="pattern">/^[\w-]*$/</option>
                 <option name="groups">sylius</option>
             </constraint>
         </property>

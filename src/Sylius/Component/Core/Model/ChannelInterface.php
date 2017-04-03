@@ -17,8 +17,6 @@ use Sylius\Component\Currency\Model\CurrenciesAwareInterface;
 use Sylius\Component\Currency\Model\CurrencyInterface;
 use Sylius\Component\Locale\Model\LocaleInterface;
 use Sylius\Component\Locale\Model\LocalesAwareInterface;
-use Sylius\Component\Payment\Model\PaymentMethodsAwareInterface;
-use Sylius\Component\Shipping\Model\ShippingMethodsAwareInterface;
 
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
@@ -26,10 +24,18 @@ use Sylius\Component\Shipping\Model\ShippingMethodsAwareInterface;
 interface ChannelInterface extends
     BaseChannelInterface,
     CurrenciesAwareInterface,
-    LocalesAwareInterface,
-    PaymentMethodsAwareInterface,
-    ShippingMethodsAwareInterface
+    LocalesAwareInterface
 {
+    /**
+     * @return CurrencyInterface
+     */
+    public function getBaseCurrency();
+
+    /**
+     * @param CurrencyInterface $currency
+     */
+    public function setBaseCurrency(CurrencyInterface $currency);
+
     /**
      * @return LocaleInterface
      */
@@ -39,16 +45,6 @@ interface ChannelInterface extends
      * @param LocaleInterface $locale
      */
     public function setDefaultLocale(LocaleInterface $locale);
-
-    /**
-     * @return CurrencyInterface
-     */
-    public function getDefaultCurrency();
-
-    /**
-     * @param CurrencyInterface $currency
-     */
-    public function setDefaultCurrency(CurrencyInterface $currency);
 
     /**
      * @return ZoneInterface
@@ -79,4 +75,44 @@ interface ChannelInterface extends
      * @param string $themeName
      */
     public function setThemeName($themeName);
+
+    /**
+     * @return string
+     */
+    public function getContactEmail();
+
+    /**
+     * @param string $contactEmail
+     */
+    public function setContactEmail($contactEmail);
+
+    /**
+     * @return bool
+     */
+    public function isSkippingShippingStepAllowed();
+
+    /**
+     * @param bool $skippingShippingStepAllowed
+     */
+    public function setSkippingShippingStepAllowed($skippingShippingStepAllowed);
+
+    /**
+     * @return bool
+     */
+    public function isSkippingPaymentStepAllowed();
+
+    /**
+     * @param bool $skippingPaymentStepAllowed
+     */
+    public function setSkippingPaymentStepAllowed($skippingPaymentStepAllowed);
+
+    /**
+     * @return bool
+     */
+    public function isAccountVerificationRequired();
+
+    /**
+     * @param bool $accountVerificationRequired
+     */
+    public function setAccountVerificationRequired($accountVerificationRequired);
 }

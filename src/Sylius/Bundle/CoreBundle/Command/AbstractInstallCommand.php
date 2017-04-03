@@ -11,15 +11,15 @@
 
 namespace Sylius\Bundle\CoreBundle\Command;
 
+use Sylius\Bundle\CoreBundle\Installer\Executor\CommandExecutor;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Validator\ConstraintViolationList;
 
 abstract class AbstractInstallCommand extends ContainerAwareCommand
 {
-    const APP_CACHE = 'app/cache/';
     const WEB_ASSETS_DIRECTORY = 'web/assets/';
     const WEB_BUNDLES_DIRECTORY = 'web/bundles/';
     const WEB_MEDIA_DIRECTORY = 'web/media/';
@@ -38,15 +38,11 @@ abstract class AbstractInstallCommand extends ContainerAwareCommand
         $application = $this->getApplication();
         $application->setCatchExceptions(false);
 
-        $this->commandExecutor = new CommandExecutor(
-            $input,
-            $output,
-            $application
-        );
+        $this->commandExecutor = new CommandExecutor($input, $output, $application);
     }
 
     /**
-     * @param $id
+     * @param string $id
      *
      * @return object
      */
@@ -78,12 +74,13 @@ abstract class AbstractInstallCommand extends ContainerAwareCommand
      */
     protected function renderTable(array $headers, array $rows, OutputInterface $output)
     {
-        $table = $this->getHelper('table');
+        $table = new Table($output);
 
         $table
             ->setHeaders($headers)
             ->setRows($rows)
-            ->render($output);
+            ->render()
+        ;
     }
 
     /**
@@ -95,9 +92,9 @@ abstract class AbstractInstallCommand extends ContainerAwareCommand
     protected function createProgressBar(OutputInterface $output, $length = 10)
     {
         $progress = new ProgressBar($output);
-        $progress->setBarCharacter('<info>|</info>');
+        $progress->setBarCharacter('<info>░</info>');
         $progress->setEmptyBarCharacter(' ');
-        $progress->setProgressCharacter('|');
+        $progress->setProgressCharacter('<comment>░</comment>');
 
         $progress->start($length);
 
@@ -106,11 +103,10 @@ abstract class AbstractInstallCommand extends ContainerAwareCommand
 
     /**
      * @param array $commands
-     * @param InputInterface $input
      * @param OutputInterface $output
      * @param bool $displayProgress
      */
-    protected function runCommands(array $commands, InputInterface $input, OutputInterface $output, $displayProgress = true)
+    protected function runCommands(array $commands, OutputInterface $output, $displayProgress = true)
     {
         if ($displayProgress) {
             $progress = $this->createProgressBar($output, count($commands));
@@ -139,101 +135,6 @@ abstract class AbstractInstallCommand extends ContainerAwareCommand
         if ($displayProgress) {
             $progress->finish();
         }
-    }
-
-    /**
-     * @param OutputInterface $output
-     * @param string          $question
-     * @param array           $constraints
-     *
-     * @return mixed
-     */
-    protected function askHidden(OutputInterface $output, $question, array $constraints = [])
-    {
-        return $this->proceedAskRequest($output, $question, $constraints, null, true);
-    }
-
-    /**
-     * @param OutputInterface $output
-     * @param string $question
-     * @param array $constraints
-     * @param mixed $default
-     *
-     * @return mixed
-     */
-    protected function ask(OutputInterface $output, $question, array $constraints = [], $default = null)
-    {
-        return $this->proceedAskRequest($output, $question, $constraints, $default);
-    }
-
-    /**
-     * @param mixed $value
-     * @param array $constraints
-     *
-     * @return bool
-     */
-    protected function validate($value, array $constraints = [])
-    {
-        return $this->get('validator')->validateValue($value, $constraints);
-    }
-
-    /**
-     * @param OutputInterface $output
-     * @param ConstraintViolationList $errors
-     */
-    protected function writeErrors(OutputInterface $output, ConstraintViolationList $errors)
-    {
-        foreach ($errors as $error) {
-            $output->writeln(sprintf('<error>%s</error>', $error->getMessage()));
-        }
-    }
-
-    /**
-     * @param OutputInterface $output
-     * @param string          $question
-     * @param array           $constraints
-     * @param string          $default
-     * @param bool         $hidden
-     *
-     * @return mixed
-     */
-    private function proceedAskRequest(OutputInterface $output, $question, array $constraints = [], $default = null, $hidden = false)
-    {
-        do {
-            $value = $this->getAnswerFromDialog($output, $question, $default, $hidden);
-            // do not validate value if no constraints were given
-            if (empty($constraints)) {
-                return $value;
-            }
-            $valid = 0 === count($errors = $this->validate($value, $constraints));
-
-            if (!$valid) {
-                foreach ($errors as $error) {
-                    $output->writeln(sprintf('<error>%s</error>', $error->getMessage()));
-                }
-            }
-        } while (!$valid);
-
-        return $value;
-    }
-
-    /**
-     * @param OutputInterface $output
-     * @param string $question
-     * @param string|null $default
-     * @param bool $hidden
-     *
-     * @return string
-     */
-    private function getAnswerFromDialog(OutputInterface $output, $question, $default = null, $hidden)
-    {
-        $dialog = $this->getHelperSet()->get('dialog');
-
-        if (!$hidden) {
-            return $dialog->ask($output, sprintf('<question>%s</question> ', $question), $default);
-        }
-
-        return $dialog->askHiddenResponse($output, sprintf('<question>%s</question> ', $question));
     }
 
     /**

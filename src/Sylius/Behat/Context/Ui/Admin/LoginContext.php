@@ -52,7 +52,6 @@ final class LoginContext implements Context
 
     /**
      * @When I specify the username as :username
-     * @When I do not specify the user name
      */
     public function iSpecifyTheUsername($username = null)
     {
@@ -81,10 +80,7 @@ final class LoginContext implements Context
      */
     public function iShouldBeLoggedIn()
     {
-        Assert::true(
-            $this->dashboardPage->isOpen(),
-            'I should be on administration dashboard page.'
-        );
+        $this->dashboardPage->verify();
     }
 
     /**
@@ -92,10 +88,7 @@ final class LoginContext implements Context
      */
     public function iShouldNotBeLoggedIn()
     {
-        Assert::false(
-            $this->dashboardPage->isOpen(),
-            'I should not have access to administration dashboard page.'
-        );
+        Assert::false($this->dashboardPage->isOpen());
     }
 
     /**
@@ -103,10 +96,7 @@ final class LoginContext implements Context
      */
     public function iShouldBeNotifiedAboutBadCredentials()
     {
-        Assert::true(
-            $this->loginPage->hasValidationErrorWith('Error Bad credentials.'),
-            'I should see validation error.'
-        );
+        Assert::true($this->loginPage->hasValidationErrorWith('Error Bad credentials.'));
     }
 
     /**
@@ -116,10 +106,7 @@ final class LoginContext implements Context
     {
         $this->logInAgain($username, $password);
 
-        Assert::true(
-            $this->dashboardPage->isOpen(),
-            'I should be able to log in.'
-        );
+        $this->dashboardPage->verify();
     }
 
     /**
@@ -137,15 +124,8 @@ final class LoginContext implements Context
     {
         $this->logInAgain($username, $password);
 
-        Assert::true(
-            $this->loginPage->hasValidationErrorWith('Error Bad credentials.'),
-            'I should see validation error.'
-        );
-
-        Assert::false(
-            $this->dashboardPage->isOpen(),
-            'I should not be able to log in.'
-        );
+        Assert::true($this->loginPage->hasValidationErrorWith('Error Bad credentials.'));
+        Assert::false($this->dashboardPage->isOpen());
     }
 
     /**

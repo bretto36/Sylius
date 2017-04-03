@@ -16,8 +16,8 @@ use Sylius\Behat\NotificationType;
 use Sylius\Behat\Page\Admin\Channel\CreatePageInterface;
 use Sylius\Behat\Page\Admin\Channel\IndexPageInterface;
 use Sylius\Behat\Page\Admin\Channel\UpdatePageInterface;
-use Sylius\Behat\Service\Resolver\CurrentPageResolverInterface;
 use Sylius\Behat\Service\NotificationCheckerInterface;
+use Sylius\Behat\Service\Resolver\CurrentPageResolverInterface;
 use Sylius\Component\Core\Formatter\StringInflector;
 use Sylius\Component\Core\Model\ChannelInterface;
 use Webmozart\Assert\Assert;
@@ -102,12 +102,12 @@ final class ManagingChannelsContext implements Context
     }
 
     /**
-     * @When I choose :currency as a default currency
-     * @When I do not choose default currency
+     * @When I choose :currency as the base currency
+     * @When I do not choose base currency
      */
-    public function iChooseAsADefaultCurrency($currency = null)
+    public function iChooseAsABaseCurrency($currency = null)
     {
-        $this->createPage->chooseDefaultCurrency($currency);
+        $this->createPage->chooseBaseCurrency($currency);
     }
 
     /**
@@ -117,6 +117,22 @@ final class ManagingChannelsContext implements Context
     public function iChooseAsADefaultLocale($locale = null)
     {
         $this->createPage->chooseDefaultLocale($locale);
+    }
+
+    /**
+     * @When I allow to skip shipping step if only one shipping method is available
+     */
+    public function iAllowToSkipShippingStepIfOnlyOneShippingMethodIsAvailable()
+    {
+        $this->createPage->allowToSkipShippingStep();
+    }
+
+    /**
+     * @When I allow to skip payment step if only one payment method is available
+     */
+    public function iAllowToSkipPaymentStepIfOnlyOnePaymentMethodIsAvailable()
+    {
+        $this->createPage->allowToSkipPaymentStep();
     }
 
     /**
@@ -136,10 +152,7 @@ final class ManagingChannelsContext implements Context
     {
         $this->iWantToBrowseChannels();
 
-        Assert::true($this->indexPage->isSingleResourceOnPage(
-            ['nameAndDescription' => $channelName]),
-            sprintf('Channel with name %s has not been found.', $channelName)
-        );
+        Assert::true($this->indexPage->isSingleResourceOnPage(['nameAndDescription' => $channelName]));
     }
 
     /**
@@ -164,6 +177,14 @@ final class ManagingChannelsContext implements Context
     public function iSetItsHostnameAs($hostname)
     {
         $this->createPage->setHostname($hostname);
+    }
+
+    /**
+     * @When I set its contact email as :contactEmail
+     */
+    public function iSetItsContactEmailAs($contactEmail)
+    {
+        $this->createPage->setContactEmail($contactEmail);
     }
 
     /**
@@ -210,10 +231,7 @@ final class ManagingChannelsContext implements Context
     {
         $this->iWantToBrowseChannels();
 
-        Assert::false(
-            $this->indexPage->isSingleResourceOnPage([$element => $value]),
-            sprintf('Channel with %s "%s" was created, but it should not.', $element, $value)
-        );
+        Assert::false($this->indexPage->isSingleResourceOnPage([$element => $value]));
     }
 
     /**
@@ -247,15 +265,10 @@ final class ManagingChannelsContext implements Context
     {
         $this->iWantToBrowseChannels();
 
-        Assert::true(
-            $this->indexPage->isSingleResourceOnPage(
-                [
-                    'code' => $channel->getCode(),
-                    'nameAndDescription' => $channelName,
-                ]
-            ),
-            sprintf('Channel name %s has not been assigned properly.', $channelName)
-        );
+        Assert::true($this->indexPage->isSingleResourceOnPage([
+            'code' => $channel->getCode(),
+            'nameAndDescription' => $channelName,
+        ]));
     }
 
     /**
@@ -282,10 +295,7 @@ final class ManagingChannelsContext implements Context
     {
         $this->iWantToBrowseChannels();
 
-        Assert::true(
-            $this->indexPage->isSingleResourceOnPage([$element => $value]),
-            sprintf('Channel with %s %s cannot be found.', $element, $value)
-        );
+        Assert::true($this->indexPage->isSingleResourceOnPage([$element => $value]));
     }
 
     /**
@@ -301,13 +311,7 @@ final class ManagingChannelsContext implements Context
      */
     public function iShouldSeeChannelsInTheList($numberOfChannels)
     {
-        $foundRows = $this->indexPage->countItems();
-
-        Assert::eq(
-            (int) $numberOfChannels,
-            $foundRows,
-            sprintf('%s rows with channels should appear on page, %s rows has been found', $numberOfChannels, $foundRows)
-        );
+        Assert::same($this->indexPage->countItems(), (int) $numberOfChannels);
     }
 
     /**
@@ -315,10 +319,7 @@ final class ManagingChannelsContext implements Context
      */
     public function theCodeFieldShouldBeDisabled()
     {
-        Assert::true(
-            $this->updatePage->isCodeDisabled(),
-            'Code should be immutable, but it does not.'
-        );
+        Assert::true($this->updatePage->isCodeDisabled());
     }
 
     /**
@@ -352,10 +353,7 @@ final class ManagingChannelsContext implements Context
      */
     public function thisChannelShouldNoLongerExistInTheRegistry($channelName)
     {
-        Assert::false(
-            $this->indexPage->isSingleResourceOnPage(['nameAndDescription' => $channelName]),
-            sprintf('Channel with name %s exists but should not.', $channelName)
-        );
+        Assert::false($this->indexPage->isSingleResourceOnPage(['nameAndDescription' => $channelName]));
     }
 
     /**
@@ -364,7 +362,7 @@ final class ManagingChannelsContext implements Context
     public function iShouldBeNotifiedThatItCannotBeDeleted()
     {
         $this->notificationChecker->checkNotification(
-            "The channel cannot be deleted. At least one enabled channel is required.",
+            'The channel cannot be deleted. At least one enabled channel is required.',
             NotificationType::failure()
         );
     }
@@ -386,10 +384,7 @@ final class ManagingChannelsContext implements Context
     {
         $this->updatePage->open(['id' => $channel->getId()]);
 
-        Assert::true(
-            $this->updatePage->isLocaleChosen($locale),
-            sprintf('Language %s should be selected but it is not', $locale)
-        );
+        Assert::true($this->updatePage->isLocaleChosen($locale));
     }
 
     /**
@@ -409,43 +404,7 @@ final class ManagingChannelsContext implements Context
     {
         $this->updatePage->open(['id' => $channel->getId()]);
 
-        Assert::true(
-            $this->updatePage->isCurrencyChosen($currencyCode),
-            sprintf('Currency %s should be selected but it is not', $currencyCode)
-        );
-    }
-
-    /**
-     * @When I select the :shippingMethodName shipping method
-     */
-    public function iSelectTheShippingMethod($shippingMethodName)
-    {
-        $currentPage = $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
-
-        $currentPage->chooseShippingMethod($shippingMethodName);
-    }
-
-    /**
-     * @Then the :shippingMethodName shipping method should be available for the :channel channel
-     */
-    public function theShippingMethodShouldBeAvailableForTheChannel($shippingMethodName, ChannelInterface $channel)
-    {
-        $this->updatePage->open(['id' => $channel->getId()]);
-
-        Assert::true(
-            $this->updatePage->isShippingMethodChosen($shippingMethodName),
-            sprintf('Shipping method %s should be selected but it is not', $shippingMethodName)
-        );
-    }
-
-    /**
-     * @When I select the :paymentMethodName payment method
-     */
-    public function iSelectThePaymentMethod($paymentMethodName)
-    {
-        $currentPage = $this->currentPageResolver->getCurrentPageWithForm([$this->createPage, $this->updatePage]);
-
-        $currentPage->choosePaymentMethod($paymentMethodName);
+        Assert::true($this->updatePage->isCurrencyChosen($currencyCode));
     }
 
     /**
@@ -477,29 +436,13 @@ final class ManagingChannelsContext implements Context
     }
 
     /**
-     * @Then the :paymentMethodName payment method should be available for the :channel channel
-     */
-    public function thePaymentMethodShouldBeAvailableForTheChannel($paymentMethodName, ChannelInterface $channel)
-    {
-        $this->updatePage->open(['id' => $channel->getId()]);
-
-        Assert::true(
-            $this->updatePage->isPaymentMethodChosen($paymentMethodName),
-            sprintf('Payment method %s should be selected, but it is not', $paymentMethodName)
-        );
-    }
-
-    /**
      * @Then the default tax zone for the :channel channel should be :taxZone
      */
     public function theDefaultTaxZoneForTheChannelShouldBe(ChannelInterface $channel, $taxZone)
     {
         $this->updatePage->open(['id' => $channel->getId()]);
 
-        Assert::true(
-            $this->updatePage->isDefaultTaxZoneChosen($taxZone),
-            sprintf('Default tax zone %s should be selected, but it is not', $taxZone)
-        );
+        Assert::true($this->updatePage->isDefaultTaxZoneChosen($taxZone));
     }
 
     /**
@@ -509,10 +452,7 @@ final class ManagingChannelsContext implements Context
     {
         $this->updatePage->open(['id' => $channel->getId()]);
 
-        Assert::false(
-            $this->updatePage->isAnyDefaultTaxZoneChosen(),
-            'Channel should not have default tax zone, but it has.'
-        );
+        Assert::false($this->updatePage->isAnyDefaultTaxZoneChosen());
     }
 
     /**
@@ -522,10 +462,15 @@ final class ManagingChannelsContext implements Context
     {
         $this->updatePage->open(['id' => $channel->getId()]);
 
-        Assert::true(
-            $this->updatePage->isTaxCalculationStrategyChosen($taxCalculationStrategy),
-            sprintf('Tax calculation strategy %s should be selected, but it is not', $taxCalculationStrategy)
-        );
+        Assert::true($this->updatePage->isTaxCalculationStrategyChosen($taxCalculationStrategy));
+    }
+
+    /**
+     * @Then the base currency field should be disabled
+     */
+    public function theBaseCurrencyFieldShouldBeDisabled()
+    {
+        Assert::true($this->updatePage->isBaseCurrencyDisabled());
     }
 
     /**
@@ -536,13 +481,9 @@ final class ManagingChannelsContext implements Context
     {
         $this->iWantToBrowseChannels();
 
-        Assert::true(
-            $this->indexPage->isSingleResourceOnPage(
-                [
-                    'nameAndDescription' => $channel->getName(),
-                    'enabled' => $state,
-                ]
-            ), sprintf('Channel with name %s and state %s has not been found.', $channel->getName(), $state)
-        );
+        Assert::true($this->indexPage->isSingleResourceOnPage([
+            'nameAndDescription' => $channel->getName(),
+            'enabled' => $state,
+        ]));
     }
 }

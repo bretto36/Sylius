@@ -1,8 +1,9 @@
 <div class="ui stackable two column grid">
     <div class="column">
-        {{ headers.default(header|trans, configuration.vars.icon|default('plus'), configuration.vars.subheader|default(null)|trans) }}
-
+        {% include configuration.vars.templates.header_title|default('@SyliusAdmin/Crud/Create/_headerTitle.html.twig') %}
         {% include configuration.vars.templates.breadcrumb|default('@SyliusAdmin/Crud/Create/_breadcrumb.html.twig') %}
+
+        {{ sonata_block_render_event(event_prefix ~ '.header', {'resource': resource}) }}
     </div>
     <div class="middle aligned column">
         {% include configuration.vars.templates.toolbar|default('@SyliusAdmin/Crud/_toolbar.html.twig') ignore missing %}

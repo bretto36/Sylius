@@ -14,20 +14,19 @@ namespace Sylius\Bundle\LocaleBundle\Form\Type;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Symfony\Bridge\Doctrine\Form\DataTransformer\CollectionToArrayTransformer;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\ChoiceList\ObjectChoiceList;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * @author Kamil Kokot <kamil.kokot@lakion.com>
  */
-class LocaleChoiceType extends AbstractType
+final class LocaleChoiceType extends AbstractType
 {
     /**
      * @var RepositoryInterface
      */
-    protected $localeRepository;
+    private $localeRepository;
 
     /**
      * @param RepositoryInterface $repository
@@ -54,25 +53,16 @@ class LocaleChoiceType extends AbstractType
      */
     public function configureOptions(OptionsResolver $resolver)
     {
-        $choiceList = function (Options $options) {
-            if (null === $options['enabled']) {
-                $choices = $this->localeRepository->findAll();
-            } else {
-                $choices = $this->localeRepository->findBy(['enabled' => $options['enabled']]);
-            }
+        parent::configureOptions($resolver);
 
-            return new ObjectChoiceList($choices, null, [], null, 'id');
-        };
-
-        $resolver
-            ->setDefaults([
-                'choice_translation_domain' => false,
-                'choice_list' => $choiceList,
-                'enabled' => null,
-                'label' => 'sylius.form.locale.locale',
-                'empty_value' => 'sylius.form.locale.select',
-            ])
-        ;
+        $resolver->setDefaults([
+            'choices' => $this->localeRepository->findAll(),
+            'choice_value' => 'code',
+            'choice_label' => 'name',
+            'choice_translation_domain' => false,
+            'label' => 'sylius.form.locale.locale',
+            'placeholder' => 'sylius.form.locale.select',
+        ]);
     }
 
     /**
@@ -80,13 +70,13 @@ class LocaleChoiceType extends AbstractType
      */
     public function getParent()
     {
-        return 'choice';
+        return ChoiceType::class;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'sylius_locale_choice';
     }

@@ -13,6 +13,7 @@ sylius:
             postcode: Kodi postar
             street: Rruga
             province: Rajoni
+            zone: Zona
         country:
             add_province: Shto rajonin
             name: Emri
@@ -32,6 +33,8 @@ sylius:
                 province: Rajoni
                 zone: Zona
             scope: Zona
+            scopes:
+                all: Të gjitha
             select: Zgjidh
             select_scope: Zgjidh zonën
         zone_member:

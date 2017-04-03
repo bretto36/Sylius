@@ -6,9 +6,10 @@ sylius_grid:
                 options:
                     class: "%sylius.model.product_variant.class%"
                     repository:
-                        method: createQueryBuilderWithProduct
-                        arguments:
-                            productId: $productId
+                        method: createQueryBuilderByProductId
+                        arguments: ["%locale%", $productId]
+            sorting:
+                position: asc
             fields:
                 name:
                     type: twig
@@ -19,18 +20,19 @@ sylius_grid:
                 code:
                     type: string
                     label: sylius.ui.code
-                price:
-                    type: twig
-                    path: price
-                    label: sylius.ui.price
-                    options:
-                        template: "@SyliusAdmin/Grid/Field/money.html.twig"
                 inventory:
                     type: twig
                     path: .
                     label: sylius.ui.inventory
                     options:
                         template: "@SyliusAdmin/ProductVariant/Grid/Field/inventory.html.twig"
+                position:
+                    type: twig
+                    label: sylius.ui.position
+                    path: .
+                    sortable: position
+                    options:
+                        template: "@SyliusAdmin/ProductVariant/Grid/Field/position.html.twig"
             filters:
                 code:
                     type: string
@@ -39,13 +41,33 @@ sylius_grid:
                     type: string
                     label: sylius.ui.name
                     options:
-                        fields: [name]
+                        fields: [translation.name]
             actions:
                 main:
+                    generate:
+                        type: generate_variants
+                        options:
+                            product: expr:service('sylius.repository.product').find($productId)
+                    update_positions:
+                        type: update_product_variant_positions
                     create:
-                        type: create_variant
+                        type: create
+                        options:
+                            link:
+                                parameters:
+                                    productId: $productId
                 item:
                     update:
-                        type: update_variant
+                        type: update
+                        options:
+                            link:
+                                parameters:
+                                    id: resource.id
+                                    productId: $productId
                     delete:
-                        type: delete_variant
+                        type: delete
+                        options:
+                            link:
+                                parameters:
+                                    id: resource.id
+                                    productId: $productId

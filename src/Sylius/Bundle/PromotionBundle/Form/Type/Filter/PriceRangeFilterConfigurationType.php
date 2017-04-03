@@ -11,8 +11,10 @@
 
 namespace Sylius\Bundle\PromotionBundle\Form\Type\Filter;
 
+use Sylius\Bundle\MoneyBundle\Form\Type\MoneyType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
@@ -20,7 +22,7 @@ use Symfony\Component\Validator\Constraints\Type;
  * @author Gabi Udrescu <gabriel.udr@gmail.com>
  * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
  */
-class PriceRangeFilterConfigurationType extends AbstractType
+final class PriceRangeFilterConfigurationType extends AbstractType
 {
     /**
      * {@inheritdoc}
@@ -28,15 +30,38 @@ class PriceRangeFilterConfigurationType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('min', 'sylius_money', ['required' => false, 'constraints' => [new Type(['type' => 'numeric'])]])
-            ->add('max', 'sylius_money', ['required' => false, 'constraints' => [new Type(['type' => 'numeric'])]])
+            ->add('min', MoneyType::class, [
+                'required' => false,
+                'constraints' => [
+                    new Type(['type' => 'numeric', 'groups' => ['sylius']]),
+                ],
+                'currency' => $options['currency'],
+            ])
+            ->add('max', MoneyType::class, [
+                'required' => false,
+                'constraints' => [
+                    new Type(['type' => 'numeric', 'groups' => ['sylius']]),
+                ],
+                'currency' => $options['currency'],
+            ])
         ;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver
+            ->setRequired('currency')
+            ->setAllowedTypes('currency', 'string')
+        ;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
     {
         return 'sylius_promotion_action_filter_price_range_configuration';
     }

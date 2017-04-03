@@ -78,11 +78,11 @@ class Taxon implements TaxonInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @return string
      */
     public function __toString()
     {
-        return (string) $this->translate()->__toString();
+        return (string) $this->getTranslation()->__toString();
     }
 
     /**
@@ -181,6 +181,14 @@ class Taxon implements TaxonInterface
     /**
      * {@inheritdoc}
      */
+    public function hasChildren()
+    {
+        return !$this->children->isEmpty();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function addChild(TaxonInterface $taxon)
     {
         if (!$this->hasChild($taxon)) {
@@ -209,7 +217,7 @@ class Taxon implements TaxonInterface
      */
     public function getName()
     {
-        return $this->translate()->getName();
+        return $this->getTranslation()->getName();
     }
 
     /**
@@ -217,7 +225,7 @@ class Taxon implements TaxonInterface
      */
     public function setName($name)
     {
-        $this->translate()->setName($name);
+        $this->getTranslation()->setName($name);
     }
 
     /**
@@ -225,7 +233,7 @@ class Taxon implements TaxonInterface
      */
     public function getSlug()
     {
-        return $this->translate()->getSlug();
+        return $this->getTranslation()->getSlug();
     }
 
     /**
@@ -233,7 +241,7 @@ class Taxon implements TaxonInterface
      */
     public function setSlug($slug = null)
     {
-        $this->translate()->setSlug($slug);
+        $this->getTranslation()->setSlug($slug);
     }
 
     /**
@@ -241,7 +249,7 @@ class Taxon implements TaxonInterface
      */
     public function getDescription()
     {
-        return $this->translate()->getDescription();
+        return $this->getTranslation()->getDescription();
     }
 
     /**
@@ -249,7 +257,7 @@ class Taxon implements TaxonInterface
      */
     public function setDescription($description)
     {
-        $this->translate()->setDescription($description);
+        $this->getTranslation()->setDescription($description);
     }
 
     /**
@@ -314,5 +322,13 @@ class Taxon implements TaxonInterface
     public function setPosition($position)
     {
         $this->position = $position;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function createTranslation()
+    {
+        return new TaxonTranslation();
     }
 }

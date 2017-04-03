@@ -18,8 +18,6 @@ use Behat\Mink\Session;
 use Sylius\Behat\Page\SymfonyPage;
 use Sylius\Component\Core\Factory\AddressFactoryInterface;
 use Sylius\Component\Core\Model\AddressInterface;
-use Sylius\Component\Locale\Context\LocaleContextInterface;
-use Symfony\Component\Intl\Intl;
 use Symfony\Component\Routing\RouterInterface;
 use Webmozart\Assert\Assert;
 
@@ -47,7 +45,7 @@ class AddressPage extends SymfonyPage implements AddressPageInterface
         array $parameters,
         RouterInterface $router,
         AddressFactoryInterface $addressFactory
-    ){
+    ) {
         parent::__construct($session, $parameters, $router);
 
         $this->addressFactory = $addressFactory;
@@ -205,7 +203,7 @@ class AddressPage extends SymfonyPage implements AddressPageInterface
 
         $subtotalTable = $this->getElement('checkout_subtotal');
 
-        return $subtotalTable->find('css', sprintf('#item-%s-subtotal', $itemSlug))->getText();
+        return $subtotalTable->find('css', sprintf('#sylius-item-%s-subtotal', $itemSlug))->getText();
     }
 
     /**
@@ -261,33 +259,47 @@ class AddressPage extends SymfonyPage implements AddressPageInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function selectShippingAddressFromAddressBook(AddressInterface $address)
     {
+        $this->waitForElement(2, sprintf('%s_province', self::TYPE_SHIPPING));
         $addressBookSelect = $this->getElement('shipping_address_book');
 
         $addressBookSelect->click();
-        $addressBookSelect->waitFor(5, function () use ($address, $addressBookSelect) {
-            return $addressBookSelect->find('css', sprintf('.item[data-value="%s"]', $address->getId()));
-        })->click();
+        $addressOption = $addressBookSelect->waitFor(5, function () use ($address, $addressBookSelect) {
+            return $addressBookSelect->find('css', sprintf('.item[data-id="%s"]', $address->getId()));
+        });
+
+        if (null === $addressOption) {
+            throw new ElementNotFoundException($this->getDriver(), 'option', 'css', sprintf('.item[data-id="%s"]', $address->getId()));
+        }
+
+        $addressOption->click();
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function selectBillingAddressFromAddressBook(AddressInterface $address)
     {
+        $this->waitForElement(2, sprintf('%s_province', self::TYPE_BILLING));
         $addressBookSelect = $this->getElement('billing_address_book');
 
         $addressBookSelect->click();
-        $addressBookSelect->waitFor(5, function () use ($address, $addressBookSelect) {
-            return $addressBookSelect->find('css', sprintf('.item[data-value="%s"]', $address->getId()));
-        })->click();
+        $addressOption = $addressBookSelect->waitFor(5, function () use ($address, $addressBookSelect) {
+            return $addressBookSelect->find('css', sprintf('.item[data-id="%s"]', $address->getId()));
+        });
+
+        if (null === $addressOption) {
+            throw new ElementNotFoundException($this->getDriver(), 'option', 'css', sprintf('.item[data-id="%s"]', $address->getId()));
+        }
+
+        $addressOption->click();
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getPreFilledShippingAddress()
     {
@@ -295,7 +307,7 @@ class AddressPage extends SymfonyPage implements AddressPageInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getPreFilledBillingAddress()
     {
@@ -317,7 +329,7 @@ class AddressPage extends SymfonyPage implements AddressPageInterface
             'billing_country_province' => '[name="sylius_checkout_address[billingAddress][provinceCode]"]',
             'billing_postcode' => '#sylius_checkout_address_billingAddress_postcode',
             'billing_province' => '[name="sylius_checkout_address[billingAddress][provinceName]"]',
-            'checkout_subtotal' => '#checkout-subtotal',
+            'checkout_subtotal' => '#sylius-checkout-subtotal',
             'customer_email' => '#sylius_checkout_address_customer_email',
             'different_billing_address' => '#sylius_checkout_address_differentBillingAddress',
             'different_billing_address_label' => '#sylius_checkout_address_differentBillingAddress ~ label',
@@ -354,7 +366,12 @@ class AddressPage extends SymfonyPage implements AddressPageInterface
         $address->setCountryCode($this->getElement(sprintf('%s_country', $type))->getValue());
         $address->setCity($this->getElement(sprintf('%s_city', $type))->getValue());
         $address->setPostcode($this->getElement(sprintf('%s_postcode', $type))->getValue());
-        $address->setProvinceName($this->getElement(sprintf('%s_province', $type))->getValue());
+        $this->waitForElement(5, sprintf('%s_province', $type));
+        try {
+            $address->setProvinceName($this->getElement(sprintf('%s_province', $type))->getValue());
+        } catch (ElementNotFoundException $exception) {
+            $address->setProvinceCode($this->getElement(sprintf('%s_country_province', $type))->getValue());
+        }
 
         return $address;
     }
@@ -378,6 +395,10 @@ class AddressPage extends SymfonyPage implements AddressPageInterface
             $this->waitForElement(5, sprintf('%s_province', $type));
             $this->getElement(sprintf('%s_province', $type))->setValue($address->getProvinceName());
         }
+        if (null !== $address->getProvinceCode()) {
+            $this->waitForElement(5, sprintf('%s_country_province', $type));
+            $this->getElement(sprintf('%s_country_province', $type))->selectOption($address->getProvinceCode());
+        }
     }
 
     /**
@@ -390,7 +411,7 @@ class AddressPage extends SymfonyPage implements AddressPageInterface
     private function getFieldElement($element)
     {
         $element = $this->getElement($element);
-        while (null !== $element && !($element->hasClass('field'))) {
+        while (null !== $element && !$element->hasClass('field')) {
             $element = $element->getParent();
         }
 
@@ -402,7 +423,7 @@ class AddressPage extends SymfonyPage implements AddressPageInterface
      */
     private function waitForLoginAction()
     {
-        $this->getDocument()->waitFor(5, function () {
+        return $this->getDocument()->waitFor(5, function () {
             return !$this->hasElement('login_password');
         });
     }
@@ -412,7 +433,7 @@ class AddressPage extends SymfonyPage implements AddressPageInterface
      */
     private function waitForElement($timeout, $elementName)
     {
-        return $this->getDocument()->waitFor($timeout, function () use ($elementName){
+        return $this->getDocument()->waitFor($timeout, function () use ($elementName) {
             return $this->hasElement($elementName);
         });
     }

@@ -14,7 +14,7 @@ namespace Sylius\Bundle\ProductBundle\Form\Type;
 use Sylius\Component\Product\Model\ProductInterface;
 use Symfony\Bridge\Doctrine\Form\DataTransformer\CollectionToArrayTransformer;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\ChoiceList\ObjectChoiceList;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -22,7 +22,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class ProductVariantChoiceType extends AbstractType
+final class ProductVariantChoiceType extends AbstractType
 {
     /**
      * {@inheritdoc}
@@ -30,7 +30,7 @@ class ProductVariantChoiceType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         if ($options['multiple']) {
-            $builder->addViewTransformer(new CollectionToArrayTransformer());
+            $builder->addViewTransformer(new CollectionToArrayTransformer(), true);
         }
     }
 
@@ -39,16 +39,18 @@ class ProductVariantChoiceType extends AbstractType
      */
     public function configureOptions(OptionsResolver $resolver)
     {
-        $choiceList = function (Options $options) {
-            return new ObjectChoiceList($options['product']->getVariants(), 'name', [], null, 'id');
-        };
-
         $resolver
             ->setDefaults([
+                'choices' => function (Options $options) {
+                    return $options['product']->getVariants();
+                },
+                'choice_value' => 'code',
+                'choice_label' => function ($variant) {
+                    return $variant;
+                },
                 'choice_translation_domain' => false,
                 'multiple' => false,
                 'expanded' => true,
-                'choice_list' => $choiceList,
             ])
             ->setRequired([
                 'product',
@@ -62,13 +64,13 @@ class ProductVariantChoiceType extends AbstractType
      */
     public function getParent()
     {
-        return 'choice';
+        return ChoiceType::class;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'sylius_product_variant_choice';
     }

@@ -13,6 +13,7 @@ namespace Sylius\Component\Product\Model;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Webmozart\Assert\Assert;
 use Sylius\Component\Attribute\Model\AttributeValueInterface;
 use Sylius\Component\Resource\Model\TimestampableTrait;
 use Sylius\Component\Resource\Model\ToggleableTrait;
@@ -40,16 +41,6 @@ class Product implements ProductInterface
     protected $code;
 
     /**
-     * @var \DateTime
-     */
-    protected $availableOn;
-
-    /**
-     * @var \DateTime
-     */
-    protected $availableUntil;
-
-    /**
      * @var Collection|AttributeValueInterface[]
      */
     protected $attributes;
@@ -73,12 +64,11 @@ class Product implements ProductInterface
     {
         $this->initializeTranslationsCollection();
 
-        $this->availableOn = new \DateTime();
+        $this->createdAt = new \DateTime();
         $this->attributes = new ArrayCollection();
         $this->associations = new ArrayCollection();
         $this->variants = new ArrayCollection();
         $this->options = new ArrayCollection();
-        $this->createdAt = new \DateTime();
     }
 
     /**
@@ -118,7 +108,7 @@ class Product implements ProductInterface
      */
     public function getName()
     {
-        return $this->translate()->getName();
+        return $this->getTranslation()->getName();
     }
 
     /**
@@ -126,7 +116,7 @@ class Product implements ProductInterface
      */
     public function setName($name)
     {
-        $this->translate()->setName($name);
+        $this->getTranslation()->setName($name);
     }
 
     /**
@@ -134,7 +124,7 @@ class Product implements ProductInterface
      */
     public function getSlug()
     {
-        return $this->translate()->getSlug();
+        return $this->getTranslation()->getSlug();
     }
 
     /**
@@ -142,7 +132,7 @@ class Product implements ProductInterface
      */
     public function setSlug($slug = null)
     {
-        $this->translate()->setSlug($slug);
+        $this->getTranslation()->setSlug($slug);
     }
 
     /**
@@ -150,7 +140,7 @@ class Product implements ProductInterface
      */
     public function getDescription()
     {
-        return $this->translate()->getDescription();
+        return $this->getTranslation()->getDescription();
     }
 
     /**
@@ -158,7 +148,7 @@ class Product implements ProductInterface
      */
     public function setDescription($description)
     {
-        $this->translate()->setDescription($description);
+        $this->getTranslation()->setDescription($description);
     }
 
     /**
@@ -166,7 +156,7 @@ class Product implements ProductInterface
      */
     public function getMetaKeywords()
     {
-        return $this->translate()->getMetaKeywords();
+        return $this->getTranslation()->getMetaKeywords();
     }
 
     /**
@@ -174,7 +164,7 @@ class Product implements ProductInterface
      */
     public function setMetaKeywords($metaKeywords)
     {
-        $this->translate()->setMetaKeywords($metaKeywords);
+        $this->getTranslation()->setMetaKeywords($metaKeywords);
     }
 
     /**
@@ -182,7 +172,7 @@ class Product implements ProductInterface
      */
     public function getMetaDescription()
     {
-        return $this->translate()->getMetaDescription();
+        return $this->getTranslation()->getMetaDescription();
     }
 
     /**
@@ -190,47 +180,7 @@ class Product implements ProductInterface
      */
     public function setMetaDescription($metaDescription)
     {
-        $this->translate()->setMetaDescription($metaDescription);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function isAvailable()
-    {
-        return (new DateRange($this->availableOn, $this->availableUntil))->isInRange();
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getAvailableOn()
-    {
-        return $this->availableOn;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setAvailableOn(\DateTime $availableOn = null)
-    {
-        $this->availableOn = $availableOn;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getAvailableUntil()
-    {
-        return $this->availableUntil;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setAvailableUntil(\DateTime $availableUntil = null)
-    {
-        $this->availableUntil = $availableUntil;
+        $this->getTranslation()->setMetaDescription($metaDescription);
     }
 
     /**
@@ -244,8 +194,33 @@ class Product implements ProductInterface
     /**
      * {@inheritdoc}
      */
+    public function getAttributesByLocale($localeCode, $fallbackLocaleCode)
+    {
+        $attributes = $this->attributes->filter(
+            function (ProductAttributeValueInterface $attribute) use ($fallbackLocaleCode) {
+                return $attribute->getLocaleCode() === $fallbackLocaleCode;
+            }
+        );
+
+        $attributesWithFallback = [];
+        foreach ($attributes as $attribute) {
+            $attributesWithFallback[] = $this->getAttributeInDifferentLocale($attribute, $localeCode);
+        }
+
+        return $attributesWithFallback;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function addAttribute(AttributeValueInterface $attribute)
     {
+        Assert::isInstanceOf(
+            $attribute,
+            ProductAttributeValueInterface::class,
+            'Attribute objects added to a Product object have to implement ProductAttributeValueInterface'
+        );
+
         if (!$this->hasAttribute($attribute)) {
             $attribute->setProduct($this);
             $this->attributes->add($attribute);
@@ -257,6 +232,12 @@ class Product implements ProductInterface
      */
     public function removeAttribute(AttributeValueInterface $attribute)
     {
+        Assert::isInstanceOf(
+            $attribute,
+            ProductAttributeValueInterface::class,
+            'Attribute objects removed from a Product object have to implement ProductAttributeValueInterface'
+        );
+
         if ($this->hasAttribute($attribute)) {
             $this->attributes->removeElement($attribute);
             $attribute->setProduct(null);
@@ -274,10 +255,13 @@ class Product implements ProductInterface
     /**
      * {@inheritdoc}
      */
-    public function hasAttributeByCode($attributeCode)
+    public function hasAttributeByCodeAndLocale($attributeCode, $localeCode = null)
     {
+        $localeCode = $localeCode ?: $this->getTranslation()->getLocale();
+
         foreach ($this->attributes as $attribute) {
-            if ($attribute->getAttribute()->getCode() === $attributeCode) {
+            if ($attribute->getAttribute()->getCode() === $attributeCode
+                && $attribute->getLocaleCode() === $localeCode) {
                 return true;
             }
         }
@@ -288,10 +272,15 @@ class Product implements ProductInterface
     /**
      * {@inheritdoc}
      */
-    public function getAttributeByCode($attributeCode)
+    public function getAttributeByCodeAndLocale($attributeCode, $localeCode = null)
     {
+        if (null === $localeCode) {
+            $localeCode = $this->getTranslation()->getLocale();
+        }
+
         foreach ($this->attributes as $attribute) {
-            if ($attributeCode === $attribute->getAttribute()->getCode()) {
+            if ($attribute->getAttribute()->getCode() === $attributeCode &&
+                $attribute->getLocaleCode() === $localeCode) {
                 return $attribute;
             }
         }
@@ -313,16 +302,6 @@ class Product implements ProductInterface
     public function getVariants()
     {
         return $this->variants;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getAvailableVariants()
-    {
-        return $this->variants->filter(function (ProductVariantInterface $variant) {
-            return $variant->isAvailable();
-        });
     }
 
     /**
@@ -451,5 +430,31 @@ class Product implements ProductInterface
     public function isConfigurable()
     {
         return !$this->isSimple();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function createTranslation()
+    {
+        return new ProductTranslation();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    private function getAttributeInDifferentLocale(ProductAttributeValueInterface $attributeValue, $localeCode)
+    {
+        if (!$this->hasAttributeByCodeAndLocale($attributeValue->getCode(), $localeCode)) {
+            return $attributeValue;
+        }
+
+        $attributeValueInDifferentLocale = $this->getAttributeByCodeAndLocale($attributeValue->getCode(), $localeCode);
+        if ('' === $attributeValueInDifferentLocale->getValue()
+            || null === $attributeValueInDifferentLocale->getValue()) {
+            return $attributeValue;
+        }
+
+        return $attributeValueInDifferentLocale;
     }
 }

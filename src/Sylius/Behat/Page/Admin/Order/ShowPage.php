@@ -155,7 +155,6 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
             );
 
             return 1 === count($rows);
-
         } catch (\InvalidArgumentException $exception) {
             return false;
         }
@@ -229,6 +228,14 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
         $promotionDiscountsText = $this->getElement('promotion_discounts')->getText();
 
         return stripos($promotionDiscountsText, $promotionDiscount) !== false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasShippingPromotion($promotionName)
+    {
+        return $this->getElement('promotion_shipping_discounts')->getText();
     }
 
     /**
@@ -392,6 +399,38 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
     /**
      * {@inheritdoc}
      */
+    public function getIpAddressAssigned()
+    {
+        return $this->getElement('ip_address')->getText();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getOrderCurrency()
+    {
+        return $this->getElement('currency')->getText();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasRefundButton()
+    {
+        return $this->getDocument()->hasButton('Refund');
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getShippingPromotionData()
+    {
+        return $this->getElement('promotion_shipping_discounts')->getText();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getRouteName()
     {
         return 'sylius_admin_order_show';
@@ -404,15 +443,18 @@ class ShowPage extends SymfonyPage implements ShowPageInterface
     {
         return array_merge(parent::getDefinedElements(), [
             'billing_address' => '#billing-address',
+            'currency' => '#sylius-order-currency',
             'customer' => '#customer',
+            'ip_address' => '#ipAddress',
             'items_total' => '#items-total',
             'order_notes' => '#sylius-order-notes',
             'order_payment_state' => '#payment-state > span',
             'order_state' => '#sylius-order-state',
-            'payments' => '#payments',
+            'payments' => '#sylius-payments',
             'promotion_discounts' => '#promotion-discounts',
+            'promotion_shipping_discounts' => '#promotion-shipping-discounts',
             'promotion_total' => '#promotion-total',
-            'shipments' => '#shipments',
+            'shipments' => '#sylius-shipments',
             'shipping_address' => '#shipping-address',
             'shipping_charges' => '#shipping-charges',
             'shipping_total' => '#shipping-total',

@@ -12,6 +12,7 @@
 namespace Sylius\Bundle\PromotionBundle\Controller;
 
 use FOS\RestBundle\View\View;
+use Sylius\Bundle\PromotionBundle\Form\Type\PromotionCouponGeneratorInstructionType;
 use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
 use Sylius\Component\Promotion\Generator\PromotionCouponGeneratorInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,7 +35,7 @@ class PromotionCouponController extends ResourceController
     {
         $configuration = $this->requestConfigurationFactory->create($this->metadata, $request);
 
-        if (null === $promotionId = $request->get('promotionId')) {
+        if (null === $promotionId = $request->attributes->get('promotionId')) {
             throw new NotFoundHttpException('No promotion id given.');
         }
 
@@ -42,7 +43,7 @@ class PromotionCouponController extends ResourceController
             throw new NotFoundHttpException('Promotion not found.');
         }
 
-        $form = $this->container->get('form.factory')->create('sylius_promotion_coupon_generator_instruction');
+        $form = $this->container->get('form.factory')->create(PromotionCouponGeneratorInstructionType::class);
 
         if ($form->handleRequest($request)->isValid()) {
             $this->getGenerator()->generate($promotion, $form->getData());
@@ -71,7 +72,7 @@ class PromotionCouponController extends ResourceController
     /**
      * @return PromotionCouponGeneratorInterface
      */
-    private function getGenerator()
+    protected function getGenerator()
     {
         return $this->container->get('sylius.promotion_coupon_generator');
     }

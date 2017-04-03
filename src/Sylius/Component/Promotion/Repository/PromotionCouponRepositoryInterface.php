@@ -12,6 +12,7 @@
 namespace Sylius\Component\Promotion\Repository;
 
 use Doctrine\ORM\QueryBuilder;
+use Sylius\Component\Promotion\Model\PromotionInterface;
 use Sylius\Component\Resource\Repository\RepositoryInterface;
 
 /**
@@ -20,6 +21,13 @@ use Sylius\Component\Resource\Repository\RepositoryInterface;
 interface PromotionCouponRepositoryInterface extends RepositoryInterface
 {
     /**
+     * @param mixed $promotionId
+     *
+     * @return QueryBuilder
+     */
+    public function createQueryBuilderByPromotionId($promotionId);
+
+    /**
      * @param int $codeLength
      *
      * @return int
@@ -27,9 +35,10 @@ interface PromotionCouponRepositoryInterface extends RepositoryInterface
     public function countByCodeLength($codeLength);
 
     /**
-     * @param int $promotionId
+     * @param string $code
+     * @param string $promotionCode
      *
-     * @return QueryBuilder
+     * @return PromotionInterface
      */
-    public function createQueryBuilderWithPromotion($promotionId);
+    public function findOneByCodeAndPromotionCode($code, $promotionCode);
 }

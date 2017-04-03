@@ -13,6 +13,7 @@ sylius:
             postcode: Codi postal
             street: Carrer
             province: Província
+            zone: Zona
         country:
             add_province: Afegeix una província
             name: Nom
@@ -33,6 +34,8 @@ sylius:
                 province: Província
                 zone: Zona
             scope: Àmbit d'aplicació
+            scopes:
+                all: Totes
             select: Tria
             select_scope: Seleccioneu l'àmbit
         zone_member:

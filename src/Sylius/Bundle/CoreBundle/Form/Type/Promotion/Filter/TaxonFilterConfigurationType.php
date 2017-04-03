@@ -11,6 +11,7 @@
 
 namespace Sylius\Bundle\CoreBundle\Form\Type\Promotion\Filter;
 
+use Sylius\Bundle\TaxonomyBundle\Form\Type\TaxonAutocompleteChoiceType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -19,7 +20,7 @@ use Symfony\Component\Form\FormBuilderInterface;
  * @author Gabi Udrescu <gabriel.udr@gmail.com>
  * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
  */
-class TaxonFilterConfigurationType extends AbstractType
+final class TaxonFilterConfigurationType extends AbstractType
 {
     /**
      * @var DataTransformerInterface
@@ -40,8 +41,8 @@ class TaxonFilterConfigurationType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('taxons', 'sylius_taxon_choice', [
-                'label' => 'sylius.form.promotion_rule.taxon.taxons',
+            ->add('taxons', TaxonAutocompleteChoiceType::class, [
+                'label' => 'sylius.form.promotion_filter.taxons',
                 'multiple' => true,
                 'required' => false,
             ])
@@ -53,7 +54,7 @@ class TaxonFilterConfigurationType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'sylius_promotion_action_filter_taxon_configuration';
     }

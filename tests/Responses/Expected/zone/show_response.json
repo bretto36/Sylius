@@ -3,9 +3,20 @@
     "code": "EU",
     "name": "European Union",
     "type": "country",
+    "scope": "all",
+    "members": [
+        {
+            "id": @integer@,
+            "code": "BE"
+        },
+        {
+            "id": @integer@,
+            "code": "NL"
+        }
+    ],
     "_links": {
         "self": {
-            "href": @string@
+            "href": "\/api\/v1\/zones\/EU"
         }
     }
 }

@@ -19,15 +19,21 @@ class PaymentRepository extends EntityRepository implements PaymentRepositoryInt
     /**
      * {@inheritdoc}
      */
-    public function findByOrderIdAndId($orderId, $id)
+    public function createListQueryBuilder()
     {
-        $queryBuilder = $this->createQueryBuilder('o');
+        return $this->createQueryBuilder('o');
+    }
 
-        return $queryBuilder
-            ->where('o.order = :orderId')
-            ->andWhere('o.id = :id')
+    /**
+     * {@inheritdoc}
+     */
+    public function findOneByOrderId($paymentId, $orderId)
+    {
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.id = :paymentId')
+            ->andWhere('o.order = :orderId')
+            ->setParameter('paymentId', $paymentId)
             ->setParameter('orderId', $orderId)
-            ->setParameter('id', $id)
             ->getQuery()
             ->getOneOrNullResult()
         ;

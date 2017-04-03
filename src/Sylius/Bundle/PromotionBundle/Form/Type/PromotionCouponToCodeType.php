@@ -16,6 +16,7 @@ use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\DataTransformerInterface;
 use Symfony\Component\Form\Exception\UnexpectedTypeException;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -49,19 +50,6 @@ final class PromotionCouponToCodeType extends AbstractType implements DataTransf
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        $resolver
-            ->setDefaults([
-                'data_class' => null,
-                'label' => 'sylius.ui.code',
-            ])
-        ;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function transform($coupon)
     {
         if (null === $coupon) {
@@ -90,15 +78,28 @@ final class PromotionCouponToCodeType extends AbstractType implements DataTransf
     /**
      * {@inheritdoc}
      */
-    public function getParent()
+    public function configureOptions(OptionsResolver $resolver)
     {
-        return 'text';
+        $resolver
+            ->setDefaults([
+                'data_class' => null,
+                'label' => 'sylius.ui.code',
+            ])
+        ;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getParent()
+    {
+        return TextType::class;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
     {
         return 'sylius_promotion_coupon_to_code';
     }

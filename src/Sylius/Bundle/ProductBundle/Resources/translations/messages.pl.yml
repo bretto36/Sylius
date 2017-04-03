@@ -10,11 +10,13 @@ sylius:
             options: Warianty
             meta_keywords: Słowa kluczowe w sekcji meta
             meta_description: Opis w sekcji meta
+            slug: Fragment URL
+            taxons: Kategorie
         product_variant:
-            available_on: Dostępny od
-            available_until: Dostępne do
+            name: Nazwa
         association_type:
             name: Nazwa
+            translations: Tłumaczenia
         association:
             type: Rodzaj powiązania
             product: Powiązany produkt
@@ -22,6 +24,7 @@ sylius:
             name: Nazwa
         option:
             name: Nazwa
+            position: Pozycja
             values: Możliwe wartości
         option_value:
             add_value: Dodaj wartość

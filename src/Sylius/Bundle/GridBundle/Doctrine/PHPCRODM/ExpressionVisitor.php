@@ -34,7 +34,7 @@ class ExpressionVisitor
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function walkComparison(Comparison $comparison, AbstractNode $parentNode)
     {
@@ -85,11 +85,11 @@ class ExpressionVisitor
     }
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
     public function walkCompositeExpression(CompositeExpression $expr, AbstractNode $parentNode)
     {
-        switch($expr->getType()) {
+        switch ($expr->getType()) {
             case CompositeExpression::TYPE_AND:
                 $node = $parentNode->andX();
                 break;
@@ -112,7 +112,7 @@ class ExpressionVisitor
                 break;
             }
 
-            switch($expr->getType()) {
+            switch ($expr->getType()) {
                 case CompositeExpression::TYPE_AND:
                     $parentNode = $parentNode->andX();
                     break;

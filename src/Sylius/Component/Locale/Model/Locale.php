@@ -12,7 +12,6 @@
 namespace Sylius\Component\Locale\Model;
 
 use Sylius\Component\Resource\Model\TimestampableTrait;
-use Sylius\Component\Resource\Model\ToggleableTrait;
 use Symfony\Component\Intl\Intl;
 
 /**
@@ -20,7 +19,7 @@ use Symfony\Component\Intl\Intl;
  */
 class Locale implements LocaleInterface
 {
-    use TimestampableTrait, ToggleableTrait;
+    use TimestampableTrait;
 
     /**
      * @var int
@@ -74,6 +73,6 @@ class Locale implements LocaleInterface
      */
     public function getName($locale = null)
     {
-        return Intl::getLocaleBundle()->getLocaleName($this->code, $locale);
+        return Intl::getLocaleBundle()->getLocaleName($this->getCode(), $locale);
     }
 }

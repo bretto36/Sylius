@@ -44,40 +44,41 @@ interface UpdatePageInterface extends BaseUpdatePageInterface
 
     /**
      * @param string $slug
+     * @param string $languageCode
      */
-    public function specifySlug($slug);
-
-    /**
-     * @return bool
-     */
-    public function isImageCodeDisabled();
+    public function specifySlug($slug, $languageCode);
 
     /**
      * @param string $path
-     * @param string $code
+     * @param string $type
      */
-    public function attachImage($path, $code = null);
+    public function attachImage($path, $type = null);
 
     /**
-     * @param string $code
+     * @param string $type
      *
      * @return bool
      */
-    public function isImageWithCodeDisplayed($code);
+    public function isImageWithTypeDisplayed($type);
 
     /**
+     * @param string $languageCode
+     *
      * @return bool
      */
-    public function isSlugReadOnly();
+    public function isSlugReadonly($languageCode = 'en_US');
 
     /**
-     * @param string $code
+     * @param string $type
      */
-    public function removeImageWithCode($code);
+    public function removeImageWithType($type);
 
     public function removeFirstImage();
 
-    public function enableSlugModification();
+    /**
+     * @param string $languageCode
+     */
+    public function enableSlugModification($languageCode = 'en_US');
 
     /**
      * @return int
@@ -85,15 +86,27 @@ interface UpdatePageInterface extends BaseUpdatePageInterface
     public function countImages();
 
     /**
-     * @param string $code
+     * @param string $type
      * @param string $path
      */
-    public function changeImageWithCode($code, $path);
+    public function changeImageWithType($type, $path);
+
+    /**
+     * @param string $type
+     */
+    public function modifyFirstImageType($type);
 
     /**
      * @return string
      */
     public function getParent();
+
+    /**
+     * @param string $languageCode
+     *
+     * @return string
+     */
+    public function getSlug($languageCode = 'en_US');
 
     /**
      * @return string
@@ -104,10 +117,15 @@ interface UpdatePageInterface extends BaseUpdatePageInterface
 
     /**
      * @param int $place
-     * 
-     * @return string 
+     *
+     * @return string
      *
      * @throws ElementNotFoundException
      */
     public function getValidationMessageForImageAtPlace($place);
+
+    /**
+     * @param string $locale
+     */
+    public function activateLanguageTab($locale);
 }

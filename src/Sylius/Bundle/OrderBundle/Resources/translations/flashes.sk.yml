@@ -3,6 +3,6 @@
 
 sylius:
     cart:
-        cart_save_completed: Košík bol úspešne aktualizovaný.
-        item_add_completed: Položka bola pridaná do košíka.
-        item_remove_completed: Položka bola odstránená z košíka.
+        add_item: 'Položka bola pridaná do košíka'
+        remove_item: 'Položka bola odstránená z košíka'
+        save: 'Košík bol úspešne aktualizovaný'

@@ -27,34 +27,28 @@ interface PromotionRuleFactoryInterface extends FactoryInterface
     public function createCartQuantity($count);
 
     /**
+     * @param string $channelCode
      * @param int $amount
      *
      * @return PromotionRuleInterface
      */
-    public function createItemTotal($amount);
+    public function createItemTotal($channelCode, $amount);
 
     /**
      * @param array $taxons
      *
      * @return PromotionRuleInterface
      */
-    public function createTaxon(array $taxons);
+    public function createHasTaxon(array $taxons);
 
     /**
+     * @param string $channelCode
      * @param string $taxonCode
      * @param int $amount
      *
      * @return PromotionRuleInterface
      */
-    public function createItemsFromTaxonTotal($taxonCode, $amount);
-
-    /**
-     * @param string $taxonCode
-     * @param int $count
-     *
-     * @return PromotionRuleInterface
-     */
-    public function createContainsTaxon($taxonCode, $count);
+    public function createItemsFromTaxonTotal($channelCode, $taxonCode, $amount);
 
     /**
      * @param int $nth

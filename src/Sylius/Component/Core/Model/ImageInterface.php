@@ -11,14 +11,23 @@
 
 namespace Sylius\Component\Core\Model;
 
-use Sylius\Component\Resource\Model\CodeAwareInterface;
 use Sylius\Component\Resource\Model\ResourceInterface;
 
 /**
  * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
  */
-interface ImageInterface extends ResourceInterface, CodeAwareInterface
+interface ImageInterface extends ResourceInterface
 {
+    /**
+     * @return string
+     */
+    public function getType();
+
+    /**
+     * @param string $type
+     */
+    public function setType($type);
+
     /**
      * @return null|\SplFileInfo
      */
@@ -45,12 +54,12 @@ interface ImageInterface extends ResourceInterface, CodeAwareInterface
     public function setPath($path);
 
     /**
-     * @return ImageAwareInterface
+     * @return object
      */
     public function getOwner();
 
     /**
-     * @param ImageAwareInterface|null $owner
+     * @param object|null $owner
      */
-    public function setOwner(ImageAwareInterface $owner = null);
+    public function setOwner($owner);
 }

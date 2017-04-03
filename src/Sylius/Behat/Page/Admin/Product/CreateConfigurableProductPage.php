@@ -15,6 +15,7 @@ use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Element\NodeElement;
 use Sylius\Behat\Behaviour\SpecifiesItsCode;
 use Sylius\Behat\Page\Admin\Crud\CreatePage as BaseCreatePage;
+use Sylius\Behat\Service\SlugGenerationHelper;
 use Webmozart\Assert\Assert;
 
 /**
@@ -33,7 +34,9 @@ class CreateConfigurableProductPage extends BaseCreatePage implements CreateConf
             sprintf('sylius_product_translations_%s_name', $localeCode), $name
         );
 
-        $this->waitForSlugGenerationIfNecessary();
+        if ($this->getDriver() instanceof Selenium2Driver) {
+            SlugGenerationHelper::waitForSlugGeneration($this->getSession(), $this->getElement('slug'));
+        }
     }
 
     /**
@@ -47,7 +50,7 @@ class CreateConfigurableProductPage extends BaseCreatePage implements CreateConf
     /**
      * {@inheritdoc}
      */
-    public function attachImage($path, $code = null)
+    public function attachImage($path, $type = null)
     {
         $this->clickTabIfItsNotActive('media');
 
@@ -56,8 +59,8 @@ class CreateConfigurableProductPage extends BaseCreatePage implements CreateConf
         $this->getDocument()->clickLink('Add');
 
         $imageForm = $this->getLastImageElement();
-        if (null !== $code) {
-            $imageForm->fillField('Code', $code);
+        if (null !== $type) {
+            $imageForm->fillField('Type', $type);
         }
 
         $imageForm->find('css', 'input[type="file"]')->attachFile($filesPath.$path);
@@ -99,14 +102,5 @@ class CreateConfigurableProductPage extends BaseCreatePage implements CreateConf
         Assert::notEmpty($items);
 
         return end($items);
-    }
-
-    private function waitForSlugGenerationIfNecessary()
-    {
-        if ($this->getDriver() instanceof Selenium2Driver) {
-            $this->getDocument()->waitFor(10, function () {
-                return '' !== $this->getElement('slug')->getValue();
-            });
-        }
     }
 }

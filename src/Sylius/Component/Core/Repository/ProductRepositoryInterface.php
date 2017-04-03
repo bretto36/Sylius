@@ -23,50 +23,45 @@ use Sylius\Component\Product\Repository\ProductRepositoryInterface as BaseProduc
 interface ProductRepositoryInterface extends BaseProductRepositoryInterface
 {
     /**
-     * @param string $localeCode
+     * @param string $locale
      * @param mixed|null $taxonId
      *
      * @return QueryBuilder
      */
-    public function createQueryBuilderWithLocaleCodeAndTaxonId($localeCode, $taxonId = null);
+    public function createListQueryBuilder($locale, $taxonId = null);
 
     /**
-     * @param string $code
      * @param ChannelInterface $channel
+     * @param TaxonInterface $taxon
      * @param string $locale
+     * @param array $sorting
      *
      * @return QueryBuilder
      */
-    public function createQueryBuilderForEnabledByTaxonCodeAndChannelAndLocale($code, ChannelInterface $channel, $locale);
-
-    /**
-     * @param string $slug
-     * @param ChannelInterface $channel
-     *
-     * @return ProductInterface|null
-     */
-    public function findOneBySlugAndChannel($slug, ChannelInterface $channel);
-
-    /**
-     * @param string $slug
-     *
-     * @return ProductInterface|null
-     */
-    public function findOneBySlug($slug);
+    public function createShopListQueryBuilder(ChannelInterface $channel, TaxonInterface $taxon, $locale, array $sorting = []);
 
     /**
      * @param ChannelInterface $channel
+     * @param string $locale
      * @param int $count
      *
      * @return ProductInterface[]
      */
-    public function findLatestByChannel(ChannelInterface $channel, $count);
+    public function findLatestByChannel(ChannelInterface $channel, $locale, $count);
+
+    /**
+     * @param ChannelInterface $channel
+     * @param string $locale
+     * @param string $slug
+     *
+     * @return ProductInterface|null
+     */
+    public function findOneByChannelAndSlug(ChannelInterface $channel, $locale, $slug);
 
     /**
      * @param string $code
-     * @param ChannelInterface $channel
      *
-     * @return ProductInterface[]|null
+     * @return ProductInterface|null
      */
-    public function findEnabledByTaxonCodeAndChannel($code, ChannelInterface $channel);
+    public function findOneByCode($code);
 }

@@ -5,13 +5,13 @@
     "total": 3,
     "_links": {
         "self": {
-            "href": "\/api\/tax-categories\/?page=1&limit=10"
+            "href": "\/api\/v1\/tax-categories\/?page=1&limit=10"
         },
         "first": {
-            "href": "\/api\/tax-categories\/?page=1&limit=10"
+            "href": "\/api\/v1\/tax-categories\/?page=1&limit=10"
         },
         "last": {
-            "href": "\/api\/tax-categories\/?page=1&limit=10"
+            "href": "\/api\/v1\/tax-categories\/?page=1&limit=10"
         }
     },
     "_embedded": {
@@ -22,7 +22,7 @@
                 "name": "Tax Category 1",
                 "_links": {
                     "self": {
-                        "href": "@string@"
+                        "href": "\/api\/v1\/tax-categories\/TC1"
                     }
                 }
             },
@@ -32,7 +32,7 @@
                 "name": "Tax Category 2",
                 "_links": {
                     "self": {
-                        "href": "@string@"
+                        "href": "\/api\/v1\/tax-categories\/TC2"
                     }
                 }
             },
@@ -42,7 +42,7 @@
                 "name": "Tax Category 3",
                 "_links": {
                     "self": {
-                        "href": "@string@"
+                        "href": "\/api\/v1\/tax-categories\/TC3"
                     }
                 }
             }

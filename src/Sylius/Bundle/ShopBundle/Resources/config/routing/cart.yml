@@ -8,6 +8,7 @@ sylius_shop_cart_summary:
         _controller: sylius.controller.order:summaryAction
         _sylius:
             template: "@SyliusShop/Cart/summary.html.twig"
+            form: Sylius\Bundle\OrderBundle\Form\Type\CartType
 
 sylius_shop_cart_save:
     path: /
@@ -17,7 +18,8 @@ sylius_shop_cart_save:
         _sylius:
             template: "@SyliusShop/Cart/summary.html.twig"
             redirect: sylius_shop_cart_summary
-            flash: sylius.cart.cart_save_completed
+            form: Sylius\Bundle\OrderBundle\Form\Type\CartType
+            flash: sylius.cart.save
 
 sylius_shop_cart_clear:
     path: /
@@ -26,30 +28,3 @@ sylius_shop_cart_clear:
         _controller: sylius.controller.order:clearAction
         _sylius:
             redirect: sylius_shop_cart_summary
-
-sylius_shop_cart_item_remove:
-    path: /{id}/remove
-    defaults:
-        _controller: sylius.controller.order_item:removeAction
-        _sylius:
-            redirect: sylius_shop_cart_summary
-            flash: sylius.cart.item_remove_completed
-
-sylius_shop_cart_item_add:
-    path: /add
-    methods: [GET, POST]
-    defaults:
-        _controller: sylius.controller.order_item:addAction
-        _sylius:
-            factory:
-                method: createForProduct
-                arguments: [expr:service('sylius.repository.product').find($productId)]
-            form:
-                type: sylius_cart_item
-                options:
-                    product: expr:service('sylius.repository.product').find($productId)
-            template: $template
-            redirect:
-                route: sylius_shop_cart_summary
-                parameters: {}
-            flash: sylius.cart.item_add_completed

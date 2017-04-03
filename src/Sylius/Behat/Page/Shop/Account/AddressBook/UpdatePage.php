@@ -11,13 +11,12 @@
 
 namespace Sylius\Behat\Page\Shop\Account\AddressBook;
 
-use Behat\Mink\Element\NodeElement;
 use Sylius\Behat\Page\SymfonyPage;
 
 /**
  * @author Jan Góralski <jan.goralski@lakion.com>
  */
-final class UpdatePage extends SymfonyPage implements UpdatePageInterface
+class UpdatePage extends SymfonyPage implements UpdatePageInterface
 {
     /**
      * {@inheritdoc}
@@ -32,8 +31,28 @@ final class UpdatePage extends SymfonyPage implements UpdatePageInterface
      */
     public function fillField($field, $value)
     {
-        $field = $this->getElement(str_replace(' ', '_',strtolower($field)));
+        $field = $this->getElement(str_replace(' ', '_', strtolower($field)));
         $field->setValue($value);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSpecifiedProvince()
+    {
+        $this->waitForElement(5, 'province_name');
+
+        return $this->getElement('province_name')->getValue();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSelectedProvince()
+    {
+        $this->waitForElement(5, 'province_code');
+
+        return $this->getElement('selected_province')->getText();
     }
 
     /**
@@ -86,6 +105,7 @@ final class UpdatePage extends SymfonyPage implements UpdatePageInterface
             'province_name' => 'input[name="sylius_address[provinceName]"]',
             'province_code' => 'select[name="sylius_address[provinceCode]"]',
             'save_button' => 'button:contains("Save changes")',
+            'selected_province' => 'select[name="sylius_address[provinceCode]"] option[selected="selected"]',
             'street' => '#sylius_address_street',
         ]);
     }
@@ -96,7 +116,7 @@ final class UpdatePage extends SymfonyPage implements UpdatePageInterface
      */
     private function waitForElement($timeout, $elementName)
     {
-        $this->getDocument()->waitFor($timeout, function () use ($elementName){
+        $this->getDocument()->waitFor($timeout, function () use ($elementName) {
             return $this->hasElement($elementName);
         });
     }

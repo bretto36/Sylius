@@ -7,7 +7,7 @@ extensions = ['sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo', 'sp
 source_suffix = '.rst'
 master_doc = 'index'
 project = 'Sylius'
-copyright = u'2011-2016, Paweł Jędrzejewski'
+copyright = u'2011-2017, Paweł Jędrzejewski'
 version = ''
 release = ''
 exclude_patterns = ['_includes/*.rst']
@@ -21,6 +21,5 @@ man_pages = [
 sys.path.append(os.path.abspath('_exts'))
 lexers['php'] = PhpLexer(startinline=True)
 lexers['php-annotations'] = PhpLexer(startinline=True)
-primary_domain = 'php'
 rst_epilog = """
 """

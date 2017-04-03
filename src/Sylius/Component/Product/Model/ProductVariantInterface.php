@@ -15,11 +15,16 @@ use Doctrine\Common\Collections\Collection;
 use Sylius\Component\Resource\Model\CodeAwareInterface;
 use Sylius\Component\Resource\Model\ResourceInterface;
 use Sylius\Component\Resource\Model\TimestampableInterface;
+use Sylius\Component\Resource\Model\TranslatableInterface;
 
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-interface ProductVariantInterface extends TimestampableInterface, ResourceInterface, CodeAwareInterface
+interface ProductVariantInterface extends
+    TimestampableInterface,
+    ResourceInterface,
+    CodeAwareInterface,
+    TranslatableInterface
 {
     /**
      * @return string
@@ -30,6 +35,11 @@ interface ProductVariantInterface extends TimestampableInterface, ResourceInterf
      * @param string $name
      */
     public function setName($name);
+
+    /**
+     * @return string
+     */
+    public function getDescriptor();
 
     /**
      * @return Collection|ProductOptionValueInterface[]
@@ -64,27 +74,12 @@ interface ProductVariantInterface extends TimestampableInterface, ResourceInterf
     public function setProduct(ProductInterface $product = null);
 
     /**
-     * @return bool
+     * @return int
      */
-    public function isAvailable();
+    public function getPosition();
 
     /**
-     * @return \DateTime
+     * @param int $position
      */
-    public function getAvailableOn();
-
-    /**
-     * @param \DateTime|null $availableOn
-     */
-    public function setAvailableOn(\DateTime $availableOn = null);
-
-    /**
-     * @return \DateTime
-     */
-    public function getAvailableUntil();
-
-    /**
-     * @param \DateTime|null $availableUntil
-     */
-    public function setAvailableUntil(\DateTime $availableUntil = null);
+    public function setPosition($position);
 }

@@ -16,12 +16,12 @@ use Sylius\Bundle\CoreBundle\Form\Type\ImageType;
 /**
  * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
  */
-class TaxonImageType extends ImageType
+final class TaxonImageType extends ImageType
 {
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'sylius_taxon_image';
     }

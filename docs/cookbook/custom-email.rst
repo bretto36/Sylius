@@ -3,11 +3,11 @@ How to send a custom e-mail?
 
 .. note::
 
-    This cookbook is suitable for a clean :doc:`sylius-standard installation </book/installation>`.
+    This cookbook is suitable for a clean :doc:`sylius-standard installation </book/installation/installation>`.
     For more general tips, while using :doc:`SyliusMailerBundle </bundles/SyliusMailerBundle/index>`
     go to `Sending configurable e-mails in Symfony Blogpost <http://sylius.org/blog/sending-configurable-e-mails-in-symfony>`_.
 
-Currently **Sylius** is sending e-mails only in a few "must-have" cases - see :doc:`E-mails documentation </book/emails>`.
+Currently **Sylius** is sending e-mails only in a few "must-have" cases - see :doc:`E-mails documentation </book/architecture/emails>`.
 Of course these cases may not be sufficient for your business needs. If so, you will need to create your own custom e-mails inside the system.
 
 On a basic example we will now teach how to do it.
@@ -26,11 +26,11 @@ To achieve that you will need to:
 1. Create a new e-mail that will be sent:
 -----------------------------------------
 
-* prepare a template for your email in the ``AppBundle/Resources/views/Email``.
+* prepare a template for your email in the ``app/Resources/views/Email``.
 
 .. code-block:: twig
 
-    {# AppBundle/Resources/views/Email/out_of_stock.html.twig #}
+    {# app/Resources/views/Email/out_of_stock.html.twig #}
     {% block subject %}
         One of your products has become out of stock.
     {% endblock %}
@@ -138,7 +138,7 @@ To achieve that you will need to:
 
 .. code-block:: yaml
 
-    # AppBundle/Resources/config/services.yml
+    # app/config/services.yml
     services:
         app.email_manager.out_of_stock:
         class: AppBundle\EmailManager\OutOfStockEmailManager
@@ -170,7 +170,7 @@ To achieve that you will need to:
 Learn More
 ----------
 
-* :doc:`Emails Concept </book/emails>`
-* :doc:`State Machine Concept </book/state_machine>`
+* :doc:`Emails Concept </book/architecture/emails>`
+* :doc:`State Machine Concept </book/architecture/state_machine>`
 * :doc:`Customization Guide - State Machine </customization/state_machine>`
 * `Sending configurable e-mails in Symfony Blogpost <http://sylius.org/blog/sending-configurable-e-mails-in-symfony>`_

@@ -12,6 +12,7 @@
 namespace Sylius\Bundle\ResourceBundle\DependencyInjection;
 
 use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
+use Sylius\Bundle\ResourceBundle\Form\Type\DefaultResourceType;
 use Sylius\Bundle\ResourceBundle\SyliusResourceBundle;
 use Sylius\Component\Resource\Factory\Factory;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
@@ -71,16 +72,7 @@ final class Configuration implements ConfigurationInterface
                                     ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
                                     ->scalarNode('repository')->cannotBeEmpty()->end()
                                     ->scalarNode('factory')->defaultValue(Factory::class)->end()
-                                    ->arrayNode('form')
-                                        ->prototype('scalar')->end()
-                                    ->end()
-                                ->end()
-                            ->end()
-                            ->arrayNode('validation_groups')
-                                ->useAttributeAsKey('name')
-                                ->prototype('array')
-                                    ->prototype('scalar')->end()
-                                    ->defaultValue([])
+                                    ->scalarNode('form')->defaultValue(DefaultResourceType::class)->cannotBeEmpty()->end()
                                 ->end()
                             ->end()
                             ->arrayNode('translation')
@@ -95,21 +87,8 @@ final class Configuration implements ConfigurationInterface
                                             ->scalarNode('controller')->defaultValue(ResourceController::class)->cannotBeEmpty()->end()
                                             ->scalarNode('repository')->cannotBeEmpty()->end()
                                             ->scalarNode('factory')->defaultValue(Factory::class)->end()
-                                            ->arrayNode('form')
-                                                ->prototype('scalar')->end()
-                                            ->end()
+                                            ->scalarNode('form')->defaultValue(DefaultResourceType::class)->cannotBeEmpty()->end()
                                         ->end()
-                                    ->end()
-                                    ->arrayNode('validation_groups')
-                                        ->useAttributeAsKey('name')
-                                        ->prototype('array')
-                                            ->prototype('scalar')->end()
-                                            ->defaultValue([])
-                                        ->end()
-                                    ->end()
-                                    ->arrayNode('fields')
-                                        ->prototype('scalar')->end()
-                                        ->defaultValue([])
                                     ->end()
                                 ->end()
                             ->end()
@@ -155,10 +134,9 @@ final class Configuration implements ConfigurationInterface
         $node
             ->children()
                 ->arrayNode('translation')
-                    ->canBeEnabled()
+                    ->canBeDisabled()
                     ->children()
-                        ->scalarNode('locale_provider')->isRequired()->end()
-                        ->scalarNode('locale_context')->isRequired()->end()
+                        ->scalarNode('locale_provider')->defaultValue('sylius.translation_locale_provider.immutable')->cannotBeEmpty()->end()
                 ->end()
             ->end()
         ;

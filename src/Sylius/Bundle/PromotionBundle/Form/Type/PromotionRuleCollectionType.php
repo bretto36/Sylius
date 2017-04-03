@@ -12,25 +12,25 @@
 namespace Sylius\Bundle\PromotionBundle\Form\Type;
 
 use Sylius\Bundle\PromotionBundle\Form\Type\Core\AbstractConfigurationCollectionType;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * @author Arnaud Langlade <arn0d.dev@gmail.com>
  */
-class PromotionRuleCollectionType extends AbstractConfigurationCollectionType
+final class PromotionRuleCollectionType extends AbstractConfigurationCollectionType
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function getName()
+    public function configureOptions(OptionsResolver $resolver)
     {
-        return 'sylius_promotion_rule_collection';
+        parent::configureOptions($resolver);
+
+        $resolver->setDefault('entry_type', PromotionRuleType::class);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getFormTypeOption()
+    public function getBlockPrefix()
     {
-        return 'sylius_promotion_rule';
+        return 'sylius_promotion_rule_collection';
     }
 }

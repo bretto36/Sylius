@@ -6,8 +6,10 @@ sylius:
         admin:
             main:
                 catalog:
+                    association_types: Associationstyper
                     attributes: Attribut
                     header: Katalog
+                    inventory: Lager
                     options: Alternativ
                     products: Produkter
                     taxons: Taxa
@@ -16,9 +18,11 @@ sylius:
                     channels: Kanaler
                     countries: Länder
                     currencies: Valutor
+                    exchange_rates: Växelkurser
                     header: Konfiguration
                     locales: Språk
                     payment_methods: Betalningsmetoder
+                    shipping_categories: Fraktkategorier
                     shipping_methods: Leveransmetoder
                     tax_categories: Skattekategorier
                     tax_rates: Skattesatser
@@ -33,8 +37,4 @@ sylius:
                     header: Kunder
                 sales:
                     header: Försäljning
-                    orders: Order
-                content:
-                    header: Innehåll
-                    static_contents: Statiskt innehåll
-                    routes: Rutter
+                    orders: Beställningar

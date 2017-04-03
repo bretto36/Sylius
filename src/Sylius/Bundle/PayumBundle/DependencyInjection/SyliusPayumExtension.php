@@ -11,8 +11,6 @@
 
 namespace Sylius\Bundle\PayumBundle\DependencyInjection;
 
-use Payum\Bundle\PayumBundle\DependencyInjection\MainConfiguration as PayumConfiguration;
-use Payum\Bundle\PayumBundle\DependencyInjection\PayumExtension;
 use Sylius\Bundle\ResourceBundle\DependencyInjection\Extension\AbstractResourceExtension;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -29,7 +27,7 @@ final class SyliusPayumExtension extends AbstractResourceExtension implements Pr
      */
     public function load(array $config, ContainerBuilder $container)
     {
-        $config = $this->processConfiguration($this->getConfiguration($config, $container), $config);
+        $config = $this->processConfiguration($this->getConfiguration([], $container), $config);
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 
         $this->registerResources('sylius', $config['driver'], $config['resources'], $container);

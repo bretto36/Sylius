@@ -14,10 +14,10 @@ namespace Sylius\Bundle\ShopBundle;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 /**
- * This bundle contains Sylius eCommerce storefront.
+ * This bundle provides an example B2C shop frontend for the Sylius eCommerce framework.
  *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class SyliusShopBundle extends Bundle
+final class SyliusShopBundle extends Bundle
 {
 }

@@ -11,14 +11,15 @@
 
 namespace Sylius\Bundle\CoreBundle\Form\Type\User;
 
-use Sylius\Bundle\UserBundle\Form\Type\UserType as BaseUserType;
+use Sylius\Bundle\UserBundle\Form\Type\UserType;
 use Symfony\Component\Form\Extension\Core\Type\LocaleType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 
 /**
  * @author Jan Góralski <jan.goralski@lakion.com>
  */
-class AdminUserType extends BaseUserType
+final class AdminUserType extends UserType
 {
     /**
      * {@inheritdoc}
@@ -28,12 +29,24 @@ class AdminUserType extends BaseUserType
         parent::buildForm($builder, $options);
 
         $builder
-            ->add('firstName')
-            ->add('lastName')
+            ->add('firstName', TextType::class, [
+            	'label' => 'sylius.form.user.first_name',
+            ])
+            ->add('lastName', TextType::class, [
+            	'label' => 'sylius.form.user.last_name',
+            ])
             ->add('localeCode', LocaleType::class, [
                 'label' => 'sylius.ui.locale',
                 'placeholder' => null,
             ])
         ;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
+    {
+        return 'sylius_admin_user';
     }
 }

@@ -13,7 +13,6 @@ Creating a product
    $product = new Product();
 
    $product->getCreatedAt(); // Returns the \DateTime when it was created.
-   $product->getAvailableOn(); // By default returns the same value as getCreatedAt.
 
 Product attributes management
 -----------------------------
@@ -90,12 +89,6 @@ Product variants management
    $product->setVariants($variants);
 
    $product->getVariants(); // Returns an array containing $variant and $availableVariant.
-
-.. code-block:: php
-
-   $product->getAvailableVariants(); // Returns an array containing only $availableVariant.
-
-``getAvailableVariants`` returns only variants which ``availableOn`` property is set to a past time.
 
 .. note::
    Only instances of **Variant** from the :doc:`/components/Product/index` component

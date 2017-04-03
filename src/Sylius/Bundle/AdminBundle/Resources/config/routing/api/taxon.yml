@@ -1,5 +1,0 @@
-sylius_admin_api_generate_taxon_slug:
-    path: /generate-slug/
-    methods: [GET]
-    defaults:
-        _controller: sylius.controller.taxon_slug:generateAction

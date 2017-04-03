@@ -32,12 +32,4 @@ final class CartQuantityRuleChecker implements RuleCheckerInterface
 
         return $subject->getPromotionSubjectCount() >= $configuration['count'];
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfigurationFormType()
-    {
-        return 'sylius_promotion_rule_cart_quantity_configuration';
-    }
 }

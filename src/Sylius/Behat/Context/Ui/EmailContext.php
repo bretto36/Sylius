@@ -14,6 +14,7 @@ namespace Sylius\Behat\Context\Ui;
 use Behat\Behat\Context\Context;
 use Sylius\Behat\Service\SharedStorageInterface;
 use Sylius\Component\Core\Model\OrderInterface;
+use Sylius\Component\Core\Model\ShipmentInterface;
 use Sylius\Component\Core\Test\Services\EmailCheckerInterface;
 use Webmozart\Assert\Assert;
 
@@ -45,13 +46,11 @@ final class EmailContext implements Context
     /**
      * @Then it should be sent to :recipient
      * @Then the email with reset token should be sent to :recipient
+     * @Then the email with contact request should be sent to :recipient
      */
     public function anEmailShouldBeSentTo($recipient)
     {
-        Assert::true(
-            $this->emailChecker->hasRecipient($recipient),
-            sprintf('An email should have been sent to %s.', $recipient)
-        );
+        Assert::true($this->emailChecker->hasRecipient($recipient));
     }
 
     /**
@@ -59,17 +58,7 @@ final class EmailContext implements Context
      */
     public function numberOfEmailsShouldBeSentTo($count, $recipient)
     {
-        $actualMessagesCount = $this->emailChecker->countMessagesTo($recipient);
-
-        Assert::eq(
-            $actualMessagesCount,
-            $count,
-            sprintf(
-                '%d messages were sent, while there should be %d.',
-                $actualMessagesCount,
-                $count
-            )
-        );
+        Assert::same($this->emailChecker->countMessagesTo($recipient), (int) $count);
     }
 
     /**
@@ -100,7 +89,7 @@ final class EmailContext implements Context
     public function anEmailWithShipmentDetailsOfOrderShouldBeSentTo(OrderInterface $order, $recipient)
     {
         $this->assertEmailContainsMessageTo($order->getNumber(), $recipient);
-        $this->assertEmailContainsMessageTo($order->getLastShipment()->getMethod()->getName(), $recipient);
+        $this->assertEmailContainsMessageTo($this->getShippingMethodName($order), $recipient);
 
         $tracking = $this->sharedStorage->get('tracking_code');
         $this->assertEmailContainsMessageTo($tracking, $recipient);
@@ -112,9 +101,31 @@ final class EmailContext implements Context
      */
     private function assertEmailContainsMessageTo($message, $recipient)
     {
-        Assert::true(
-            $this->emailChecker->hasMessageTo($message, $recipient),
-            sprintf('Message "%s" was not sent to "%s".', $message, $recipient)
-        );
+        Assert::true($this->emailChecker->hasMessageTo($message, $recipient));
+    }
+
+    /**
+     * @param string $message
+     * @param string $recipient
+     */
+    private function assertEmailNotContainsMessageTo($message, $recipient)
+    {
+        Assert::false($this->emailChecker->hasMessageTo($message, $recipient));
+    }
+
+    /**
+     * @param OrderInterface $order
+     *
+     * @return string
+     */
+    private function getShippingMethodName(OrderInterface $order)
+    {
+        /** @var ShipmentInterface $shipment */
+        $shipment = $order->getShipments()->first();
+        if (false === $shipment) {
+            throw new \LogicException('Order should have at least one shipment.');
+        }
+
+        return $shipment->getMethod()->getName();
     }
 }

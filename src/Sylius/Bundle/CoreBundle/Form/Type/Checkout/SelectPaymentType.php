@@ -17,15 +17,15 @@ use Symfony\Component\Form\FormBuilderInterface;
 /**
  * @author Anna Walasek <anna.walasek@lakion.com>
  */
-class SelectPaymentType extends AbstractResourceType
+final class SelectPaymentType extends AbstractResourceType
 {
     /**
      * {@inheritdoc}
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('payments', 'collection', [
-            'type' => 'sylius_checkout_payment',
+        $builder->add('payments', ChangePaymentMethodType::class, [
+            'entry_type' => PaymentType::class,
             'label' => false,
         ]);
     }
@@ -33,7 +33,7 @@ class SelectPaymentType extends AbstractResourceType
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'sylius_checkout_select_payment';
     }

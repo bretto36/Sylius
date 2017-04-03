@@ -11,14 +11,15 @@
 
 namespace Sylius\Bundle\CoreBundle\Form\Type;
 
-use Sylius\Bundle\ResourceBundle\Form\EventSubscriber\AddCodeFormSubscriber;
 use Sylius\Bundle\ResourceBundle\Form\Type\AbstractResourceType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 
 /**
  * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
  */
-class ImageType extends AbstractResourceType
+abstract class ImageType extends AbstractResourceType
 {
     /**
      * {@inheritdoc}
@@ -26,8 +27,11 @@ class ImageType extends AbstractResourceType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->addEventSubscriber(new AddCodeFormSubscriber())
-            ->add('file', 'file', [
+            ->add('type', TextType::class, [
+                'label' => 'sylius.form.image.type',
+                'required' => false,
+            ])
+            ->add('file', FileType::class, [
                 'label' => 'sylius.form.image.file',
             ])
         ;
@@ -36,7 +40,7 @@ class ImageType extends AbstractResourceType
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'sylius_image';
     }

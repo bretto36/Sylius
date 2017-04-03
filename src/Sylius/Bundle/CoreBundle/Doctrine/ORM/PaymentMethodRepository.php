@@ -22,11 +22,9 @@ class PaymentMethodRepository extends BasePaymentMethodRepository implements Pay
      */
     public function createListQueryBuilder($locale)
     {
-        return $this
-            ->createQueryBuilder('o')
-            ->addSelect('translation')
-            ->leftJoin('o.translations', 'translation')
-            ->andWhere('translation.locale = :locale')
+        return $this->createQueryBuilder('o')
+            ->leftJoin('o.gatewayConfig', 'gatewayConfig')
+            ->leftJoin('o.translations', 'translation', 'WITH', 'translation.locale = :locale')
             ->setParameter('locale', $locale)
         ;
     }
@@ -37,9 +35,10 @@ class PaymentMethodRepository extends BasePaymentMethodRepository implements Pay
     public function findEnabledForChannel(ChannelInterface $channel)
     {
         return $this->createQueryBuilder('o')
-            ->where('o.enabled = true')
-            ->andWhere('o IN (:paymentMethodsInChannel)')
-            ->setParameter('paymentMethodsInChannel', $channel->getPaymentMethods()->toArray())
+            ->andWhere('o.enabled = true')
+            ->andWhere(':channel MEMBER OF o.channels')
+            ->setParameter('channel', $channel)
+            ->addOrderBy('o.position')
             ->getQuery()
             ->getResult()
         ;

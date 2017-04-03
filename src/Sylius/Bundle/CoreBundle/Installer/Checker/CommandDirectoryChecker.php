@@ -14,8 +14,6 @@ namespace Sylius\Bundle\CoreBundle\Installer\Checker;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Finder\Iterator\RecursiveDirectoryIterator;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 /**
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
@@ -45,8 +43,24 @@ final class CommandDirectoryChecker
      */
     public function ensureDirectoryExists($directory, OutputInterface $output)
     {
-        if (!is_dir($directory)) {
-            $this->createDirectory($directory, $output);
+        if (is_dir($directory)) {
+            return;
+        }
+
+        try {
+            $this->filesystem->mkdir($directory, 0755);
+
+            $output->writeln(sprintf('<comment>Created "%s" directory.</comment>', realpath($directory)));
+        } catch (IOException $exception) {
+            $output->writeln('');
+            $output->writeln('<error>Cannot run command due to unexisting directory (tried to create it automatically, failed).</error>');
+            $output->writeln('');
+
+            throw new \RuntimeException(sprintf(
+                'Create directory "%s" and run command "<comment>%s</comment>"',
+                realpath($directory),
+                $this->name
+            ));
         }
     }
 
@@ -55,12 +69,24 @@ final class CommandDirectoryChecker
      */
     public function ensureDirectoryIsWritable($directory, OutputInterface $output)
     {
-        try {
-            $this->changePermissionsRecursively($directory, $output);
-        } catch (AccessDeniedException $exception) {
-            $output->writeln($this->createBadPermissionsMessage($exception->getMessage()));
+        if (is_writable($directory)) {
+            return;
+        }
 
-            throw new \RuntimeException('Failed while trying to change directory permissions.');
+        try {
+            $this->filesystem->chmod($directory, 0755);
+
+            $output->writeln(sprintf('<comment>Changed "%s" permissions to 0755.</comment>', realpath($directory)));
+        } catch (IOException $exception) {
+            $output->writeln('');
+            $output->writeln('<error>Cannot run command due to bad directory permissions (tried to change permissions to 0755).</error>');
+            $output->writeln('');
+
+            throw new \RuntimeException(sprintf(
+                'Set "%s" writable and run command "<comment>%s</comment>"',
+                realpath(dirname($directory)),
+                $this->name
+            ));
         }
     }
 
@@ -70,88 +96,5 @@ final class CommandDirectoryChecker
     public function setCommandName($name)
     {
         $this->name = $name;
-    }
-
-    /**
-     * @param string          $directory
-     * @param OutputInterface $output
-     */
-    private function createDirectory($directory, OutputInterface $output)
-    {
-        try {
-            $this->filesystem->mkdir($directory, 0755);
-        } catch (IOException $exception) {
-            $output->writeln($this->createUnexistingDirectoryMessage(getcwd().'/'.$directory));
-
-            throw new \RuntimeException('Failed while trying to create directory.');
-        }
-
-        $output->writeln(sprintf('<comment>Created "%s" directory.</comment>', $directory));
-    }
-
-    /**
-     * @param string          $directory
-     * @param OutputInterface $output
-     */
-    private function changePermissionsRecursively($directory, OutputInterface $output)
-    {
-        if (is_file($directory) && is_writable($directory)) {
-            return;
-        }
-
-        if (!is_writable($directory)) {
-            $this->changePermissions($directory, $output);
-
-            return;
-        }
-
-        foreach (new RecursiveDirectoryIterator($directory, \FilesystemIterator::CURRENT_AS_FILEINFO) as $subdirectory) {
-            if ('.' !== $subdirectory->getFilename()[0]) {
-                $this->changePermissionsRecursively($subdirectory->getPathname(), $output);
-            }
-        }
-    }
-
-    /**
-     * @param string          $directory
-     * @param OutputInterface $output
-     *
-     * @throws AccessDeniedException if directory/file permissions cannot be changed
-     */
-    private function changePermissions($directory, OutputInterface $output)
-    {
-        try {
-            $this->filesystem->chmod($directory, 0755, 0000, true);
-
-            $output->writeln(sprintf('<comment>Changed "%s" permissions to 0755.</comment>', $directory));
-        } catch (IOException $exception) {
-            throw new AccessDeniedException(dirname($directory));
-        }
-    }
-
-    /**
-     * @param string $directory
-     *
-     * @return string
-     */
-    private function createUnexistingDirectoryMessage($directory)
-    {
-        return
-            '<error>Cannot run command due to unexisting directory (tried to create it automatically, failed).</error>'.PHP_EOL.
-            sprintf('Create directory "%s" and run command "<comment>%s</comment>"', $directory, $this->name)
-        ;
-    }
-
-    /**
-     * @param string $directory
-     *
-     * @return string
-     */
-    private function createBadPermissionsMessage($directory)
-    {
-        return
-            '<error>Cannot run command due to bad directory permissions (tried to change permissions to 0755).</error>'.PHP_EOL.
-            sprintf('Set "%s" writable recursively and run command "<comment>%s</comment>"', $directory, $this->name)
-        ;
     }
 }

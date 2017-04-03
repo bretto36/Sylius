@@ -12,14 +12,18 @@
 namespace Sylius\Bundle\PromotionBundle\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * @author Saša Stamenković <umpirsky@gmail.com>
  */
-class PromotionRuleChoiceType extends AbstractType
+final class PromotionRuleChoiceType extends AbstractType
 {
-    protected $rules;
+    /**
+     * @var array
+     */
+    private $rules;
 
     public function __construct(array $rules)
     {
@@ -28,19 +32,20 @@ class PromotionRuleChoiceType extends AbstractType
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver
-            ->setDefaults([
-                'choices' => $this->rules,
-            ])
-        ;
+        $resolver->setDefaults([
+            'choices' => array_flip($this->rules),
+        ]);
     }
 
     public function getParent()
     {
-        return 'choice';
+        return ChoiceType::class;
     }
 
-    public function getName()
+    /**
+     * {@inheritdoc}
+     */
+    public function getBlockPrefix()
     {
         return 'sylius_promotion_rule_choice';
     }

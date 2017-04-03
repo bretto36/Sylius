@@ -17,7 +17,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 /**
  * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
  */
-class ProductAssociationType extends AbstractResourceType
+final class ProductAssociationType extends AbstractResourceType
 {
     /**
      * {@inheritdoc}
@@ -25,10 +25,10 @@ class ProductAssociationType extends AbstractResourceType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('type', 'sylius_product_association_type_choice', [
+            ->add('type', ProductAssociationTypeChoiceType::class, [
                 'label' => 'sylius.form.product_association.type',
             ])
-            ->add('product', 'sylius_product_choice', [
+            ->add('product', ProductChoiceType::class, [
                 'label' => 'sylius.form.product_association.product',
                 'property_path' => 'associatedProducts',
                 'multiple' => true,
@@ -39,7 +39,7 @@ class ProductAssociationType extends AbstractResourceType
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'sylius_product_association';
     }

@@ -20,14 +20,10 @@ sylius:
             tracking_code: Spårningskod
         shipping_calculator:
             flat_rate_configuration:
+                label: Schablonbelopp per sändning
                 amount: Antal
-            flexible_rate_configuration:
-                label: Flexibelt belopp
             per_unit_rate_configuration:
-                amount: Antal
-            weight_rate_configuration:
-                label: Viktbaserat pris
-            volume_rate_configuration:
+                label: Schablonbelopp per enhet
                 amount: Antal
         shipping_category:
             description: Beskrivning
@@ -36,9 +32,11 @@ sylius:
             calculator: Kalkylator
             category: Kategori
             category_requirement: Kategorikrav
+            channels: Kanaler
             configuration: Konfiguration
             description: Beskrivning
             enabled: Aktiverad
             name: Namn
             tax_category: Momskategori
             translations: Översättningar
+            position: Position

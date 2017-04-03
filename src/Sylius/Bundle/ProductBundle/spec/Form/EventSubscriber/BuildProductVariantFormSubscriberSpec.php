@@ -13,9 +13,10 @@ namespace spec\Sylius\Bundle\ProductBundle\Form\EventSubscriber;
 
 use PhpSpec\ObjectBehavior;
 use Sylius\Bundle\ProductBundle\Form\EventSubscriber\BuildProductVariantFormSubscriber;
+use Sylius\Bundle\ProductBundle\Form\Type\ProductOptionValueCollectionType;
+use Sylius\Component\Product\Model\ProductInterface;
 use Sylius\Component\Product\Model\ProductOptionInterface;
 use Sylius\Component\Product\Model\ProductOptionValueInterface;
-use Sylius\Component\Product\Model\ProductInterface;
 use Sylius\Component\Product\Model\ProductVariantInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -41,7 +42,7 @@ final class BuildProductVariantFormSubscriberSpec extends ObjectBehavior
         );
     }
 
-    function it_adds_options_on_pre_set_data_event(
+    function it_adds_options_on_pre_set_data_event_with_configurable_options(
         FormEvent $event,
         FormFactoryInterface $factory,
         FormInterface $form,
@@ -61,11 +62,48 @@ final class BuildProductVariantFormSubscriberSpec extends ObjectBehavior
 
         $factory->createNamed(
             'optionValues',
-            'sylius_product_option_value_collection',
+            ProductOptionValueCollectionType::class,
             [$optionValue],
             [
                 'options' => [$options],
                 'auto_initialize' => false,
+                'disabled' => false,
+            ]
+        )->willReturn($optionsForm);
+
+        $form->add($optionsForm)->shouldBeCalled();
+
+        $this->preSetData($event);
+    }
+
+    function it_adds_options_on_pre_set_data_event_without_configurable_options(
+        FormEvent $event,
+        FormFactoryInterface $factory,
+        FormInterface $form,
+        FormInterface $optionsForm,
+        ProductInterface $variable,
+        ProductOptionInterface $options,
+        ProductOptionValueInterface $optionValue,
+        ProductVariantInterface $variant
+    ) {
+        $this->beConstructedWith($factory, true);
+
+        $event->getForm()->willReturn($form);
+        $event->getData()->willReturn($variant);
+
+        $variant->getProduct()->willReturn($variable);
+        $variant->getOptionValues()->willReturn([$optionValue]);
+        $variable->getOptions()->willReturn([$options]);
+        $variable->hasOptions()->willReturn(true);
+
+        $factory->createNamed(
+            'optionValues',
+            ProductOptionValueCollectionType::class,
+            [$optionValue],
+            [
+                'options' => [$options],
+                'auto_initialize' => false,
+                'disabled' => true,
             ]
         )->willReturn($optionsForm);
 

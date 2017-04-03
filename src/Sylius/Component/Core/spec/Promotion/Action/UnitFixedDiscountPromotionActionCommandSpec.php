@@ -11,10 +11,11 @@
 
 namespace spec\Sylius\Component\Core\Promotion\Action;
 
-use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Sylius\Component\Core\Model\AdjustmentInterface;
+use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Model\OrderItemInterface;
 use Sylius\Component\Core\Model\OrderItemUnitInterface;
@@ -28,6 +29,7 @@ use Sylius\Component\Resource\Factory\FactoryInterface;
 
 /**
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
+ * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
  */
 final class UnitFixedDiscountPromotionActionCommandSpec extends ObjectBehavior
 {
@@ -37,7 +39,12 @@ final class UnitFixedDiscountPromotionActionCommandSpec extends ObjectBehavior
         FilterInterface $taxonFilter,
         FilterInterface $productFilter
     ) {
-        $this->beConstructedWith($adjustmentFactory, $priceRangeFilter, $taxonFilter, $productFilter);
+        $this->beConstructedWith(
+            $adjustmentFactory,
+            $priceRangeFilter,
+            $taxonFilter,
+            $productFilter
+        );
     }
 
     function it_is_initializable()
@@ -51,30 +58,31 @@ final class UnitFixedDiscountPromotionActionCommandSpec extends ObjectBehavior
     }
 
     function it_applies_a_fixed_discount_on_every_unit_in_order(
+        ChannelInterface $channel,
         FactoryInterface $adjustmentFactory,
         FilterInterface $priceRangeFilter,
         FilterInterface $taxonFilter,
         FilterInterface $productFilter,
         AdjustmentInterface $promotionAdjustment1,
         AdjustmentInterface $promotionAdjustment2,
-        Collection $originalItems,
-        Collection $units,
         OrderInterface $order,
-        OrderItemInterface $orderItem1,
+        OrderItemInterface $orderItem,
         OrderItemUnitInterface $unit1,
         OrderItemUnitInterface $unit2,
         PromotionInterface $promotion
     ) {
-        $order->getItems()->willReturn($originalItems);
-        $originalItems->toArray()->willReturn([$orderItem1]);
+        $order->getChannel()->willReturn($channel);
+        $channel->getCode()->willReturn('WEB_US');
 
-        $priceRangeFilter->filter([$orderItem1], ['amount' => 500])->willReturn([$orderItem1]);
-        $taxonFilter->filter([$orderItem1], ['amount' => 500])->willReturn([$orderItem1]);
-        $productFilter->filter([$orderItem1], ['amount' => 500])->willReturn([$orderItem1]);
+        $order->getItems()->willReturn(new ArrayCollection([$orderItem]));
+        $order->getChannel()->willReturn($channel);
 
-        $orderItem1->getQuantity()->willReturn(2);
-        $orderItem1->getUnits()->willReturn($units);
-        $units->getIterator()->willReturn(new \ArrayIterator([$unit1->getWrappedObject(), $unit2->getWrappedObject()]));
+        $priceRangeFilter->filter([$orderItem], ['amount' => 500, 'channel' => $channel])->willReturn([$orderItem]);
+        $taxonFilter->filter([$orderItem], ['amount' => 500])->willReturn([$orderItem]);
+        $productFilter->filter([$orderItem], ['amount' => 500])->willReturn([$orderItem]);
+
+        $orderItem->getQuantity()->willReturn(2);
+        $orderItem->getUnits()->willReturn(new ArrayCollection([$unit1->getWrappedObject(), $unit2->getWrappedObject()]));
 
         $promotion->getName()->willReturn('Test promotion');
         $promotion->getCode()->willReturn('TEST_PROMOTION');
@@ -98,49 +106,76 @@ final class UnitFixedDiscountPromotionActionCommandSpec extends ObjectBehavior
         $unit1->addAdjustment($promotionAdjustment1)->shouldBeCalled();
         $unit2->addAdjustment($promotionAdjustment2)->shouldBeCalled();
 
-        $this->execute($order, ['amount' => 500], $promotion);
+        $this->execute($order, ['WEB_US' => ['amount' => 500]], $promotion)->shouldReturn(true);
     }
 
-    function it_does_not_apply_promotions_with_amount_0(
+    function it_does_not_apply_a_discount_if_all_items_have_been_filtered_out(
+        ChannelInterface $channel,
+        FilterInterface $priceRangeFilter,
+        FilterInterface $taxonFilter,
+        FilterInterface $productFilter,
+        OrderInterface $order,
+        OrderItemInterface $orderItem,
+        PromotionInterface $promotion
+    ) {
+        $order->getChannel()->willReturn($channel);
+        $channel->getCode()->willReturn('WEB_US');
+
+        $order->getItems()->willReturn(new ArrayCollection([$orderItem]));
+        $order->getChannel()->willReturn($channel);
+
+        $priceRangeFilter->filter([$orderItem], ['amount' => 500, 'channel' => $channel])->willReturn([$orderItem]);
+        $taxonFilter->filter([$orderItem], ['amount' => 500])->willReturn([$orderItem]);
+        $productFilter->filter([$orderItem], ['amount' => 500])->willReturn([]);
+
+        $this->execute($order, ['WEB_US' => ['amount' => 500]], $promotion)->shouldReturn(false);
+    }
+
+    function it_does_not_apply_discount_with_amount_0(
+        ChannelInterface $channel,
         FactoryInterface $adjustmentFactory,
         OrderInterface $order,
         OrderItemUnitInterface $unit1,
         OrderItemUnitInterface $unit2,
         PromotionInterface $promotion
     ) {
+        $order->getChannel()->willReturn($channel);
+        $channel->getCode()->willReturn('WEB_US');
+
         $adjustmentFactory->createNew()->shouldNotBeCalled();
 
         $unit1->addAdjustment(Argument::any())->shouldNotBeCalled();
         $unit2->addAdjustment(Argument::any())->shouldNotBeCalled();
 
-        $this->execute($order, ['amount' => 0], $promotion);
+        $this->execute($order, ['WEB_US' => ['amount' => 0]], $promotion)->shouldReturn(false);
     }
 
-    function it_does_not_apply_bigger_promotions_than_unit_total(
+    function it_does_not_apply_bigger_discount_than_unit_total(
+        ChannelInterface $channel,
         FactoryInterface $adjustmentFactory,
         FilterInterface $priceRangeFilter,
         FilterInterface $taxonFilter,
         FilterInterface $productFilter,
         AdjustmentInterface $promotionAdjustment1,
         AdjustmentInterface $promotionAdjustment2,
-        Collection $originalItems,
-        Collection $units,
         OrderInterface $order,
-        OrderItemInterface $orderItem1,
+        OrderItemInterface $orderItem,
         OrderItemUnitInterface $unit1,
         OrderItemUnitInterface $unit2,
         PromotionInterface $promotion
     ) {
-        $order->getItems()->willReturn($originalItems);
-        $originalItems->toArray()->willReturn([$orderItem1]);
+        $order->getChannel()->willReturn($channel);
+        $channel->getCode()->willReturn('WEB_US');
 
-        $priceRangeFilter->filter([$orderItem1], ['amount' => 1000])->willReturn([$orderItem1]);
-        $taxonFilter->filter([$orderItem1], ['amount' => 1000])->willReturn([$orderItem1]);
-        $productFilter->filter([$orderItem1], ['amount' => 1000])->willReturn([$orderItem1]);
+        $order->getItems()->willReturn(new ArrayCollection([$orderItem]));
+        $order->getChannel()->willReturn($channel);
 
-        $orderItem1->getQuantity()->willReturn(2);
-        $orderItem1->getUnits()->willReturn($units);
-        $units->getIterator()->willReturn(new \ArrayIterator([$unit1->getWrappedObject(), $unit2->getWrappedObject()]));
+        $priceRangeFilter->filter([$orderItem], ['amount' => 1000, 'channel' => $channel])->willReturn([$orderItem]);
+        $taxonFilter->filter([$orderItem], ['amount' => 1000])->willReturn([$orderItem]);
+        $productFilter->filter([$orderItem], ['amount' => 1000])->willReturn([$orderItem]);
+
+        $orderItem->getQuantity()->willReturn(2);
+        $orderItem->getUnits()->willReturn(new ArrayCollection([$unit1->getWrappedObject(), $unit2->getWrappedObject()]));
 
         $promotion->getName()->willReturn('Test promotion');
         $promotion->getCode()->willReturn('TEST_PROMOTION');
@@ -164,7 +199,21 @@ final class UnitFixedDiscountPromotionActionCommandSpec extends ObjectBehavior
         $unit1->addAdjustment($promotionAdjustment1)->shouldBeCalled();
         $unit2->addAdjustment($promotionAdjustment2)->shouldBeCalled();
 
-        $this->execute($order, ['amount' => 1000], $promotion);
+        $this->execute($order, ['WEB_US' => ['amount' => 1000]], $promotion)->shouldReturn(true);
+    }
+
+    function it_does_not_apply_discount_if_no_amount_is_defined_for_order_channel(
+        ChannelInterface $channel,
+        FactoryInterface $adjustmentFactory,
+        OrderInterface $order,
+        PromotionInterface $promotion
+    ) {
+        $order->getChannel()->willReturn($channel);
+        $channel->getCode()->willReturn('WEB_US');
+
+        $adjustmentFactory->createNew()->shouldNotBeCalled();
+
+        $this->execute($order, ['WEB_PL' => ['amount' => 0]], $promotion)->shouldReturn(false);
     }
 
     function it_throws_an_exception_if_passed_subject_to_execute_is_not_order(
@@ -180,24 +229,24 @@ final class UnitFixedDiscountPromotionActionCommandSpec extends ObjectBehavior
     function it_reverts_a_proper_promotion_adjustment_from_all_units(
         AdjustmentInterface $promotionAdjustment1,
         AdjustmentInterface $promotionAdjustment2,
-        Collection $items,
-        Collection $units,
-        Collection $adjustments,
+        ChannelInterface $channel,
         OrderInterface $order,
         OrderItemInterface $orderItem,
         OrderItemUnitInterface $unit,
         PromotionInterface $promotion
     ) {
-        $order->getItems()->willReturn($items);
-        $items->getIterator()->willReturn(new \ArrayIterator([$orderItem->getWrappedObject()]));
+        $order->getChannel()->willReturn($channel);
+        $channel->getCode()->willReturn('WEB_US');
 
-        $orderItem->getUnits()->willReturn($units);
-        $units->getIterator()->willReturn(new \ArrayIterator([$unit->getWrappedObject()]));
+        $order->getItems()->willReturn(new ArrayCollection([$orderItem->getWrappedObject()]));
 
-        $unit->getAdjustments(AdjustmentInterface::ORDER_UNIT_PROMOTION_ADJUSTMENT)->willReturn($adjustments);
-        $adjustments
-            ->getIterator()
-            ->willReturn(new \ArrayIterator([$promotionAdjustment1->getWrappedObject(), $promotionAdjustment2->getWrappedObject()]))
+        $orderItem->getUnits()->willReturn(new ArrayCollection([$unit->getWrappedObject()]));
+
+        $unit->getAdjustments(AdjustmentInterface::ORDER_UNIT_PROMOTION_ADJUSTMENT)->willReturn(
+            new ArrayCollection([
+                $promotionAdjustment1->getWrappedObject(),
+                $promotionAdjustment2->getWrappedObject(),
+            ]))
         ;
 
         $promotion->getCode()->willReturn('PROMOTION');
@@ -208,7 +257,7 @@ final class UnitFixedDiscountPromotionActionCommandSpec extends ObjectBehavior
         $promotionAdjustment2->getOriginCode()->willReturn('OTHER_PROMOTION');
         $unit->removeAdjustment($promotionAdjustment2)->shouldNotBeCalled();
 
-        $this->revert($order, ['amount' => 1000], $promotion);
+        $this->revert($order, ['WEB_US' => ['amount' => 1000]], $promotion);
     }
 
     function it_throws_an_exception_if_passed_subject_to_revert_is_not_order(
@@ -219,10 +268,5 @@ final class UnitFixedDiscountPromotionActionCommandSpec extends ObjectBehavior
             ->shouldThrow(UnexpectedTypeException::class)
             ->during('revert', [$subject, ['amount' => 1000], $promotion])
         ;
-    }
-
-    function it_has_a_configuration_form_type()
-    {
-        $this->getConfigurationFormType()->shouldReturn('sylius_promotion_action_unit_fixed_discount_configuration');
     }
 }

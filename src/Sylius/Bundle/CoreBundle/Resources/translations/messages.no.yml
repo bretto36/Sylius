@@ -21,14 +21,13 @@ sylius:
             name: Navn
             roles: Roller
         channel:
-            taxonomies: Kategorisering
             locales: Nasjonale innstillinger
-            currency_default: Standard valuta
-            shipping_methods: Fraktalternativ
             payment_methods: Betalingsmetoder
+            shipping_methods: Fraktalternativ
             tax_zone_default: Standard skattesone
+            taxonomies: Kategorisering
         image:
-            code: Kode
+            type: Type
             file: Bilde
         locale:
             code: Kode
@@ -47,7 +46,6 @@ sylius:
         product:
             images: Bilder
             restricted_zone: Begrenset sone
-            shipping_category: Fraktkategori
             short_description: Kort beskrivelse
             variant_selection_method: Metode for valg av variant
             enabled: Aktivert
@@ -56,6 +54,7 @@ sylius:
             code: Kode
         product_variant:
             tax_category: Skattekategori
+            shipping_category: Fraktkategori
         shipment_filter:
             created_at_from: Fra
             created_at_to: Til
@@ -100,9 +99,6 @@ sylius:
             email: E-post
         product_association_type:
             name: Navn
-        promotion_rule:
-            contains_taxon:
-                count: Antall
     installer:
         extensions:
             header: Utvidelser

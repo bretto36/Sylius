@@ -11,9 +11,10 @@ sylius:
             meta_keywords: Meta ključne reči
             meta_description: Meta opis
         product_variant:
-            available_on: Dostupno
+            name: Ime
         association_type:
             name: Ime
+            translations: Prevodi
         association:
             product: Povezani proizvodi
         variant:

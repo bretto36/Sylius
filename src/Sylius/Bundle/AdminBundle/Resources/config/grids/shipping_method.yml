@@ -11,13 +11,15 @@ sylius_grid:
             sorting:
                 position: asc
             fields:
+                position:
+                    type: twig
+                    label: sylius.ui.position
+                    sortable: ~
+                    options:
+                        template: "@SyliusUi/Grid/Field/position.html.twig"
                 code:
                     type: string
                     label: sylius.ui.code
-                    sortable: ~
-                position:
-                    type: string # not even used
-                    enabled: false
                     sortable: ~
                 name:
                     type: string
@@ -31,7 +33,7 @@ sylius_grid:
                     label: sylius.ui.enabled
                     sortable: ~
                     options:
-                        template: SyliusAdminBundle:Grid/Field:enabled.html.twig
+                        template: "@SyliusUi/Grid/Field/enabled.html.twig"
             filters:
                 search:
                     type: string
@@ -41,6 +43,12 @@ sylius_grid:
                 enabled:
                     type: boolean
                     label: sylius.ui.enabled
+                archival:
+                    type: exists
+                    label: sylius.ui.archival
+                    options:
+                        field: archivedAt
+                    default_value: false
             actions:
                 main:
                     create:
@@ -50,3 +58,5 @@ sylius_grid:
                         type: update
                     delete:
                         type: delete
+                    archive:
+                        type: archive

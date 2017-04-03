@@ -50,25 +50,24 @@ class Attribute implements AttributeInterface
     protected $configuration = [];
 
     /**
-     * @var AttributeValueInterface[]|Collection
-     */
-    protected $values;
-
-    /**
      * @var string
      */
     protected $storageType;
+
+    /**
+     * @var int
+     */
+    protected $position;
 
     public function __construct()
     {
         $this->initializeTranslationsCollection();
 
-        $this->values = new ArrayCollection();
         $this->createdAt = new \DateTime();
     }
 
     /**
-     * {@inheritdoc}
+     * @return string
      */
     public function __toString()
     {
@@ -104,7 +103,7 @@ class Attribute implements AttributeInterface
      */
     public function getName()
     {
-        return $this->translate()->getName();
+        return $this->getTranslation()->getName();
     }
 
     /**
@@ -112,7 +111,7 @@ class Attribute implements AttributeInterface
      */
     public function setName($name)
     {
-        $this->translate()->setName($name);
+        $this->getTranslation()->setName($name);
     }
 
     /**
@@ -150,13 +149,13 @@ class Attribute implements AttributeInterface
     /**
      * {@inheritdoc}
      */
-    public function getValues()
+    public function getStorageType()
     {
-        return $this->values;
+        return $this->storageType;
     }
 
     /**
-     * @param string $storageType
+     * {@inheritdoc}
      */
     public function setStorageType($storageType)
     {
@@ -164,10 +163,26 @@ class Attribute implements AttributeInterface
     }
 
     /**
-     * @return string
+     * {@inheritdoc}
      */
-    public function getStorageType()
+    public function getPosition()
     {
-        return $this->storageType;
+        return $this->position;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setPosition($position)
+    {
+        $this->position = $position;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function createTranslation()
+    {
+        return new AttributeTranslation();
     }
 }

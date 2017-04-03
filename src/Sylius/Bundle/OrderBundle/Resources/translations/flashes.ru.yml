@@ -3,6 +3,6 @@
 
 sylius:
     cart:
-        cart_save_completed: Корзина успешно обновлена.
-        item_add_completed: Позиция добавлена в корзину.
-        item_remove_completed: Позиция удалена из корзины.
+        add_item: 'Позиция добавлена в корзину'
+        remove_item: 'Позиция удалена из корзины'
+        save: 'Корзина успешно обновлена'

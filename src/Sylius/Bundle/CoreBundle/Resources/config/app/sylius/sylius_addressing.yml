@@ -3,9 +3,9 @@
 
 sylius_addressing:
     scopes:
-        shipping: shipping
-        content: content
-        price: price
+        shipping: sylius.form.zone.scopes.shipping
+        tax: sylius.form.zone.scopes.tax
+        all: sylius.form.zone.scopes.all
     resources:
         address:
             classes:

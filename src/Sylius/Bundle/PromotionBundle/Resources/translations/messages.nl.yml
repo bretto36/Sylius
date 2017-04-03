@@ -12,6 +12,7 @@ sylius:
             ends_at: Eindigt op
             exclusive: Exclusief
             name: Naam
+            priority: Prioriteit
             rules: Regels
             starts_at: Start op
             usage_limit: Gebruikslimiet
@@ -29,6 +30,8 @@ sylius:
             code_length: Lengte van de code
             expires_at: Verloopt op
             usage_limit: Gebruikslimiet
+        promotion_filter:
+            price_range: Prijs bereik filter
         promotion_rule:
             cart_quantity_configuration:
                 count: Aantal

@@ -12,8 +12,11 @@
 namespace Sylius\Bundle\CoreBundle\Command;
 
 use RuntimeException;
+use Sylius\Bundle\CoreBundle\Installer\Renderer\TableRenderer;
+use Sylius\Bundle\CoreBundle\Installer\Requirement\Requirement;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 final class CheckRequirementsCommand extends AbstractInstallCommand
 {
@@ -37,50 +40,14 @@ EOT
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $fulfilled = true;
-        $requirements = $this->get('sylius.requirements');
-
-        $headers = ['Requirement', 'Status'];
-
-        foreach ($requirements as $collection) {
-            $rows = [];
-
-            foreach ($collection as $requirement) {
-                $label = $requirement->getLabel();
-
-                if ($requirement->isFulfilled()) {
-                    $status = '<info>OK!</info>';
-                } else {
-                    $comment = sprintf('<comment>%s</comment>', $requirement->getHelp());
-
-                    if ($requirement->isRequired()) {
-                        $fulfilled = false;
-                        $status = ' <error>ERROR!</error>';
-                    } else {
-                        $status = '<comment>WARNING!</comment>';
-                    }
-
-                    $help[] = [$label, $comment];
-                }
-
-                $rows[] = [$label, $status];
-            }
-
-            if ($input->getOption('verbose') || !$fulfilled) {
-                $output->writeln(sprintf('<comment>%s</comment>', $collection->getLabel()));
-                $this->renderTable($headers, $rows, $output);
-            }
-        }
-
-        if (!empty($help)) {
-            $headers = ['Issue', 'Recommendation'];
-            $this->renderTable($headers, $help, $output);
-        }
+        $fulfilled = $this->get('sylius.installer.checker.sylius_requirements')->check($input, $output);
 
         if (!$fulfilled) {
-            throw new RuntimeException('Some system requirements are not fulfilled. Please check output messages and fix them.');
-        } else {
-            $output->writeln('<info>Success! Your system can run Sylius properly.</info>');
+            throw new RuntimeException(
+                'Some system requirements are not fulfilled. Please check output messages and fix them.'
+            );
         }
+
+        $output->writeln('<info>Success! Your system can run Sylius properly.</info>');
     }
 }

@@ -5,13 +5,13 @@
     "total": 3,
     "_links": {
         "self": {
-            "href": "\/api\/countries\/?page=1&limit=10"
+            "href": "\/api\/v1\/countries\/?page=1&limit=10"
         },
         "first": {
-            "href": "\/api\/countries\/?page=1&limit=10"
+            "href": "\/api\/v1\/countries\/?page=1&limit=10"
         },
         "last": {
-            "href": "\/api\/countries\/?page=1&limit=10"
+            "href": "\/api\/v1\/countries\/?page=1&limit=10"
         }
     },
     "_embedded": {
@@ -21,7 +21,7 @@
                 "code": "NL",
                 "_links": {
                     "self": {
-                        "href": @string@
+                        "href": "\/api\/v1\/countries\/NL"
                     }
                 }
             },
@@ -30,7 +30,7 @@
                 "code": "BE",
                 "_links": {
                     "self": {
-                        "href": @string@
+                        "href": "\/api\/v1\/countries\/BE"
                     }
                 }
             },
@@ -39,7 +39,7 @@
                 "code": "PL",
                 "_links": {
                     "self": {
-                        "href": @string@
+                        "href": "\/api\/v1\/countries\/PL"
                     }
                 }
             }

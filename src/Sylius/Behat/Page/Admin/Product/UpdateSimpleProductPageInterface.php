@@ -11,12 +11,15 @@
 
 namespace Sylius\Behat\Page\Admin\Product;
 
-use Behat\Mink\Exception\ElementNotFoundException;
 use Sylius\Behat\Page\Admin\Crud\UpdatePageInterface as BaseUpdatePageInterface;
+use Sylius\Component\Core\Model\ChannelInterface;
 use Sylius\Component\Core\Model\TaxonInterface;
+use Sylius\Component\Currency\Model\CurrencyInterface;
+use Sylius\Component\Product\Model\ProductAssociationTypeInterface;
 
 /**
  * @author Łukasz Chruściel <lukasz.chrusciel@lakion.com>
+ * @author Gorka Laucirica <gorka.lauzirika@gmail.com>
  */
 interface UpdateSimpleProductPageInterface extends BaseUpdatePageInterface
 {
@@ -26,14 +29,23 @@ interface UpdateSimpleProductPageInterface extends BaseUpdatePageInterface
     public function isCodeDisabled();
 
     /**
+     * @param string $locale
+     *
      * @return bool
      */
-    public function isSlugReadOnly();
-    
+    public function isSlugReadonlyIn($locale);
+
     /**
+     * @param string $channelName
      * @param int $price
      */
-    public function specifyPrice($price);
+    public function specifyPrice($channelName, $price);
+
+    /**
+     * @param string $channelName
+     * @param int $originalPrice
+     */
+    public function specifyOriginalPrice($channelName, $originalPrice);
 
     /**
      * @param string $name
@@ -41,19 +53,41 @@ interface UpdateSimpleProductPageInterface extends BaseUpdatePageInterface
      */
     public function nameItIn($name, $localeCode);
 
+    public function addSelectedAttributes();
+
     /**
-     * @param string $attribute
+     * @param string $attributeName
+     * @param string $localeCode
+     */
+    public function removeAttribute($attributeName, $localeCode);
+
+    /**
+     * @param string $attributeName
+     * @param string $localeCode
      *
      * @return string
      */
-    public function getAttributeValue($attribute);
+    public function getAttributeValue($attributeName, $localeCode);
 
     /**
-     * @param string $attribute
+     * @param string $attributeName
+     * @param string $localeCode
+     *
+     * @return string
+     */
+    public function getAttributeValidationErrors($attributeName, $localeCode);
+
+    /**
+     * @return int
+     */
+    public function getNumberOfAttributes();
+
+    /**
+     * @param string $attributeName
      *
      * @return bool
      */
-    public function hasAttribute($attribute);
+    public function hasAttribute($attributeName);
 
     /**
      * @param string $taxonName
@@ -77,30 +111,40 @@ interface UpdateSimpleProductPageInterface extends BaseUpdatePageInterface
     public function isTracked();
 
     /**
-     * @param string $code
+     * @param string $locale
+     */
+    public function enableSlugModification($locale);
+
+    /**
+     * @param string $type
      *
      * @return bool
      */
-    public function isImageWithCodeDisplayed($code);
+    public function isImageWithTypeDisplayed($type);
 
     /**
      * @param string $path
-     * @param string $code
+     * @param string $type
      */
-    public function attachImage($path, $code = null);
+    public function attachImage($path, $type = null);
 
     /**
-     * @param string $code
+     * @param string $type
      * @param string $path
      */
-    public function changeImageWithCode($code, $path);
+    public function changeImageWithType($type, $path);
 
     /**
-     * @param string $code
+     * @param string $type
      */
-    public function removeImageWithCode($code);
+    public function removeImageWithType($type);
 
     public function removeFirstImage();
+
+    /**
+     * @param string $type
+     */
+    public function modifyFirstImageType($type);
 
     /**
      * @return int
@@ -108,14 +152,67 @@ interface UpdateSimpleProductPageInterface extends BaseUpdatePageInterface
     public function countImages();
 
     /**
-     * @return bool
+     * @param ProductAssociationTypeInterface $productAssociationType
+     * @param string[] $productsNames
      */
-    public function isImageCodeDisabled();
+    public function associateProducts(ProductAssociationTypeInterface $productAssociationType, array $productsNames);
 
     /**
-     * @return string
+     * @param string $productName
+     * @param ProductAssociationTypeInterface $productAssociationType
      *
-     * @throws ElementNotFoundException
+     * @return bool
      */
-    public function getValidationMessageForImage();
+    public function hasAssociatedProduct($productName, ProductAssociationTypeInterface $productAssociationType);
+
+    /**
+     * @param string $productName
+     * @param ProductAssociationTypeInterface $productAssociationType
+     */
+    public function removeAssociatedProduct($productName, ProductAssociationTypeInterface $productAssociationType);
+
+    /**
+     * @param ChannelInterface $channel
+     * @param CurrencyInterface $currency
+     *
+     * @return string
+     */
+    public function getPricingConfigurationForChannelAndCurrencyCalculator(ChannelInterface $channel, CurrencyInterface $currency);
+
+    /**
+     * @param string $locale
+     */
+    public function activateLanguageTab($locale);
+
+    /**
+     * @param string $locale
+     *
+     * @return string
+     */
+    public function getSlug($locale);
+
+    /**
+     * @param string $slug
+     * @param string $locale
+     */
+    public function specifySlugIn($slug, $locale);
+
+    /**
+     * @param string $channelName
+     *
+     * @return string
+     */
+    public function getPriceForChannel($channelName);
+
+    /**
+     * @param string $channelName
+     *
+     * @return string
+     */
+    public function getOriginalPriceForChannel($channelName);
+
+    /**
+     * @return bool
+     */
+    public function isShippingRequired();
 }

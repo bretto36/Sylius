@@ -5,6 +5,8 @@ sylius:
     form:
         promotion:
             channels: Kanavat
+        image:
+            type: Tyyppi
         product:
             channels: Kanavat
         guest:
@@ -12,6 +14,8 @@ sylius:
         promotion_rule:
             product:
                 products: Tuotteet
+        payment_method:
+            channels: Kanavat
     installer:
         extensions:
             "off": false

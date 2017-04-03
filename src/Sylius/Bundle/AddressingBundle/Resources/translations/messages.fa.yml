@@ -13,6 +13,7 @@ sylius:
             postcode: کد پستی
             street: خیابان
             province: استان
+            zone: منطقه
         country:
             add_province: افزودن استان
             name: نام
@@ -33,6 +34,8 @@ sylius:
                 province: استان
                 zone: منطقه
             scope: محدوده
+            scopes:
+                all: همه
             select: انتخاب
             select_scope: انتخاب محدوده
         zone_member:

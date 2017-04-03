@@ -12,6 +12,8 @@ sylius:
                 product: Proizvod
         group:
             name: Ime
+        image:
+            type: Tip
         order_filter:
             payment_state: Stanje plaćanja
         page:
@@ -27,6 +29,8 @@ sylius:
         promotion_rule:
             product:
                 products: Proizvodi
+        payment_method:
+            channels: Kanali
     installer:
         extensions:
             "off": false

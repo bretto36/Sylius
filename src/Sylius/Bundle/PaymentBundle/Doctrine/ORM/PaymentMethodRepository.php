@@ -25,9 +25,8 @@ class PaymentMethodRepository extends EntityRepository implements PaymentMethodR
     public function findByName($name, $locale)
     {
         return $this->createQueryBuilder('o')
-            ->addSelect('translation')
-            ->leftJoin('o.translations', 'translation')
-            ->where('translation.name = :name')
+            ->innerJoin('o.translations', 'translation')
+            ->andWhere('translation.name = :name')
             ->andWhere('translation.locale = :locale')
             ->setParameter('name', $name)
             ->setParameter('locale', $locale)
@@ -42,7 +41,6 @@ class PaymentMethodRepository extends EntityRepository implements PaymentMethodR
     public function createPaginator(array $criteria = [], array $sorting = [])
     {
         $queryBuilder = $this->createQueryBuilder('o')
-            ->addSelect('translation')
             ->leftJoin('o.translations', 'translation')
         ;
 

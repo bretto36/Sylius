@@ -18,16 +18,16 @@ You may need for instance:
 How to customize a Repository?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Let's assume that you would want to find products that are the bestsellers in your shop.
+Let's assume that you would want to find products that you are running out of in the inventory.
 
-1. Create your own repository class under the ``AppBundle\Repository`` namespace.
+**1.** Create your own repository class under the ``AppBundle\Repository`` namespace.
 Remember that it has to extend a proper base class. How can you check that?
 
 For the ``ProductRepository`` run:
 
 .. code-block:: bash
 
-    $ php app/console debug:container sylius.repository.product
+    $ php bin/console debug:container sylius.repository.product
 
 As a result you will get the ``Sylius\Bundle\CoreBundle\Doctrine\ORM\ProductRepository`` - this is the class that you need to be extending.
 
@@ -46,29 +46,28 @@ As a result you will get the ``Sylius\Bundle\CoreBundle\Doctrine\ORM\ProductRepo
          *
          * @return array
          */
-        public function findBySold($limit = 4)
+        public function findByOnHand($limit = 8)
         {
-            $queryBuilder = $this->createQueryBuilder('o');
-            $queryBuilder
+            return $this->createQueryBuilder('o')
                 ->addSelect('variant')
                 ->addSelect('translation')
                 ->leftJoin('o.variants', 'variant')
                 ->leftJoin('o.translations', 'translation')
-                ->addOrderBy('variant.sold', 'DESC')
+                ->addOrderBy('variant.onHand', 'ASC')
                 ->setMaxResults($limit)
+                ->getQuery()
+                ->getResult()
             ;
-
-            return $queryBuilder->getQuery()->getResult();
         }
     }
 
 We are using the `Query Builder`_ in the Repositories.
 As we are selecting Products we need to have a join to translations, because they are a translatable resource. Without it in the query results we wouldn't have a name to be displayed.
 
-We are sorting the results by the count of how many times the product has been sold, which is being hold on the ``sold`` field on the specific ``variant`` of each product.
-Then we are limiting the query to 4 by default, to get only 4 bestsellers.
+We are sorting the results by the count of how many products are still available on hand, which is saved on the ``onHand`` field on the specific ``variant`` of each product.
+Then we are limiting the query to 8 by default, to get only 8 products that are low in stock.
 
-2. In order to use your repository you need to configure it in the ``app/config/config.yml``.
+**2.** In order to use your repository you need to configure it in the ``app/config/config.yml``.
 
 .. code-block:: yaml
 
@@ -78,18 +77,18 @@ Then we are limiting the query to 4 by default, to get only 4 bestsellers.
                 classes:
                     repository: AppBundle\Repository\ProductRepository
 
-3. After configuring the ``sylius.product.repository`` service has your ``findBySold()`` method available.
+**3.** After configuring the ``sylius.product.repository`` service has your ``findByOnHand()`` method available.
 You can form now on use your method in any **Controller**.
 
 .. code-block:: php
 
     <?php
 
-    public function bestsellersAction()
+    public function lowInStockAction()
     {
         $productRepository = $this->container->get('sylius.repository.product');
 
-        $bestsellers = $productRepository->findBySold();
+        $lowInStock = $productRepository->findByOnHand();
     }
 
 What happens while overriding Repositories?

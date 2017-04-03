@@ -147,6 +147,13 @@ interface ShowPageInterface extends SymfonyPageInterface
     public function hasPromotionDiscount($promotionDiscount);
 
     /**
+     * @param string $promotionName
+     *
+     * @return bool
+     */
+    public function hasShippingPromotion($promotionName);
+
+    /**
      * @param string $tax
      *
      * @return bool
@@ -240,7 +247,7 @@ interface ShowPageInterface extends SymfonyPageInterface
 
     /**
      * @param string $note
-     * 
+     *
      * @return bool
      */
     public function hasNote($note);
@@ -258,4 +265,24 @@ interface ShowPageInterface extends SymfonyPageInterface
      * @return bool
      */
     public function hasBillingProvinceName($provinceName);
+
+    /**
+     * @return string
+     */
+    public function getIpAddressAssigned();
+
+    /**
+     * @return string
+     */
+    public function getOrderCurrency();
+
+    /**
+     * @return bool
+     */
+    public function hasRefundButton();
+
+    /**
+     * @return string
+     */
+    public function getShippingPromotionData();
 }

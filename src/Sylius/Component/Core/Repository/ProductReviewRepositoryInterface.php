@@ -22,10 +22,11 @@ interface ProductReviewRepositoryInterface extends RepositoryInterface
 {
     /**
      * @param int $productId
+     * @param int $count
      *
      * @return ReviewInterface[]
      */
-    public function findLatestByProductId($productId);
+    public function findLatestByProductId($productId, $count);
 
     /**
      * @param string $slug

@@ -1,26 +1,18 @@
-{% macro link(paginator, number) %}
-<a class="{% if number == paginator.currentPage %}active {% endif %}item" href="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|merge(app.request.query.all)|merge({'page': number})) }}">{{ number }}</a>
+{% macro simple(paginator, options) %}
+    {% if paginator.haveToPaginate() %}
+        {{ pagerfanta(paginator, 'semantic_ui_translated', options|default({})) }}
+    {% endif %}
 {% endmacro %}
 
-{% macro render(paginator)  %}
-    {% import _self as pagination %}
-
-    {% if paginator.haveToPaginate() %}
-    <div class="ui stackable fluid pagination menu">
-        <div class="item">
-            <form method="get" action="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|merge(app.request.query.all)) }}">
-            <div class="ui action input">
-                <input type="text" name="page" placeholder="{{ 'sylius.ui.jump_to_page'|trans }}..." required="required">
-                <button type="submit" class="ui button">{{ 'sylius.ui.go'|trans }}</button>
-            </div>
-            </form>
-        </div>
-        <div class="item">
-            {{ 'sylius.ui.total_records'|trans }}: {{ paginator.nbResults }}.
-        </div>
-        {% for number in 1..paginator.nbPages %}
-            {{ pagination.link(paginator, number) }}
+{% macro perPage(paginator, paginationLimits) %}
+    <div class="ui simple fluid dropdown item">
+        {{ 'sylius.ui.show'|trans }} {{ paginator.maxPerPage }}
+        <i class="dropdown icon"></i>
+        <div class="menu">
+        {% for limit in paginationLimits if limit != paginator.maxPerPage %}
+            {% set path = path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|merge({'limit': limit})) %}
+            <a class="item" href="{{ path }}">{{ limit }}</a>
         {% endfor %}
+        </div>
     </div>
-    {% endif %}
 {% endmacro %}

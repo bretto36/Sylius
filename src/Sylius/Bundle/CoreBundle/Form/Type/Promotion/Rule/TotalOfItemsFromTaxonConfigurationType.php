@@ -11,24 +11,30 @@
 
 namespace Sylius\Bundle\CoreBundle\Form\Type\Promotion\Rule;
 
-use Sylius\Component\Taxonomy\Repository\TaxonRepositoryInterface;
+use Sylius\Bundle\MoneyBundle\Form\Type\MoneyType;
+use Sylius\Bundle\ResourceBundle\Form\DataTransformer\ResourceToIdentifierTransformer;
+use Sylius\Bundle\ResourceBundle\Form\Type\ResourceAutocompleteChoiceType;
+use Sylius\Bundle\TaxonomyBundle\Form\Type\TaxonAutocompleteChoiceType;
+use Sylius\Component\Resource\Repository\RepositoryInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\ReversedTransformer;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
  */
-class TotalOfItemsFromTaxonConfigurationType extends AbstractType
+final class TotalOfItemsFromTaxonConfigurationType extends AbstractType
 {
     /**
-     * @var TaxonRepositoryInterface
+     * @var RepositoryInterface
      */
     private $taxonRepository;
 
     /**
-     * @param TaxonRepositoryInterface $taxonRepository
+     * @param RepositoryInterface $taxonRepository
      */
-    public function __construct(TaxonRepositoryInterface $taxonRepository)
+    public function __construct(RepositoryInterface $taxonRepository)
     {
         $this->taxonRepository = $taxonRepository;
     }
@@ -39,24 +45,33 @@ class TotalOfItemsFromTaxonConfigurationType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('taxon', 'sylius_taxon_from_identifier', [
+            ->add('taxon', TaxonAutocompleteChoiceType::class, [
                 'label' => 'sylius.form.promotion_rule.total_of_items_from_taxon.taxon',
-                'class' => $this->taxonRepository->getClassName(),
-                'query_builder' => function () {
-                    return $this->taxonRepository->getFormQueryBuilder();
-                },
-                'identifier' => 'code',
             ])
-            ->add('amount', 'sylius_money', [
+            ->add('amount', MoneyType::class, [
                 'label' => 'sylius.form.promotion_rule.total_of_items_from_taxon.amount',
+                'currency' => $options['currency'],
             ])
+        ;
+
+        $builder->get('taxon')->addModelTransformer(new ReversedTransformer(new ResourceToIdentifierTransformer($this->taxonRepository, 'code')));
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver
+            ->setRequired('currency')
+            ->setAllowedTypes('currency', 'string')
         ;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'sylius_promotion_rule_total_of_items_from_taxon_configuration';
     }

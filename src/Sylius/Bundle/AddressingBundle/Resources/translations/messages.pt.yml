@@ -7,12 +7,13 @@ sylius:
             city: Cidade
             company: Empresa
             country: País
-            first_name: Nome
+            first_name: Primeiro nome
             last_name: Apelido
-            phone_number: Número de Telefone
+            phone_number: Número de telefone
             postcode: Código postal
             street: Rua
             province: Distrito
+            zone: Zona
         country:
             add_province: Adicionar estado
             name: Nome
@@ -33,6 +34,8 @@ sylius:
                 province: Distrito
                 zone: Zona
             scope: Âmbito
+            scopes:
+                all: Tudo
             select: Seleccionar
             select_scope: Selecione o âmbito
         zone_member:

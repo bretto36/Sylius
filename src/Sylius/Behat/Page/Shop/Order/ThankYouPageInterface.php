@@ -18,6 +18,8 @@ use Sylius\Behat\Page\SymfonyPageInterface;
  */
 interface ThankYouPageInterface extends SymfonyPageInterface
 {
+    public function goToOrderDetails();
+
     /**
      * @return bool
      */
@@ -29,10 +31,12 @@ interface ThankYouPageInterface extends SymfonyPageInterface
     public function getInstructions();
 
     /**
-     * @param int $timeout
-     * @param array $parameters
-     *
-     * @throws \InvalidArgumentException
+     * @return bool
      */
-    public function waitForResponse($timeout, array $parameters = []);
+    public function hasInstructions();
+
+    /**
+     * @return bool
+     */
+    public function hasChangePaymentMethodButton();
 }

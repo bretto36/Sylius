@@ -12,6 +12,8 @@
 namespace spec\Sylius\Component\Core\Cart\Context;
 
 use PhpSpec\ObjectBehavior;
+use Sylius\Component\Core\Model\AddressInterface;
+use Sylius\Component\Currency\Model\CurrencyInterface;
 use Sylius\Component\Order\Context\CartContextInterface;
 use Sylius\Component\Order\Context\CartNotFoundException;
 use Sylius\Component\Channel\Context\ChannelNotFoundException;
@@ -48,19 +50,51 @@ final class ShopBasedCartContextSpec extends ObjectBehavior
         ShopperContextInterface $shopperContext,
         OrderInterface $cart,
         ChannelInterface $channel,
+        CurrencyInterface $currency,
         CustomerInterface $customer
     ) {
         $cartContext->getCart()->willReturn($cart);
 
         $shopperContext->getChannel()->willReturn($channel);
-        $shopperContext->getCurrencyCode()->willReturn('PLN');
         $shopperContext->getLocaleCode()->willReturn('pl');
         $shopperContext->getCustomer()->willReturn($customer);
+        $customer->getDefaultAddress()->willReturn(null);
+
+        $channel->getBaseCurrency()->willReturn($currency);
+        $currency->getCode()->willReturn('PLN');
 
         $cart->setChannel($channel)->shouldBeCalled();
         $cart->setCurrencyCode('PLN')->shouldBeCalled();
         $cart->setLocaleCode('pl')->shouldBeCalled();
         $cart->setCustomer($customer)->shouldBeCalled();
+
+        $this->getCart()->shouldReturn($cart);
+    }
+
+    function it_creates_a_cart_if_does_not_exist_with_shop_basic_configuration_and_customer_default_address_if_is_not_null(
+        CartContextInterface $cartContext,
+        ShopperContextInterface $shopperContext,
+        AddressInterface $defaultAddress,
+        OrderInterface $cart,
+        ChannelInterface $channel,
+        CurrencyInterface $currency,
+        CustomerInterface $customer
+    ) {
+        $cartContext->getCart()->willReturn($cart);
+
+        $shopperContext->getChannel()->willReturn($channel);
+        $shopperContext->getLocaleCode()->willReturn('pl');
+        $shopperContext->getCustomer()->willReturn($customer);
+        $customer->getDefaultAddress()->willReturn($defaultAddress);
+
+        $channel->getBaseCurrency()->willReturn($currency);
+        $currency->getCode()->willReturn('PLN');
+
+        $cart->setChannel($channel)->shouldBeCalled();
+        $cart->setCurrencyCode('PLN')->shouldBeCalled();
+        $cart->setLocaleCode('pl')->shouldBeCalled();
+        $cart->setCustomer($customer)->shouldBeCalled();
+        $cart->setShippingAddress($defaultAddress)->shouldBeCalled();
 
         $this->getCart()->shouldReturn($cart);
     }
@@ -79,31 +113,17 @@ final class ShopBasedCartContextSpec extends ObjectBehavior
         ;
     }
 
-    function it_throws_a_cart_not_found_exception_if_currency_code_is_undefined(
-        CartContextInterface $cartContext,
-        ShopperContextInterface $shopperContext,
-        ChannelInterface $channel,
-        OrderInterface $cart
-    ) {
-        $cartContext->getCart()->willReturn($cart);
-        $shopperContext->getChannel()->willReturn($channel);
-        $shopperContext->getCurrencyCode()->willThrow(CurrencyNotFoundException::class);
-
-        $this
-            ->shouldThrow(CartNotFoundException::class)
-            ->during('getCart')
-        ;
-    }
-
     function it_throws_a_cart_not_found_exception_if_locale_code_is_undefined(
         CartContextInterface $cartContext,
         ShopperContextInterface $shopperContext,
         ChannelInterface $channel,
+        CurrencyInterface $currency,
         OrderInterface $cart
     ) {
         $cartContext->getCart()->willReturn($cart);
         $shopperContext->getChannel()->willReturn($channel);
-        $shopperContext->getCurrencyCode()->willReturn('PLN');
+        $channel->getBaseCurrency()->willReturn($currency);
+        $currency->getCode()->willReturn('PLN');
         $shopperContext->getLocaleCode()->willThrow(LocaleNotFoundException::class);
 
         $this

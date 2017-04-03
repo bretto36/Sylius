@@ -13,7 +13,6 @@ namespace Sylius\Bundle\CoreBundle\Checkout;
 
 use SM\Factory\FactoryInterface;
 use Sylius\Component\Core\Model\OrderInterface;
-use Sylius\Component\Core\OrderCheckoutTransitions;
 use Sylius\Component\Order\Context\CartContextInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -21,7 +20,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestMatcherInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 /**
  * @author Arkadiusz Krakowiak <arkadiusz.krakowiak@lakion.com>
@@ -34,7 +32,7 @@ final class CheckoutResolver implements EventSubscriberInterface
     private $cartContext;
 
     /**
-     * @var UrlGeneratorInterface
+     * @var CheckoutStateUrlGeneratorInterface
      */
     private $urlGenerator;
 
@@ -50,13 +48,13 @@ final class CheckoutResolver implements EventSubscriberInterface
 
     /**
      * @param CartContextInterface $cartContext
-     * @param UrlGeneratorInterface $urlGenerator
+     * @param CheckoutStateUrlGeneratorInterface $urlGenerator
      * @param RequestMatcherInterface $requestMatcher
      * @param FactoryInterface $stateMachineFactory
      */
     public function __construct(
         CartContextInterface $cartContext,
-        UrlGeneratorInterface $urlGenerator,
+        CheckoutStateUrlGeneratorInterface $urlGenerator,
         RequestMatcherInterface $requestMatcher,
         FactoryInterface $stateMachineFactory
     ) {
@@ -87,15 +85,9 @@ final class CheckoutResolver implements EventSubscriberInterface
             $event->setResponse(new RedirectResponse($this->urlGenerator->generate('sylius_shop_cart_summary')));
         }
 
-        $stateMachine = $this->stateMachineFactory->get($order, OrderCheckoutTransitions::GRAPH);
+        $stateMachine = $this->stateMachineFactory->get($order, $this->getRequestedGraph($request));
 
         if ($stateMachine->can($this->getRequestedTransition($request))) {
-            return;
-        }
-
-        if (null !== $referer = $this->getReferer($request)) {
-            $event->setResponse(new RedirectResponse($referer));
-
             return;
         }
 
@@ -110,6 +102,16 @@ final class CheckoutResolver implements EventSubscriberInterface
         return [
             KernelEvents::REQUEST => 'onKernelRequest',
         ];
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return string
+     */
+    private function getRequestedGraph(Request $request)
+    {
+        return $request->attributes->get('_sylius')['state_machine']['graph'];
     }
 
     /**

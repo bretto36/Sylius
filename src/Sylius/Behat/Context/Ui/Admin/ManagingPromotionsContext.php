@@ -13,13 +13,13 @@ namespace Sylius\Behat\Context\Ui\Admin;
 
 use Behat\Behat\Context\Context;
 use Sylius\Behat\NotificationType;
-use Sylius\Behat\Page\Admin\Promotion\IndexPageInterface;
 use Sylius\Behat\Page\Admin\Promotion\CreatePageInterface;
+use Sylius\Behat\Page\Admin\Promotion\IndexPageInterface;
 use Sylius\Behat\Page\Admin\Promotion\UpdatePageInterface;
-use Sylius\Behat\Service\Resolver\CurrentPageResolverInterface;
 use Sylius\Behat\Service\NotificationCheckerInterface;
-use Sylius\Component\Core\Model\PromotionInterface;
+use Sylius\Behat\Service\Resolver\CurrentPageResolverInterface;
 use Sylius\Behat\Service\SharedStorageInterface;
+use Sylius\Component\Core\Model\PromotionInterface;
 use Webmozart\Assert\Assert;
 
 /**
@@ -82,7 +82,7 @@ final class ManagingPromotionsContext implements Context
     }
 
     /**
-     * @Given I want to create a new promotion
+     * @When I want to create a new promotion
      */
     public function iWantToCreateANewPromotion()
     {
@@ -118,6 +118,14 @@ final class ManagingPromotionsContext implements Context
     }
 
     /**
+     * @When I remove its priority
+     */
+    public function iRemoveItsPriority()
+    {
+        $this->updatePage->setPriority(null);
+    }
+
+    /**
      * @Then the :promotionName promotion should appear in the registry
      * @Then the :promotionName promotion should exist in the registry
      * @Then this promotion should still be named :promotionName
@@ -127,10 +135,7 @@ final class ManagingPromotionsContext implements Context
     {
         $this->indexPage->open();
 
-        Assert::true(
-            $this->indexPage->isSingleResourceOnPage(['name' => $promotionName]),
-            sprintf('Promotion with name %s has not been found.', $promotionName)
-        );
+        Assert::true($this->indexPage->isSingleResourceOnPage(['name' => $promotionName]));
     }
 
     /**
@@ -143,70 +148,80 @@ final class ManagingPromotionsContext implements Context
     }
 
     /**
-     * @Given I add the "Contains number of items from taxon" rule configured with :count :taxonName
+     * @When I add the "Has at least one from taxons" rule configured with :firstTaxon
+     * @When I add the "Has at least one from taxons" rule configured with :firstTaxon and :secondTaxon
      */
-    public function iAddTheContainsTaxonRuleConfiguredWith($count, $taxonName)
+    public function iAddTheHasTaxonRuleConfiguredWith(...$taxons)
     {
-        $this->createPage->addRule('Contains number of items from taxon');
-        $this->createPage->selectRuleOption('Taxon', $taxonName);
-        $this->createPage->fillRuleOption('Count', $count);
+        $this->createPage->addRule('Has at least one from taxons');
+
+        $this->createPage->selectAutocompleteRuleOption('Taxons', $taxons, true);
     }
 
     /**
-     * @Given I add the "Taxon" rule configured with :firstTaxon
-     * @Given I add the "Taxon" rule configured with :firstTaxon and :secondTaxon
+     * @When /^I add the "Total price of items from taxon" rule configured with "([^"]+)" taxon and (?:€|£|\$)([^"]+) amount for "([^"]+)" channel$/
      */
-    public function iAddTheTaxonRuleConfiguredWith(...$taxons)
-    {
-        $this->createPage->addRule('Taxon');
-
-        foreach ($taxons as $taxon) {
-            $this->createPage->selectRuleOption('Taxons', $taxon, true);
-        }
-    }
-
-    /**
-     * @Given I add the "Total price of items from taxon" rule configured with :count :taxonName
-     */
-    public function iAddTheRuleConfiguredWith($count, $taxonName)
+    public function iAddTheRuleConfiguredWith($taxonName, $amount, $channelName)
     {
         $this->createPage->addRule('Total price of items from taxon');
-        $this->createPage->selectRuleOption('Taxon', $taxonName);
-        $this->createPage->fillRuleOption('Amount', $count);
+        $this->createPage->selectAutocompleteRuleOption('Taxon', $taxonName);
+        $this->createPage->fillRuleOptionForChannel($channelName, 'Amount', $amount);
     }
 
     /**
-     * @Given /^I add the "([^"]+)" action configured with amount of "(?:€|£|\$)([^"]+)"$/
+     * @When /^I add the "Item total" rule configured with (?:€|£|\$)([^"]+) amount for "([^"]+)" channel and (?:€|£|\$)([^"]+) amount for "([^"]+)" channel$/
      */
-    public function iAddTheActionConfiguredWithAmount($actionType, $amount)
+    public function iAddTheItemTotalRuleConfiguredWithTwoChannel(
+        $firstAmount,
+        $firstChannelName,
+        $secondAmount,
+        $secondChannelName
+    ) {
+        $this->createPage->addRule('Item total');
+        $this->createPage->fillRuleOptionForChannel($firstChannelName, 'Amount', $firstAmount);
+        $this->createPage->fillRuleOptionForChannel($secondChannelName, 'Amount', $secondAmount);
+    }
+
+    /**
+     * @When /^I add the "([^"]+)" action configured with amount of "(?:€|£|\$)([^"]+)" for "([^"]+)" channel$/
+     */
+    public function iAddTheActionConfiguredWithAmountForChannel($actionType, $amount, $channelName)
     {
         $this->createPage->addAction($actionType);
-        $this->createPage->fillActionOption('Amount', $amount);
+        $this->createPage->fillActionOptionForChannel($channelName, 'Amount', $amount);
     }
 
     /**
-     * @When /^I specify that this action should be applied to items with price greater then "(?:€|£|\$)([^"]+)"$/
+     * @When /^it is(?:| also) configured with amount of "(?:€|£|\$)([^"]+)" for "([^"]+)" channel$/
      */
-    public function iAddAMinPriceFilterRange($minimum)
+    public function itIsConfiguredWithAmountForChannel($amount, $channelName)
     {
-        $this->createPage->fillActionOption('Min', $minimum);
+        $this->createPage->fillActionOptionForChannel($channelName, 'Amount', $amount);
     }
 
     /**
-     * @When /^I specify that this action should be applied to items with price lesser then "(?:€|£|\$)([^"]+)"$/
+     * @When /^I specify that on "([^"]+)" channel this action should be applied to items with price greater then "(?:€|£|\$)([^"]+)"$/
      */
-    public function iAddAMaxPriceFilterRange($maximum)
+    public function iAddAMinPriceFilterRangeForChannel($channelName, $minimum)
     {
-        $this->createPage->fillActionOption('Max', $maximum);
+        $this->createPage->fillActionOptionForChannel($channelName, 'Min', $minimum);
     }
 
     /**
-     * @When /^I specify that this action should be applied to items with price between "(?:€|£|\$)([^"]+)" and "(?:€|£|\$)([^"]+)"$/
+     * @When /^I specify that on "([^"]+)" channel this action should be applied to items with price lesser then "(?:€|£|\$)([^"]+)"$/
      */
-    public function iAddAMinMaxPriceFilterRange($minimum, $maximum)
+    public function iAddAMaxPriceFilterRangeForChannel($channelName, $maximum)
     {
-        $this->iAddAMinPriceFilterRange($minimum);
-        $this->iAddAMaxPriceFilterRange($maximum);
+        $this->createPage->fillActionOptionForChannel($channelName, 'Max', $maximum);
+    }
+
+    /**
+     * @When /^I specify that on "([^"]+)" channel this action should be applied to items with price between "(?:€|£|\$)([^"]+)" and "(?:€|£|\$)([^"]+)"$/
+     */
+    public function iAddAMinMaxPriceFilterRangeForChannel($channelName, $minimum, $maximum)
+    {
+        $this->iAddAMinPriceFilterRangeForChannel($channelName, $minimum);
+        $this->iAddAMaxPriceFilterRangeForChannel($channelName, $maximum);
     }
 
     /**
@@ -214,18 +229,35 @@ final class ManagingPromotionsContext implements Context
      */
     public function iSpecifyThatThisActionShouldBeAppliedToItemsFromCategory($taxonName)
     {
-        $this->createPage->selectFilterOption('Taxon', $taxonName);
-
+        $this->createPage->selectAutoCompleteFilterOption('Taxons', $taxonName);
     }
 
     /**
-     * @Given I add the :actionType action configured with a percentage value of :percentage%
-     * @Given I add the :actionType action configured without a percentage value
+     * @When /^I add the "([^"]+)" action configured with a percentage value of (?:|-)([^"]+)% for ("[^"]+" channel)$/
+     */
+    public function iAddTheActionConfiguredWithAPercentageValueForChannel($actionType, $percentage = null, $channelName)
+    {
+        $this->createPage->addAction($actionType);
+        $this->createPage->fillActionOptionForChannel($channelName, 'Percentage', $percentage);
+    }
+
+    /**
+     * @When /^I add the "([^"]+)" action configured with a percentage value of (?:|-)([^"]+)%$/
+     * @When I add the :actionType action configured without a percentage value
      */
     public function iAddTheActionConfiguredWithAPercentageValue($actionType, $percentage = null)
     {
         $this->createPage->addAction($actionType);
         $this->createPage->fillActionOption('Percentage', $percentage);
+    }
+
+    /**
+     * @When I add the "Customer group" rule for :customerGroupName group
+     */
+    public function iAddTheCustomerGroupRuleConfiguredForGroup($customerGroupName)
+    {
+        $this->createPage->addRule('Customer group');
+        $this->createPage->selectRuleOption('Customer group', $customerGroupName);
     }
 
     /**
@@ -245,10 +277,7 @@ final class ManagingPromotionsContext implements Context
      */
     public function thisPromotionShouldBeCouponBased(PromotionInterface $promotion)
     {
-        Assert::true(
-            $this->indexPage->isCouponBasedFor($promotion),
-            sprintf('Promotion with name "%s" should be coupon based', $promotion->getName())
-        );
+        Assert::true($this->indexPage->isCouponBasedFor($promotion));
     }
 
     /**
@@ -256,10 +285,7 @@ final class ManagingPromotionsContext implements Context
      */
     public function iShouldBeAbleToManageCouponsForThisPromotion(PromotionInterface $promotion)
     {
-        Assert::true(
-            $this->indexPage->isAbleToManageCouponsFor($promotion),
-            sprintf('I should be able to manage coupons for given promotion with name %s but apparently i am not.', $promotion->getName())
-        );
+        Assert::true($this->indexPage->isAbleToManageCouponsFor($promotion));
     }
 
     /**
@@ -293,10 +319,7 @@ final class ManagingPromotionsContext implements Context
     {
         $this->indexPage->open();
 
-        Assert::false(
-            $this->indexPage->isSingleResourceOnPage([$element => $name]),
-            sprintf('Promotion with %s "%s" has been created, but it should not.', $element, $name)
-        );
+        Assert::false($this->indexPage->isSingleResourceOnPage([$element => $name]));
     }
 
     /**
@@ -306,10 +329,7 @@ final class ManagingPromotionsContext implements Context
     {
         $this->indexPage->open();
 
-        Assert::true(
-            $this->indexPage->isSingleResourceOnPage([$element => $value]),
-            sprintf('Promotion with %s "%s" cannot be found.', $element, $value)
-        );
+        Assert::true($this->indexPage->isSingleResourceOnPage([$element => $value]));
     }
 
     /**
@@ -329,10 +349,7 @@ final class ManagingPromotionsContext implements Context
     {
         $this->iWantToModifyAPromotion($promotion);
 
-        Assert::true(
-            $this->updatePage->hasResourceValues(['usage_limit' => $usageLimit]),
-            sprintf('Promotion %s does not have usage limit set to %s.', $promotion->getName(), $usageLimit)
-        );
+        Assert::true($this->updatePage->hasResourceValues(['usage_limit' => $usageLimit]));
     }
 
     /**
@@ -388,15 +405,13 @@ final class ManagingPromotionsContext implements Context
     {
         $this->iWantToModifyAPromotion($promotion);
 
-        Assert::true(
-            $this->updatePage->checkChannelsState($channelName),
-            sprintf('Promotion %s is not %s, but it should be.', $promotion->getName(), $channelName)
-        );
+        Assert::true($this->updatePage->checkChannelsState($channelName));
     }
 
     /**
      * @Given I want to modify a :promotion promotion
      * @Given /^I want to modify (this promotion)$/
+     * @Then I should be able to modify a :promotion promotion
      */
     public function iWantToModifyAPromotion(PromotionInterface $promotion)
     {
@@ -408,10 +423,7 @@ final class ManagingPromotionsContext implements Context
      */
     public function theCodeFieldShouldBeDisabled()
     {
-        Assert::true(
-            $this->updatePage->isCodeDisabled(),
-            'Code should be immutable, but it does not.'
-        );
+        Assert::true($this->updatePage->isCodeDisabled());
     }
 
     /**
@@ -442,10 +454,7 @@ final class ManagingPromotionsContext implements Context
     {
         $this->indexPage->open();
 
-        Assert::false(
-            $this->indexPage->isSingleResourceOnPage(['code' => $promotion->getCode()]),
-            sprintf('Promotion with code %s exists but should not.', $promotion->getCode())
-        );
+        Assert::false($this->indexPage->isSingleResourceOnPage(['code' => $promotion->getCode()]));
     }
 
     /**
@@ -477,15 +486,9 @@ final class ManagingPromotionsContext implements Context
     {
         $this->iWantToModifyAPromotion($promotion);
 
-        Assert::true(
-            $this->updatePage->hasStartsAt($startsDate),
-            sprintf('Promotion %s should starts at %s, but it isn\'t.', $promotion->getName(), date('D, d M Y H:i:s', $startsDate->getTimestamp()))
-        );
+        Assert::true($this->updatePage->hasStartsAt($startsDate));
 
-        Assert::true(
-            $this->updatePage->hasEndsAt($endsDate),
-            sprintf('Promotion %s should ends at %s, but it isn\'t.', $promotion->getName(), date('D, d M Y H:i:s', $endsDate->getTimestamp()))
-        );
+        Assert::true($this->updatePage->hasEndsAt($endsDate));
     }
 
     /**
@@ -534,8 +537,9 @@ final class ManagingPromotionsContext implements Context
 
     /**
      * @Then the promotion :promotion should be used :usage time(s)
+     * @Then the promotion :promotion should not be used
      */
-    public function thePromotionShouldBeUsedTime(PromotionInterface $promotion, $usage)
+    public function thePromotionShouldBeUsedTime(PromotionInterface $promotion, $usage = 0)
     {
         Assert::same(
             (int) $usage,
@@ -550,7 +554,7 @@ final class ManagingPromotionsContext implements Context
     public function iAddTheRuleConfiguredWithTheProduct($productName)
     {
         $this->createPage->addRule('Contains product');
-        $this->createPage->selectRuleOption('Product', $productName);
+        $this->createPage->selectAutocompleteRuleOption('Product code', $productName);
     }
 
     /**
@@ -558,7 +562,61 @@ final class ManagingPromotionsContext implements Context
      */
     public function iSpecifyThatThisActionShouldBeAppliedToTheProduct($productName)
     {
-        $this->createPage->selectFilterOption('Products', $productName);
+        $this->createPage->selectAutoCompleteFilterOption('Products', $productName);
+    }
+
+    /**
+     * @Then I should see :count promotions on the list
+     */
+    public function iShouldSeePromotionsOnTheList($count)
+    {
+        $actualCount = $this->indexPage->countItems();
+
+        Assert::same(
+            (int) $count,
+            $actualCount,
+            'There should be %s promotion, but there\'s %2$s.'
+        );
+    }
+
+    /**
+     * @Then the first promotion on the list should have :field :value
+     */
+    public function theFirstPromotionOnTheListShouldHave($field, $value)
+    {
+        $fields = $this->indexPage->getColumnFields($field);
+        $actualValue = reset($fields);
+
+        Assert::same(
+            $actualValue,
+            $value,
+            sprintf('Expected first promotion\'s %s to be "%s", but it is "%s".', $field, $value, $actualValue)
+        );
+    }
+
+    /**
+     * @Then the last promotion on the list should have :field :value
+     */
+    public function theLastPromotionOnTheListShouldHave($field, $value)
+    {
+        $fields = $this->indexPage->getColumnFields($field);
+        $actualValue = end($fields);
+
+        Assert::same(
+            $actualValue,
+            $value,
+            sprintf('Expected last promotion\'s %s to be "%s", but it is "%s".', $field, $value, $actualValue)
+        );
+    }
+
+    /**
+     * @Given the :promotion promotion should have priority :priority
+     */
+    public function thePromotionsShouldHavePriority(PromotionInterface $promotion, $priority)
+    {
+        $this->iWantToModifyAPromotion($promotion);
+
+        Assert::same($this->updatePage->getPriority(), $priority);
     }
 
     /**
@@ -581,9 +639,6 @@ final class ManagingPromotionsContext implements Context
     {
         $this->iWantToModifyAPromotion($promotion);
 
-        Assert::true(
-            $this->updatePage->hasResourceValues([$field => 1]),
-            sprintf('Promotion %s is not %s, but it should be.', $promotion->getName(), str_replace('_', ' ', $field))
-        );
+        Assert::true($this->updatePage->hasResourceValues([$field => 1]));
     }
 }

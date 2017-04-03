@@ -13,8 +13,6 @@ namespace Sylius\Behat\Page;
 
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Session;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
@@ -26,6 +24,11 @@ abstract class SymfonyPage extends Page implements SymfonyPageInterface
      * @var RouterInterface
      */
     protected $router;
+
+    /**
+     * @var array
+     */
+    protected static $additionalParameters = ['_locale' => 'en_US'];
 
     /**
      * @param Session $session
@@ -45,15 +48,40 @@ abstract class SymfonyPage extends Page implements SymfonyPageInterface
     abstract public function getRouteName();
 
     /**
-     * @param array $urlParameters
-     *
-     * @return string
+     * {@inheritdoc}
      */
     protected function getUrl(array $urlParameters = [])
     {
-        $path = $this->router->generate($this->getRouteName(), $urlParameters);
+        $path = $this->router->generate($this->getRouteName(), $urlParameters + static::$additionalParameters);
+
+        $replace = [];
+        foreach (static::$additionalParameters as $key => $value) {
+            $replace[sprintf('&%s=%s', $key, $value)] = '';
+            $replace[sprintf('?%s=%s&', $key, $value)] = '?';
+            $replace[sprintf('?%s=%s', $key, $value)] = '';
+        }
+
+        $path = str_replace(array_keys($replace), array_values($replace), $path);
 
         return $this->makePathAbsolute($path);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function verifyUrl(array $urlParameters = [])
+    {
+        $url = $this->getDriver()->getCurrentUrl();
+        $path = parse_url($url)['path'];
+
+        $path = preg_replace('#^/app(_dev|_test|_test_cached)?\.php/#', '/', $path);
+        $matchedRoute = $this->router->match($path);
+
+        if (isset($matchedRoute['_locale'])) {
+            $urlParameters += ['_locale' => $matchedRoute['_locale']];
+        }
+
+        parent::verifyUrl($urlParameters);
     }
 
     /**

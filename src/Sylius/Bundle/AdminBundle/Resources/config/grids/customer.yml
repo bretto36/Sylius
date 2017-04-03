@@ -49,6 +49,14 @@ sylius_grid:
                     create:
                         type: create
                 item:
+                    show_orders:
+                        type: show
+                        label: sylius.ui.show_orders
+                        options:
+                            link:
+                                route: sylius_admin_customer_order_index
+                                parameters:
+                                    id: resource.id
                     show:
                         type: show
                     update:

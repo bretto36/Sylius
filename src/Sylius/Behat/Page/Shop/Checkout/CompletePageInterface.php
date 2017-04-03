@@ -45,11 +45,14 @@ interface CompletePageInterface extends SymfonyPageInterface
     public function hasBillingAddress(AddressInterface $address);
 
     /**
-     * @param PaymentMethodInterface $paymentMethod
-     *
      * @return bool
      */
-    public function hasPaymentMethod(PaymentMethodInterface $paymentMethod);
+    public function getPaymentMethodName();
+
+    /**
+     * @return bool
+     */
+    public function hasPaymentMethod();
 
     /**
      * @param ShippingMethodInterface $shippingMethod
@@ -68,7 +71,7 @@ interface CompletePageInterface extends SymfonyPageInterface
 
     /**
      * @param float $total
-     * 
+     *
      * @return bool
      */
     public function hasOrderTotal($total);
@@ -80,28 +83,35 @@ interface CompletePageInterface extends SymfonyPageInterface
 
     /**
      * @param string $promotionTotal
-     * 
+     *
      * @return bool
      */
     public function hasPromotionTotal($promotionTotal);
 
     /**
      * @param string $promotionName
-     * 
+     *
      * @return bool
      */
     public function hasPromotion($promotionName);
 
     /**
+     * @param string $promotionName
+     *
+     * @return bool
+     */
+    public function hasShippingPromotion($promotionName);
+
+    /**
      * @param string $taxTotal
-     * 
+     *
      * @return bool
      */
     public function hasTaxTotal($taxTotal);
 
     /**
      * @param string $price
-     * 
+     *
      * @return bool
      */
     public function hasShippingTotal($price);
@@ -156,4 +166,21 @@ interface CompletePageInterface extends SymfonyPageInterface
      * @return bool
      */
     public function hasBillingProvinceName($provinceName);
+
+    /**
+     * @return string
+     */
+    public function getBaseCurrencyOrderTotal();
+
+    /**
+     * @param string $promotionName
+     * 
+     * @return string
+     */
+    public function getShippingPromotionDiscount($promotionName);
+
+    /**
+     * @return string
+     */
+    public function getValidationErrors();
 }

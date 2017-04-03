@@ -11,6 +11,7 @@
 
 namespace Sylius\Bundle\CoreBundle\Form\Type\Checkout;
 
+use Sylius\Bundle\ShippingBundle\Form\Type\ShippingMethodChoiceType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
@@ -20,12 +21,12 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class ShipmentType extends AbstractType
+final class ShipmentType extends AbstractType
 {
     /**
      * @var string
      */
-    protected $dataClass;
+    private $dataClass;
 
     /**
      * @param string $dataClass
@@ -45,7 +46,7 @@ class ShipmentType extends AbstractType
                 $form = $event->getForm();
                 $shipment = $event->getData();
 
-                $form->add('method', 'sylius_shipping_method_choice', [
+                $form->add('method', ShippingMethodChoiceType::class, [
                     'required' => true,
                     'label' => 'sylius.form.checkout.shipping_method',
                     'subject' => $shipment,
@@ -69,7 +70,7 @@ class ShipmentType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'sylius_checkout_shipment';
     }

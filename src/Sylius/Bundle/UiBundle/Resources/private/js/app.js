@@ -1,55 +1,17 @@
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Paweł Jędrzejewski
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 (function($) {
-  $.fn.extend({
-    toggleElement: function() {
-      return this.each(function() {
-        $(this).on('change', function(event) {
-          event.preventDefault();
-
-          var toggleElement = $(this);
-          var targetElement = $('#' + toggleElement.data('toggles'));
-
-          if (toggleElement.is(':checked')) {
-            targetElement.show();
-          } else {
-            targetElement.hide();
-          }
-        });
-
-        return $(this).trigger('change');
-      });
-    }
-  });
-
-  $.fn.extend({
-    requireConfirmation: function() {
-      return this.each(function() {
-        return $(this).on('click', function(event) {
-          event.preventDefault();
-
-          var actionButton = $(this);
-
-          if (actionButton.is('a')) {
-            $('#confirmation-button').attr('href', actionButton.attr('href'));
-          }
-          if (actionButton.is('button')) {
-            $('#confirmation-button').on('click', function(event) {
-              event.preventDefault();
-
-              return actionButton.closest('form').submit();
-            });
-          }
-
-          return $('#confirmation-modal').modal('show');
-        });
-      });
-    }
-  });
-
   $(document).ready(function() {
-    $('#sidebar')
-        .first()
-        .sidebar('attach events', '#sidebar-toggle', 'show')
-    ;
+    $('#sidebar').addClass('visible');
+    $('#sidebar').first().sidebar('attach events', '#sidebar-toggle', 'toggle');
+    $('#sidebar').first().sidebar('setting', { dimPage: false });
 
     $('.ui.checkbox').checkbox();
     $('.ui.accordion').accordion();
@@ -61,12 +23,6 @@
     $('.menu .item').tab();
     $('.card .image').dimmer({on: 'hover'});
     $('.ui.rating').rating('disable');
-    $('.cart.button')
-        .popup({
-            popup: $('.cart.popup'),
-            on: 'click',
-        })
-    ;
 
     $('form.loadable button').on('click', function() {
       return $(this).closest('form').addClass('loading');
@@ -84,5 +40,8 @@
     $('.special.cards .image').dimmer({
       on: 'hover'
     });
+
+    $('[data-form-type="collection"]').CollectionForm();
+
   });
 })(jQuery);

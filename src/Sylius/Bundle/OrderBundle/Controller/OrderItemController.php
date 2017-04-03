@@ -19,15 +19,17 @@ use Sylius\Bundle\ResourceBundle\Controller\ResourceController;
 use Sylius\Component\Order\CartActions;
 use Sylius\Component\Order\Context\CartContextInterface;
 use Sylius\Component\Order\Model\OrderInterface;
-use Sylius\Component\Order\Modifier\OrderModifierInterface;
+use Sylius\Component\Order\Model\OrderItemInterface;
 use Sylius\Component\Order\Modifier\OrderItemQuantityModifierInterface;
-use Sylius\Component\Resource\ResourceActions;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Sylius\Component\Order\Modifier\OrderModifierInterface;
+use Symfony\Component\Form\FormError;
+use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
@@ -35,44 +37,39 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class OrderItemController extends ResourceController
 {
     /**
-     * {@inheritdoc}
-     */
-    public function createNew()
-    {
-        if (null === $orderId = $this->getRequest()->get('orderId')) {
-            throw new NotFoundHttpException('No order id given.');
-        }
-
-        if (!$order = $this->getOrderRepository()->find($orderId)) {
-            throw new NotFoundHttpException('Requested order does not exist.');
-        }
-
-        $orderItem = parent::createNew();
-        $orderItem->setOrder($order);
-
-        return $orderItem;
-    }
-
-    /**
      * @param Request $request
      *
      * @return Response
      */
     public function addAction(Request $request)
     {
+        $cart = $this->getCurrentCart();
         $configuration = $this->requestConfigurationFactory->create($this->metadata, $request);
 
-        $this->isGrantedOr403($configuration, ResourceActions::CREATE);
-        $newResource = $this->newResourceFactory->create($configuration, $this->factory);
+        $this->isGrantedOr403($configuration, CartActions::ADD);
+        /** @var OrderItemInterface $orderItem */
+        $orderItem = $this->newResourceFactory->create($configuration, $this->factory);
 
-        $this->getItemQuantityModifier()->modify($newResource, 1);
+        $this->getQuantityModifier()->modify($orderItem, 1);
 
-        $form = $this->resourceFormFactory->create($configuration, $newResource);
+        $form = $this->getFormFactory()->create(
+            $configuration->getFormType(),
+            $this->createAddToCartCommand($cart, $orderItem),
+            $configuration->getFormOptions()
+        );
 
-        if ($request->isMethod('POST') && $form->submit($request)->isValid()) {
-            $newResource = $form->getData();
+        if ($request->isMethod('POST') && $form->handleRequest($request)->isValid()) {
+            /** @var AddToCartCommandInterface $addCartItemCommand */
+            $addToCartCommand = $form->getData();
 
-            $event = $this->eventDispatcher->dispatchPreEvent(ResourceActions::CREATE, $configuration, $newResource);
+            $errors = $this->getCartItemErrors($addToCartCommand->getCartItem());
+            if (0 < count($errors)) {
+                $form = $this->getAddToCartFormWithErrors($errors, $form);
+
+                return $this->handleBadAjaxRequestView($configuration, $form);
+            }
+
+            $event = $this->eventDispatcher->dispatchPreEvent(CartActions::ADD, $configuration, $orderItem);
 
             if ($event->isStopped() && !$configuration->isHtmlRequest()) {
                 throw new HttpException($event->getErrorCode(), $event->getMessage());
@@ -80,34 +77,37 @@ class OrderItemController extends ResourceController
             if ($event->isStopped()) {
                 $this->flashHelper->addFlashFromEvent($configuration, $event);
 
-                return $this->redirectHandler->redirectToIndex($configuration, $newResource);
+                return $this->redirectHandler->redirectToIndex($configuration, $orderItem);
             }
 
-            $cart = $this->getCurrentCart();
-            $this->getOrderModifier()->addToOrder($cart, $newResource);
+            $this->getOrderModifier()->addToOrder($addToCartCommand->getCart(), $addToCartCommand->getCartItem());
 
             $cartManager = $this->getCartManager();
             $cartManager->persist($cart);
             $cartManager->flush();
 
-            $this->eventDispatcher->dispatchPostEvent(ResourceActions::CREATE, $configuration, $newResource);
-
-            if (!$configuration->isHtmlRequest()) {
-                return $this->viewHandler->handle($configuration, View::create($newResource, Response::HTTP_CREATED));
+            $resourceControllerEvent = $this->eventDispatcher->dispatchPostEvent(CartActions::ADD, $configuration, $orderItem);
+            if ($resourceControllerEvent->hasResponse()) {
+                return $resourceControllerEvent->getResponse();
             }
-            $this->flashHelper->addSuccessFlash($configuration, ResourceActions::CREATE, $newResource);
 
-            return $this->redirectHandler->redirectToResource($configuration, $newResource);
+            $this->flashHelper->addSuccessFlash($configuration, CartActions::ADD, $orderItem);
+
+            if ($request->isXmlHttpRequest()) {
+                return $this->viewHandler->handle($configuration, View::create([], Response::HTTP_CREATED));
+            }
+
+            return $this->redirectHandler->redirectToResource($configuration, $orderItem);
         }
 
         if (!$configuration->isHtmlRequest()) {
-            return $this->viewHandler->handle($configuration, View::create($form, Response::HTTP_BAD_REQUEST));
+            return $this->handleBadAjaxRequestView($configuration, $form);
         }
 
         $view = View::create()
             ->setData([
                 'configuration' => $configuration,
-                $this->metadata->getName() => $newResource,
+                $this->metadata->getName() => $orderItem,
                 'form' => $form->createView(),
             ])
             ->setTemplate($configuration->getTemplate(CartActions::ADD . '.html'))
@@ -125,10 +125,15 @@ class OrderItemController extends ResourceController
     {
         $configuration = $this->requestConfigurationFactory->create($this->metadata, $request);
 
-        $this->isGrantedOr403($configuration, ResourceActions::DELETE);
-        $resource = $this->findOr404($configuration);
+        $this->isGrantedOr403($configuration, CartActions::REMOVE);
+        /** @var OrderItemInterface $orderItem */
+        $orderItem = $this->findOr404($configuration);
 
-        $event = $this->eventDispatcher->dispatchPreEvent(ResourceActions::DELETE, $configuration, $resource);
+        $event = $this->eventDispatcher->dispatchPreEvent(CartActions::REMOVE, $configuration, $orderItem);
+
+        if ($configuration->isCsrfProtectionEnabled() && !$this->isCsrfTokenValid($orderItem->getId(), $request->request->get('_csrf_token'))) {
+            throw new HttpException(Response::HTTP_FORBIDDEN, 'Invalid csrf token.');
+        }
 
         if ($event->isStopped() && !$configuration->isHtmlRequest()) {
             throw new HttpException($event->getErrorCode(), $event->getMessage());
@@ -136,27 +141,37 @@ class OrderItemController extends ResourceController
         if ($event->isStopped()) {
             $this->flashHelper->addFlashFromEvent($configuration, $event);
 
-            return $this->redirectHandler->redirectToIndex($configuration, $resource);
+            return $this->redirectHandler->redirectToIndex($configuration, $orderItem);
         }
 
         $cart = $this->getCurrentCart();
-        $this->getOrderModifier()->removeFromOrder($cart, $resource);
+        if ($cart !== $orderItem->getOrder()) {
+            $this->addFlash('error', $this->get('translator')->trans('sylius.cart.cannot_modify', [], 'flashes'));
 
-        $this->repository->remove($resource);
+            if (!$configuration->isHtmlRequest()) {
+                return $this->viewHandler->handle($configuration, View::create(null, Response::HTTP_NO_CONTENT));
+            }
+
+            return $this->redirectHandler->redirectToIndex($configuration, $orderItem);
+        }
+
+        $this->getOrderModifier()->removeFromOrder($cart, $orderItem);
+
+        $this->repository->remove($orderItem);
 
         $cartManager = $this->getCartManager();
         $cartManager->persist($cart);
         $cartManager->flush();
 
-        $this->eventDispatcher->dispatchPostEvent(ResourceActions::DELETE, $configuration, $resource);
+        $this->eventDispatcher->dispatchPostEvent(CartActions::REMOVE, $configuration, $orderItem);
 
         if (!$configuration->isHtmlRequest()) {
             return $this->viewHandler->handle($configuration, View::create(null, Response::HTTP_NO_CONTENT));
         }
 
-        $this->flashHelper->addSuccessFlash($configuration, ResourceActions::DELETE, $resource);
+        $this->flashHelper->addSuccessFlash($configuration, CartActions::REMOVE, $orderItem);
 
-        return $this->redirectHandler->redirectToIndex($configuration, $resource);
+        return $this->redirectHandler->redirectToIndex($configuration, $orderItem);
     }
 
     /**
@@ -206,17 +221,28 @@ class OrderItemController extends ResourceController
     }
 
     /**
-     * @return EventDispatcherInterface
+     * @param OrderInterface $cart
+     * @param OrderItemInterface $cartItem
+     *
+     * @return AddToCartCommandInterface
      */
-    protected function getEventDispatcher()
+    protected function createAddToCartCommand(OrderInterface $cart, OrderItemInterface $cartItem)
     {
-        return $this->get('event_dispatcher');
+        return $this->get('sylius.factory.add_to_cart_command')->createWithCartAndCartItem($cart, $cartItem);
+    }
+
+    /**
+     * @return FormFactoryInterface
+     */
+    protected function getFormFactory()
+    {
+        return $this->get('form.factory');
     }
 
     /**
      * @return OrderItemQuantityModifierInterface
      */
-    private function getItemQuantityModifier()
+    protected function getQuantityModifier()
     {
         return $this->get('sylius.order_item_quantity_modifier');
     }
@@ -224,7 +250,7 @@ class OrderItemController extends ResourceController
     /**
      * @return OrderModifierInterface
      */
-    private function getOrderModifier()
+    protected function getOrderModifier()
     {
         return $this->get('sylius.order_modifier');
     }
@@ -232,8 +258,50 @@ class OrderItemController extends ResourceController
     /**
      * @return EntityManagerInterface
      */
-    private function getCartManager()
+    protected function getCartManager()
     {
         return $this->get('sylius.manager.order');
+    }
+
+    /**
+     * @param OrderItemInterface $orderItem
+     *
+     * @return ConstraintViolationListInterface
+     */
+    private function getCartItemErrors(OrderItemInterface $orderItem)
+    {
+        return $this
+            ->get('validator')
+            ->validate($orderItem, null, $this->getParameter('sylius.form.type.order_item.validation_groups'))
+        ;
+    }
+
+    /**
+     * @param ConstraintViolationListInterface $errors
+     * @param FormInterface $form
+     *
+     * @return FormInterface
+     */
+    private function getAddToCartFormWithErrors(ConstraintViolationListInterface $errors, FormInterface $form)
+    {
+        foreach ($errors as $error) {
+            $form->get('cartItem')->get($error->getPropertyPath())->addError(new FormError($error->getMessage()));
+        }
+
+        return $form;
+    }
+
+    /**
+     * @param RequestConfiguration $configuration
+     * @param FormInterface $form
+     *
+     * @return Response
+     */
+    private function handleBadAjaxRequestView(RequestConfiguration $configuration, FormInterface $form)
+    {
+        return $this->viewHandler->handle(
+            $configuration,
+            View::create($form, Response::HTTP_BAD_REQUEST)->setData(['errors' => $form->getErrors(true, true)])
+        );
     }
 }

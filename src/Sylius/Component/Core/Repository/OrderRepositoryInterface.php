@@ -12,11 +12,10 @@
 namespace Sylius\Component\Core\Repository;
 
 use Doctrine\ORM\QueryBuilder;
-use Pagerfanta\PagerfantaInterface;
 use Sylius\Component\Core\Model\ChannelInterface;
-use Sylius\Component\Core\Model\PromotionCouponInterface;
 use Sylius\Component\Core\Model\CustomerInterface;
 use Sylius\Component\Core\Model\OrderInterface;
+use Sylius\Component\Core\Model\PromotionCouponInterface;
 use Sylius\Component\Order\Repository\OrderRepositoryInterface as BaseOrderRepositoryInterface;
 
 interface OrderRepositoryInterface extends BaseOrderRepositoryInterface
@@ -25,13 +24,13 @@ interface OrderRepositoryInterface extends BaseOrderRepositoryInterface
      * @return QueryBuilder
      */
     public function createListQueryBuilder();
-    
+
     /**
-     * @param CustomerInterface $customer
+     * @param int $customerId
      *
      * @return QueryBuilder
      */
-    public function createByCustomerQueryBuilder(CustomerInterface $customer);
+    public function createByCustomerIdQueryBuilder($customerId);
 
     /**
      * @param CustomerInterface $customer
@@ -50,26 +49,24 @@ interface OrderRepositoryInterface extends BaseOrderRepositoryInterface
 
     /**
      * @param CustomerInterface $customer
-     * @param array $sorting
      *
      * @return OrderInterface[]
      */
-    public function findByCustomer(CustomerInterface $customer, array $sorting = []);
-    
+    public function findByCustomer(CustomerInterface $customer);
+
+    /**
+     * @param CustomerInterface $customer
+     *
+     * @return OrderInterface[]
+     */
+    public function findForCustomerStatistics(CustomerInterface $customer);
+
     /**
      * @param int $id
      *
      * @return OrderInterface|null
      */
     public function findOneForPayment($id);
-
-    /**
-     * @param array $criteria
-     * @param array $sorting
-     *
-     * @return PagerfantaInterface
-     */
-    public function createCheckoutsPaginator(array $criteria = null, array $sorting = null);
 
     /**
      * @param string $number
@@ -85,5 +82,62 @@ interface OrderRepositoryInterface extends BaseOrderRepositoryInterface
      *
      * @return OrderInterface|null
      */
-    public function findCartByIdAndChannel($id, ChannelInterface $channel);
+    public function findCartByChannel($id, ChannelInterface $channel);
+
+    /**
+     * @param ChannelInterface $channel
+     * @param CustomerInterface $customer
+     *
+     * @return OrderInterface|null
+     */
+    public function findLatestCartByChannelAndCustomer(ChannelInterface $channel, CustomerInterface $customer);
+
+    /**
+     * @param ChannelInterface $channel
+     *
+     * @return int
+     */
+    public function getTotalSalesForChannel(ChannelInterface $channel);
+
+    /**
+     * @param ChannelInterface $channel
+     *
+     * @return int
+     */
+    public function countByChannel(ChannelInterface $channel);
+
+    /**
+     * @param int $count
+     * @param ChannelInterface $channel
+     *
+     * @return OrderInterface[]
+     */
+    public function findLatestInChannel($count, ChannelInterface $channel);
+
+    /**
+     * @param \DateTime $terminalDate
+     *
+     * @return OrderInterface[]
+     */
+    public function findOrdersUnpaidSince(\DateTime $terminalDate);
+
+    /**
+     * @return OrderInterface|null
+     */
+    public function findCartForSummary($id);
+
+    /**
+     * @return OrderInterface|null
+     */
+    public function findCartForAddressing($id);
+
+    /**
+     * @return OrderInterface|null
+     */
+    public function findCartForSelectingShipping($id);
+
+    /**
+     * @return OrderInterface|null
+     */
+    public function findCartForSelectingPayment($id);
 }

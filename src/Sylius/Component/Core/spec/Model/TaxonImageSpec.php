@@ -13,7 +13,6 @@ namespace spec\Sylius\Component\Core\Model;
 
 use PhpSpec\ObjectBehavior;
 use Sylius\Component\Core\Model\Image;
-use Sylius\Component\Core\Model\ImageAwareInterface;
 use Sylius\Component\Core\Model\TaxonImage;
 
 /**
@@ -55,15 +54,15 @@ final class TaxonImageSpec extends ObjectBehavior
         $this->getPath()->shouldReturn(__FILE__);
     }
 
-    function it_does_not_have_code_by_default()
+    function it_does_not_have_type_by_default()
     {
-        $this->getCode()->shouldReturn(null);
+        $this->getType()->shouldReturn(null);
     }
 
-    function its_code_is_mutable()
+    function its_type_is_mutable()
     {
-        $this->setCode('banner');
-        $this->getCode()->shouldReturn('banner');
+        $this->setType('banner');
+        $this->getType()->shouldReturn('banner');
     }
 
     function it_does_not_have_owner_by_default()
@@ -71,8 +70,10 @@ final class TaxonImageSpec extends ObjectBehavior
         $this->getOwner()->shouldReturn(null);
     }
 
-    function its_owner_is_mutable(ImageAwareInterface $owner)
+    function its_owner_is_mutable()
     {
+        $owner = new \stdClass();
+
         $this->setOwner($owner);
         $this->getOwner()->shouldReturn($owner);
     }

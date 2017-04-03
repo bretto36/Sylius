@@ -16,7 +16,7 @@ use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 /**
  * @author Kamil Kokot <kamil.kokot@lakion.com>
  */
-final class PaymentMethodFixture extends AbstractResourceFixture
+class PaymentMethodFixture extends AbstractResourceFixture
 {
     /**
      * {@inheritdoc}
@@ -36,7 +36,10 @@ final class PaymentMethodFixture extends AbstractResourceFixture
                 ->scalarNode('code')->cannotBeEmpty()->end()
                 ->scalarNode('name')->cannotBeEmpty()->end()
                 ->scalarNode('description')->cannotBeEmpty()->end()
-                ->scalarNode('gateway')->cannotBeEmpty()->end()
+                ->scalarNode('gatewayName')->cannotBeEmpty()->end()
+                ->scalarNode('gatewayFactory')->cannotBeEmpty()->end()
+                ->arrayNode('gatewayConfig')->prototype('variable')->end()->end()
+                ->arrayNode('channels')->prototype('scalar')->end()->end()
                 ->booleanNode('enabled')->end()
         ;
     }

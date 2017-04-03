@@ -10,12 +10,13 @@ sylius:
             options: Alternativ
             meta_keywords: Metasökord
             meta_description: Metabeskrivning
+            slug: Permalänk
             taxons: Taxa
         product_variant:
-            available_on: Tillgänglig på
-            available_until: Tillgänglig till
+            name: Namn
         association_type:
             name: Namn
+            translations: Översättningar
         association:
             type: Associationstyp
             product: Tillhörande produkt
@@ -23,6 +24,7 @@ sylius:
             name: Namn
         option:
             name: Namn
+            position: Position
             values: Möjliga värden
         option_value:
             add_value: Lägg till värde

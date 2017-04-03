@@ -21,6 +21,7 @@ use Webmozart\Assert\Assert;
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  * @author Saša Stamenković <umpirsky@gmail.com>
  * @author Mateusz Zalewski <mateusz.zalewski@lakion.com>
+ * @author Grzegorz Sadowski <grzegorz.sadowski@lakion.com>
  */
 final class FixedDiscountPromotionActionCommand extends DiscountPromotionActionCommand
 {
@@ -54,14 +55,27 @@ final class FixedDiscountPromotionActionCommand extends DiscountPromotionActionC
     public function execute(PromotionSubjectInterface $subject, array $configuration, PromotionInterface $promotion)
     {
         if (!$this->isSubjectValid($subject)) {
-            return;
+            return false;
         }
 
-        $this->isConfigurationValid($configuration);
+        $channelCode = $subject->getChannel()->getCode();
+        if (!isset($configuration[$channelCode])) {
+            return false;
+        }
 
-        $promotionAmount = $this->calculateAdjustmentAmount($subject->getPromotionSubjectTotal(), $configuration['amount']);
+        try {
+            $this->isConfigurationValid($configuration[$channelCode]);
+        } catch (\InvalidArgumentException $exception) {
+            return false;
+        }
+
+        $promotionAmount = $this->calculateAdjustmentAmount(
+            $subject->getPromotionSubjectTotal(),
+            $configuration[$channelCode]['amount']
+        );
+
         if (0 === $promotionAmount) {
-            return;
+            return false;
         }
 
         $itemsTotals = [];
@@ -71,14 +85,8 @@ final class FixedDiscountPromotionActionCommand extends DiscountPromotionActionC
 
         $splitPromotion = $this->proportionalDistributor->distribute($itemsTotals, $promotionAmount);
         $this->unitsPromotionAdjustmentsApplicator->apply($subject, $promotion, $splitPromotion);
-    }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getConfigurationFormType()
-    {
-        return 'sylius_promotion_action_fixed_discount_configuration';
+        return true;
     }
 
     /**

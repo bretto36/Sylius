@@ -27,19 +27,13 @@ final class SyliusShippingExtension extends AbstractResourceExtension
      */
     public function load(array $config, ContainerBuilder $container)
     {
-        $config = $this->processConfiguration($this->getConfiguration($config, $container), $config);
+        $config = $this->processConfiguration($this->getConfiguration([], $container), $config);
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 
         $loader->load(sprintf('services/integrations/%s.xml', $config['driver']));
 
         $this->registerResources('sylius', $config['driver'], $config['resources'], $container);
-        $this->mapFormValidationGroupsParameters($config, $container);
 
         $loader->load('services.xml');
-
-        $shippingMethod = $container->getDefinition('sylius.form.type.shipping_method');
-        $shippingMethod->addArgument(new Reference('sylius.registry.shipping_calculator'));
-        $shippingMethod->addArgument(new Reference('sylius.registry.shipping_rule_checker'));
-        $shippingMethod->addArgument(new Reference('form.registry'));
     }
 }

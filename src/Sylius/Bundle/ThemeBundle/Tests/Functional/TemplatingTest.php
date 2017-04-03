@@ -11,20 +11,23 @@
 
 namespace Sylius\Bundle\ThemeBundle\Tests\Functional;
 
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+
 /**
  * @author Kamil Kokot <kamil.kokot@lakion.com>
  */
-final class TemplatingTest extends ThemeBundleTestCase
+final class TemplatingTest extends WebTestCase
 {
     /**
+     * @test
      * @dataProvider getBundleTemplates
      *
      * @param string $templateName
      * @param string $contents
      */
-    public function testRenderBundleTemplates($templateName, $contents)
+    public function it_renders_bundle_templates($templateName, $contents)
     {
-        $client = $this->getClient();
+        $client = self::createClient();
 
         $crawler = $client->request('GET', '/template/'.$templateName);
         $this->assertEquals($contents, trim($crawler->text()));
@@ -45,14 +48,15 @@ final class TemplatingTest extends ThemeBundleTestCase
     }
 
     /**
+     * @test
      * @dataProvider getBundleTemplatesUsingNamespacedPaths
      *
      * @param string $templateName
      * @param string $contents
      */
-    public function testRenderBundleTemplatesUsingNamespacedPaths($templateName, $contents)
+    public function it_renders_bundle_templates_using_namespaced_paths($templateName, $contents)
     {
-        $client = $this->getClient();
+        $client = self::createClient();
 
         $crawler = $client->request('GET', '/template/'.$templateName);
         $this->assertEquals($contents, trim($crawler->text()));
@@ -73,14 +77,15 @@ final class TemplatingTest extends ThemeBundleTestCase
     }
 
     /**
+     * @test
      * @dataProvider getAppTemplates
      *
      * @param string $templateName
      * @param string $contents
      */
-    public function testRenderAppTemplates($templateName, $contents)
+    public function it_renders_application_templates($templateName, $contents)
     {
-        $client = $this->getClient();
+        $client = self::createClient();
 
         $crawler = $client->request('GET', '/template/'.$templateName);
         $this->assertEquals($contents, trim($crawler->text()));
@@ -99,14 +104,15 @@ final class TemplatingTest extends ThemeBundleTestCase
     }
 
     /**
+     * @test
      * @dataProvider getAppTemplatesUsingNamespacedPaths
      *
      * @param string $templateName
      * @param string $contents
      */
-    public function testRenderAppTemplatesUsingNamespacedPaths($templateName, $contents)
+    public function it_renders_application_templates_using_namespaced_paths($templateName, $contents)
     {
-        $client = $this->getClient();
+        $client = self::createClient();
 
         $crawler = $client->request('GET', '/template/'.$templateName);
         $this->assertEquals($contents, trim($crawler->text()));

@@ -11,15 +11,18 @@
 
 namespace Sylius\Bundle\ProductBundle\Form\Type;
 
+use Sylius\Bundle\ProductBundle\Form\EventSubscriber\BuildProductVariantFormSubscriber;
 use Sylius\Bundle\ResourceBundle\Form\EventSubscriber\AddCodeFormSubscriber;
 use Sylius\Bundle\ResourceBundle\Form\Type\AbstractResourceType;
-use Sylius\Bundle\ProductBundle\Form\EventSubscriber\BuildProductVariantFormSubscriber;
+use Sylius\Bundle\ResourceBundle\Form\Type\ResourceTranslationsType;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class ProductVariantType extends AbstractResourceType
+final class ProductVariantType extends AbstractResourceType
 {
     /**
      * {@inheritdoc}
@@ -27,21 +30,9 @@ class ProductVariantType extends AbstractResourceType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('name', 'text', [
-                'required' => false,
-                'label' => 'sylius.form.variant.name',
-            ])
-            ->add('availableOn', 'datetime', [
-                'required' => false,
-                'date_widget' => 'single_text',
-                'time_widget' => 'single_text',
-                'label' => 'sylius.form.product_variant.available_on',
-            ])
-            ->add('availableUntil', 'datetime', [
-                'required' => false,
-                'date_widget' => 'single_text',
-                'time_widget' => 'single_text',
-                'label' => 'sylius.form.product_variant.available_until',
+            ->add('translations', ResourceTranslationsType::class, [
+                'entry_type' => ProductVariantTranslationType::class,
+                'label' => 'sylius.form.product_variant.translations',
             ])
             ->addEventSubscriber(new AddCodeFormSubscriber())
         ;
@@ -52,7 +43,7 @@ class ProductVariantType extends AbstractResourceType
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'sylius_product_variant';
     }

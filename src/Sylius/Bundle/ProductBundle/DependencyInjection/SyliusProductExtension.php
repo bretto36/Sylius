@@ -11,6 +11,10 @@
 
 namespace Sylius\Bundle\ProductBundle\DependencyInjection;
 
+use Sylius\Bundle\ProductBundle\Controller\ProductAttributeController;
+use Sylius\Bundle\ProductBundle\Form\Type\ProductAttributeTranslationType;
+use Sylius\Bundle\ProductBundle\Form\Type\ProductAttributeType;
+use Sylius\Bundle\ProductBundle\Form\Type\ProductAttributeValueType;
 use Sylius\Bundle\ResourceBundle\DependencyInjection\Extension\AbstractResourceExtension;
 use Sylius\Component\Product\Model\ProductAttribute;
 use Sylius\Component\Product\Model\ProductAttributeInterface;
@@ -22,7 +26,6 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
-use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
@@ -34,7 +37,7 @@ final class SyliusProductExtension extends AbstractResourceExtension implements 
      */
     public function load(array $config, ContainerBuilder $container)
     {
-        $config = $this->processConfiguration($this->getConfiguration($config, $container), $config);
+        $config = $this->processConfiguration($this->getConfiguration([], $container), $config);
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 
         $loader->load(sprintf('services/integrations/%s.xml', $config['driver']));
@@ -42,11 +45,6 @@ final class SyliusProductExtension extends AbstractResourceExtension implements 
         $this->registerResources('sylius', $config['driver'], $config['resources'], $container);
 
         $loader->load('services.xml');
-
-        $formDefinition = $container->getDefinition('sylius.form.type.product_variant_generation');
-        $formDefinition->addArgument($container->getDefinition('sylius.form.event_subscriber.product_variant_generator'));
-
-        $container->getDefinition('sylius.form.type.product')->addArgument(new Reference('sylius.product_variant_resolver.default'));
     }
 
     /**
@@ -77,11 +75,14 @@ final class SyliusProductExtension extends AbstractResourceExtension implements 
                         'classes' => [
                             'model' => ProductAttribute::class,
                             'interface' => ProductAttributeInterface::class,
+                            'controller' => ProductAttributeController::class,
+                            'form' => ProductAttributeType::class,
                         ],
                         'translation' => [
                             'classes' => [
                                 'model' => ProductAttributeTranslation::class,
                                 'interface' => ProductAttributeTranslationInterface::class,
+                                'form' => ProductAttributeTranslationType::class,
                             ],
                         ],
                     ],
@@ -89,6 +90,7 @@ final class SyliusProductExtension extends AbstractResourceExtension implements 
                         'classes' => [
                             'model' => ProductAttributeValue::class,
                             'interface' => ProductAttributeValueInterface::class,
+                            'form' => ProductAttributeValueType::class,
                         ],
                     ],
                 ],

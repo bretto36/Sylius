@@ -7,6 +7,6 @@ sylius:
             description: Opis
             name: Nazwa
             parent: Rodzic
-            permalink: Link bezpośredni
+            slug: Fragment URL
         taxonomy:
             name: Nazwa

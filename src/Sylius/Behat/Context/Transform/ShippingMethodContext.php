@@ -43,9 +43,9 @@ final class ShippingMethodContext implements Context
         $shippingMethods = $this->shippingMethodRepository->findByName($shippingMethodName, 'en_US');
 
         Assert::eq(
-            1,
             count($shippingMethods),
-            sprintf('%d shippinf methods has been found with name "%s".', count($shippingMethods), $shippingMethodName)
+            1,
+            sprintf('%d shipping methods have been found with name "%s".', count($shippingMethods), $shippingMethodName)
         );
 
         return $shippingMethods[0];

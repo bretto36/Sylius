@@ -13,6 +13,7 @@ namespace Sylius\Bundle\CoreBundle\Fixture;
 
 use Sylius\Bundle\FixturesBundle\Fixture\AbstractFixture;
 use Sylius\Component\Attribute\AttributeType\IntegerAttributeType;
+use Sylius\Component\Attribute\AttributeType\SelectAttributeType;
 use Sylius\Component\Attribute\AttributeType\TextAttributeType;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -20,20 +21,20 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * @author Kamil Kokot <kamil.kokot@lakion.com>
  */
-final class BookProductFixture extends AbstractFixture
+class BookProductFixture extends AbstractFixture
 {
     /**
-     * @var TaxonFixture
+     * @var AbstractResourceFixture
      */
     private $taxonFixture;
 
     /**
-     * @var ProductAttributeFixture
+     * @var AbstractResourceFixture
      */
     private $productAttributeFixture;
 
     /**
-     * @var ProductFixture
+     * @var AbstractResourceFixture
      */
     private $productFixture;
 
@@ -48,14 +49,14 @@ final class BookProductFixture extends AbstractFixture
     private $optionsResolver;
 
     /**
-     * @param TaxonFixture $taxonFixture
-     * @param ProductAttributeFixture $productAttributeFixture
-     * @param ProductFixture $productFixture
+     * @param AbstractResourceFixture $taxonFixture
+     * @param AbstractResourceFixture $productAttributeFixture
+     * @param AbstractResourceFixture $productFixture
      */
     public function __construct(
-        TaxonFixture $taxonFixture,
-        ProductAttributeFixture $productAttributeFixture,
-        ProductFixture $productFixture
+        AbstractResourceFixture $taxonFixture,
+        AbstractResourceFixture $productAttributeFixture,
+        AbstractResourceFixture $productFixture
     ) {
         $this->taxonFixture = $taxonFixture;
         $this->productAttributeFixture = $productAttributeFixture;
@@ -95,10 +96,20 @@ final class BookProductFixture extends AbstractFixture
             ]
         ]]]);
 
+        $bookGenres = ['Fiction', 'Romance', 'Thriller', 'Sports'];
         $this->productAttributeFixture->load(['custom' => [
             ['name' => 'Book author', 'code' => 'book_author', 'type' => TextAttributeType::TYPE],
             ['name' => 'Book ISBN', 'code' => 'book_isbn', 'type' => TextAttributeType::TYPE],
             ['name' => 'Book pages', 'code' => 'book_pages', 'type' => IntegerAttributeType::TYPE],
+            [
+                'name' => 'Book genre',
+                'code' => 'book_genre',
+                'type' => SelectAttributeType::TYPE,
+                'configuration' => [
+                    'multiple' => true,
+                    'choices' => $bookGenres,
+                ]
+            ],
         ]]);
 
         $products = [];
@@ -115,10 +126,11 @@ final class BookProductFixture extends AbstractFixture
                     'book_author' => $authorName,
                     'book_isbn' => $this->faker->isbn13,
                     'book_pages' => $this->faker->numberBetween(42, 1024),
+                    'book_genre' => array_keys($this->faker->randomElements($bookGenres, $this->faker->randomKey($bookGenres) + 1)),
                 ],
                 'images' => [
-                    'main' => sprintf('%s/../Resources/fixtures/%s', __DIR__, 'books.jpg'),
-                    'thumbnail' => sprintf('%s/../Resources/fixtures/%s', __DIR__, 'books.jpg'),
+                    [sprintf('%s/../Resources/fixtures/%s', __DIR__, 'books.jpg'), 'main'],
+                    [sprintf('%s/../Resources/fixtures/%s', __DIR__, 'books.jpg'), 'thumbnail'],
                 ],
             ];
         }

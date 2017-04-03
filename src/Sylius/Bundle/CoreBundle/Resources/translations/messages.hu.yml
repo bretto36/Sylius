@@ -23,19 +23,19 @@ sylius:
             name: Név
             roles: Szerepek
         channel:
-            taxonomies: Taxonómiák
+            currencies: Pénznemek
+            currency_base: Alapértelmezett pénznem
+            hostname: Hoszt neve
             locale_default: Alapértelmezett nyelv
             locales: Területi beállítások
-            currency_default: Alapértelmezett pénznem
-            currencies: Pénznemek
-            shipping_methods: Szállítási módok
             payment_methods: Fizetési módok
+            shipping_methods: Szállítási módok
             tax_calculation_strategy: Adó számítási stratégia
             tax_zone_default: Alapértelmezett adósáv
+            taxonomies: Taxonómiák
             theme: Téma
-            hostname: Hoszt neve
         image:
-            code: Kód
+            type: Típus
             file: Kép
         locale:
             code: Kód
@@ -55,7 +55,6 @@ sylius:
         product:
             images: Képek
             restricted_zone: Tiltott zóna
-            shipping_category: Szállítási kategória
             short_description: Rövid leírás
             variant_selection_method: Változat kiválasztási módszer
             main_taxon: Fő taxonómia
@@ -66,6 +65,7 @@ sylius:
             code: Kód
         product_variant:
             tax_category: ÁFA-kategória
+            shipping_category: Szállítási kategória
         shipment_filter:
             created_at_from: '-tól'
             created_at_to: '-ig'
@@ -103,7 +103,6 @@ sylius:
             height: Magasság
             on_hand: Aktuális készlet
             price: Ár
-            original_price: Eredeti ár
             sku: SKU
             weight: Súly
             width: Szélesség
@@ -119,11 +118,16 @@ sylius:
         product_association_type:
             name: Név
         promotion_rule:
-            contains_taxon:
-                taxon: Taxonómia
-                count: Mennyiség
+            product:
+                products: Termékek
             total_of_items_from_taxon:
                 taxon: Taxonómia
+        payment_method:
+            channels: Csatornák
+        zone:
+            scopes:
+                shipping: Szállítás
+                tax: Adó
     installer:
         extensions:
             header: kiegészítők
@@ -180,23 +184,6 @@ sylius:
                 help: 'Ez az időzóna %timezone% elavult. Javítsd ki a php.ini fájlban (a támogatott időzónákat itt találod a PHP súgójában: http://php.net/manual/en/timezones.others.php).'
             version: PHP verzió
             version_recommended: Ajánlott PHP-verzió
-    email:
-        order_confirmation:
-            name: Rendelés visszaigazolás
-        order_comment:
-            name: Rendelés megjegyzés
-        shipment_confirmation:
-            name: Szállítási mód megerősítése
-        user_confirmation:
-            name: Felhasználói megerősítés
-            subject: Üdvözöljük áruházunkban
-            content: Üdvözlünk áruházunkban!<br/><br/>Sikeresen regisztráltál.<br/>Köszönjük %username%.
-        password_reset:
-            name: Jelszó visszaállítás
-            content: <h3>Szia %username%</h3>A jelszavad megváltoztatásához, kérlek látogass ide %url%<br/><br/>Üdvözlettel, a csapat.
-        verification:
-            name: Email cím hitelesítése
-            content: 'Email címed megerősítéséhez kérlek látogass ide: %url%'
     payum_gateway:
         cash_on_delivery: Utánvétel
         offline: Nem elérhető

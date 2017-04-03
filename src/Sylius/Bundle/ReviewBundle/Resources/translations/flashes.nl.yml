@@ -3,4 +3,6 @@
 
 sylius:
     review:
-        waiting_for_the_acceptation: Uw beoordeling wacht op de acceptatie.
+        accept: 'Beoordeling werd aanvaard.'
+        reject: 'Beoordeling werd verworpen.'
+        wait_for_the_acceptation: 'Uw beoordeling wacht op de acceptatie.'

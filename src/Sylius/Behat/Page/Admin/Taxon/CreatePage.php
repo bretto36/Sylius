@@ -14,9 +14,9 @@ namespace Sylius\Behat\Page\Admin\Taxon;
 use Behat\Mink\Driver\Selenium2Driver;
 use Behat\Mink\Element\NodeElement;
 use Behat\Mink\Exception\ElementNotFoundException;
-use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Sylius\Behat\Behaviour\SpecifiesItsCode;
 use Sylius\Behat\Page\Admin\Crud\CreatePage as BaseCreatePage;
+use Sylius\Behat\Service\SlugGenerationHelper;
 use Sylius\Component\Core\Model\TaxonInterface;
 use Webmozart\Assert\Assert;
 
@@ -54,28 +54,12 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
     /**
      * {@inheritdoc}
      */
-    public function chooseParent(TaxonInterface $taxon)
-    {
-        $this->getElement('parent')->selectOption($taxon->getName(), false);
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function deleteTaxonOnPageByName($name)
     {
         $leaves = $this->getLeaves();
         foreach ($leaves as $leaf) {
             if ($leaf->getText() === $name) {
-                $leaf = $leaf->getParent();
-                $menuButton = $leaf->find('css', '.wrench');
-                $menuButton->click();
-                $deleteButton = $leaf->find('css', '.sylius-delete-resource');
-                $deleteButton->click();
-
-                $deleteButton->waitFor(5, function () {
-                    return false;
-                });
+                $leaf->getParent()->find('css', '.ui.red.button')->press();
 
                 return;
             }
@@ -105,79 +89,37 @@ class CreatePage extends BaseCreatePage implements CreatePageInterface
      */
     public function nameIt($name, $languageCode)
     {
-        $this->getDocument()->fillField(sprintf('sylius_taxon_translations_%s_name', $languageCode), $name);
+        $this->activateLanguageTab($languageCode);
+        $this->getElement('name', ['%language%' => $languageCode])->setValue($name);
 
-        $this->waitForSlugGenerationIfNecessary();
+        if ($this->getDriver() instanceof Selenium2Driver) {
+            SlugGenerationHelper::waitForSlugGeneration(
+                $this->getSession(),
+                $this->getElement('slug', ['%language%' => $languageCode])
+            );
+        }
     }
 
     /**
      * {@inheritdoc}
      */
-    public function specifySlug($slug)
+    public function specifySlug($slug, $languageCode)
     {
-        $this->getDocument()->fillField('Slug', $slug);
+        $this->getDocument()->fillField(sprintf('sylius_taxon_translations_%s_slug', $languageCode), $slug);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function attachImage($path, $code = null)
+    public function attachImage($path, $type = null)
     {
         $filesPath = $this->getParameter('files_path');
 
         $this->getDocument()->find('css', '[data-form-collection="add"]')->click();
 
         $imageForm = $this->getLastImageElement();
-        $imageForm->fillField('Code', $code);
+        $imageForm->fillField('Type', $type);
         $imageForm->find('css', 'input[type="file"]')->attachFile($filesPath.$path);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function moveUp(TaxonInterface $taxon)
-    {
-        $this->moveLeaf($taxon, self::MOVE_DIRECTION_UP);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function moveDown(TaxonInterface $taxon)
-    {
-        $this->moveLeaf($taxon, self::MOVE_DIRECTION_DOWN);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getFirstLeafName(TaxonInterface $parentTaxon = null)
-    {
-        return $this->getLeaves($parentTaxon)[0]->getText();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function insertBefore(TaxonInterface $draggableTaxon, TaxonInterface $targetTaxon)
-    {
-        $seleniumDriver = $this->getSeleniumDriver();
-        $draggableTaxonLocator = sprintf('.item[data-id="%s"]', $draggableTaxon->getId());
-        $targetTaxonLocator = sprintf('.item[data-id="%s"]', $targetTaxon->getId());
-
-        $script = <<<JS
-(function ($) {
-    $('$draggableTaxonLocator').simulate('drag-n-drop',{
-        dragTarget: $('$targetTaxonLocator'),
-        interpolation: {stepWidth: 10, stepDelay: 30} 
-    });    
-})(jQuery);
-JS;
-
-        $seleniumDriver->executeScript($script);
-        $this->getDocument()->waitFor(5, function () {
-            return false;
-        });
     }
 
     /**
@@ -188,7 +130,7 @@ JS;
         $tree = $this->getElement('tree');
         Assert::notNull($tree);
         /** @var NodeElement[] $leaves */
-        $leaves = $tree->findAll('css', '.item > .content > .header');
+        $leaves = $tree->findAll('css', '.item > .content > .header > a');
 
         if (null === $parentTaxon) {
             return $leaves;
@@ -199,6 +141,35 @@ JS;
                 return $leaf->findAll('css', '.item > .content > .header');
             }
         }
+
+        return [];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function activateLanguageTab($locale)
+    {
+        if (!$this->getDriver() instanceof Selenium2Driver) {
+            return;
+        }
+
+        $languageTabTitle = $this->getElement('language_tab', ['%locale%' => $locale]);
+        if (!$languageTabTitle->hasClass('active')) {
+            $languageTabTitle->click();
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getElement($name, array $parameters = [])
+    {
+        if (!isset($parameters['%language%'])) {
+            $parameters['%language%'] = 'en_US';
+        }
+
+        return parent::getElement($name, $parameters);
     }
 
     /**
@@ -210,43 +181,11 @@ JS;
             'code' => '#sylius_taxon_code',
             'description' => '#sylius_taxon_translations_en_US_description',
             'images' => '#sylius_taxon_images',
-            'name' => '#sylius_taxon_translations_en_US_name',
-            'parent' => '#sylius_taxon_parent',
-            'slug' => '#sylius_taxon_translations_en_US_slug',
+            'language_tab' => '[data-locale="%locale%"] .title',
+            'name' => '#sylius_taxon_translations_%language%_name',
+            'slug' => '#sylius_taxon_translations_%language%_slug',
             'tree' => '.ui.list',
         ]);
-    }
-
-    /**
-     * @param TaxonInterface $taxon
-     * @param string $direction
-     *
-     * @throws ElementNotFoundException
-     */
-    private function moveLeaf(TaxonInterface $taxon, $direction)
-    {
-        Assert::oneOf($direction, [self::MOVE_DIRECTION_UP, self::MOVE_DIRECTION_DOWN]);
-
-        $leaves = $this->getLeaves();
-        foreach ($leaves as $leaf) {
-            if ($leaf->getText() === $taxon->getName()) {
-                $leaf = $leaf->getParent();
-                $menuButton = $leaf->find('css', '.wrench');
-                $menuButton->click();
-                $moveButton = $leaf->find('css', sprintf('.%s', $direction));
-                $moveButton->click();
-                $moveButton->waitFor(5, function () use ($taxon) {
-                    return $this->getFirstLeafName() === $taxon->getName();
-                });
-
-                return;
-            }
-        }
-
-        throw new ElementNotFoundException(
-            $this->getDriver(),
-            sprintf('Move %s button for %s taxon', $direction, $taxon->getName())
-        );
     }
 
     /**
@@ -260,30 +199,5 @@ JS;
         Assert::notEmpty($items);
 
         return end($items);
-    }
-
-    /**
-     * @return Selenium2Driver
-     *
-     * @throws UnsupportedDriverActionException
-     */
-    private function getSeleniumDriver()
-    {
-        /** @var Selenium2Driver $driver */
-        $driver = $this->getDriver();
-        if (!$driver instanceof Selenium2Driver) {
-            throw new UnsupportedDriverActionException('This action is not supported by %s', $driver);
-        }
-
-        return $driver;
-    }
-
-    private function waitForSlugGenerationIfNecessary()
-    {
-        if ($this->getDriver() instanceof Selenium2Driver) {
-            $this->getDocument()->waitFor(10, function () {
-                return '' !== $this->getElement('slug')->getValue();
-            });
-        }
     }
 }

@@ -19,26 +19,16 @@
             <tag name="kernel.event_listener" event="sylius.user.security.implicit_login" method="onImplicitLogin" />
             <tag name="kernel.event_listener" event="security.interactive_login" method="onInteractiveLogin" />
         </service>
-        <service id="sylius.listener.checkout_addressing" class="Sylius\Bundle\CoreBundle\EventListener\CheckoutAddressingListener">
-            <tag name="kernel.event_listener" event="sylius.checkout.addressing.pre_complete" method="setCustomerAddressing" />
-        </service>
-        <service id="sylius.listener.insufficient_stock_exception" class="Sylius\Bundle\CoreBundle\EventListener\InsufficientStockExceptionListener">
-            <argument type="service" id="router" />
-            <argument type="service" id="session" />
-            <argument type="service" id="translator" />
-            <argument>sylius_cart_summary</argument>
-            <tag name="kernel.event_listener" event="kernel.exception" method="onKernelException" />
-        </service>
         <service id="sylius.listener.channel" class="Sylius\Bundle\CoreBundle\EventListener\ChannelDeletionListener">
             <argument type="service" id="sylius.repository.channel" />
             <tag name="kernel.event_listener" event="sylius.channel.pre_delete" method="onChannelPreDelete" />
         </service>
-        <service id="sylius.listener.image_upload" class="Sylius\Bundle\CoreBundle\EventListener\ImageUploadListener">
+        <service id="sylius.listener.images_upload" class="Sylius\Bundle\CoreBundle\EventListener\ImagesUploadListener">
             <argument type="service" id="sylius.image_uploader" />
-            <tag name="kernel.event_listener" event="sylius.product.pre_create" method="uploadImage" />
-            <tag name="kernel.event_listener" event="sylius.product.pre_update" method="uploadImage" />
-            <tag name="kernel.event_listener" event="sylius.taxon.pre_create" method="uploadImage" />
-            <tag name="kernel.event_listener" event="sylius.taxon.pre_update" method="uploadImage" />
+            <tag name="kernel.event_listener" event="sylius.product.pre_create" method="uploadImages" />
+            <tag name="kernel.event_listener" event="sylius.product.pre_update" method="uploadImages" />
+            <tag name="kernel.event_listener" event="sylius.taxon.pre_create" method="uploadImages" />
+            <tag name="kernel.event_listener" event="sylius.taxon.pre_update" method="uploadImages" />
         </service>
         <service id="sylius.listener.order_recalculation" class="Sylius\Bundle\CoreBundle\EventListener\OrderRecalculationListener">
             <argument type="service" id="sylius.order_processing.order_processor" />
@@ -53,20 +43,10 @@
         <service id="sylius.listener.default_username" class="Sylius\Bundle\CoreBundle\EventListener\DefaultUsernameORMListener">
             <tag name="doctrine.event_listener" event="onFlush" />
         </service>
-        <service id="sylius.listener.user_auto_login" class="Sylius\Bundle\CoreBundle\EventListener\UserAutoLoginListener">
-            <argument type="service" id="sylius.security.user_login" />
-            <tag name="kernel.event_listener" event="sylius.customer.post_register" method="login" />
-        </service>
         <service id="sylius.listener.canonicalizer" class="Sylius\Bundle\CoreBundle\EventListener\CanonicalizerListener">
             <argument type="service" id="sylius.canonicalizer" />
             <tag name="doctrine.event_listener" event="prePersist" />
             <tag name="doctrine.event_listener" event="preUpdate" />
-        </service>
-        <service id="sylius.listener.user_registration" class="Sylius\Bundle\CoreBundle\EventListener\UserRegistrationListener">
-            <argument type="service" id="sylius.manager.shop_user" />
-            <argument type="service" id="sylius.shop_user.token_generator.email_verification" />
-            <argument type="service" id="event_dispatcher" />
-            <tag name="kernel.event_listener" event="sylius.customer.post_register" method="sendVerificationEmail" />
         </service>
         <service id="sylius.listener.password_updater" class="Sylius\Bundle\CoreBundle\EventListener\PasswordUpdaterListener">
             <argument type="service" id="sylius.security.password_updater" />
@@ -85,6 +65,21 @@
             <argument type="service" id="sylius.context.cart" />
             <argument>_sylius.cart</argument>
             <tag name="kernel.event_subscriber" />
+        </service>
+        <service id="sylius.listener.review_create" class="Sylius\Bundle\CoreBundle\EventListener\ReviewCreateListener">
+            <argument type="service" id="sylius.context.customer" />
+            <tag name="kernel.event_listener" event="sylius.product_review.pre_create" method="ensureReviewHasAuthor" />
+        </service>
+
+        <service id="sylius.listener.locking" class="Sylius\Bundle\CoreBundle\EventListener\LockingListener">
+            <argument type="service" id="doctrine.orm.entity_manager" />
+            <tag name="kernel.event_listener" event="sylius.product_variant.initialize_update" method="lock" />
+        </service>
+
+        <service id="sylius.listener.simple_product_locking" class="Sylius\Bundle\CoreBundle\EventListener\SimpleProductLockingListener">
+            <argument type="service" id="doctrine.orm.entity_manager" />
+            <argument type="service" id="sylius.product_variant_resolver.default" />
+            <tag name="kernel.event_listener" event="sylius.product.initialize_update" method="lock" />
         </service>
     </services>
 </container>

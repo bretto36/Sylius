@@ -45,12 +45,7 @@ class Payment implements PaymentInterface
     /**
      * @var string
      */
-    protected $state = PaymentInterface::STATE_NEW;
-
-    /**
-     * @var CreditCardInterface
-     */
-    protected $creditCard;
+    protected $state = PaymentInterface::STATE_CART;
 
     /**
      * @var array
@@ -89,32 +84,6 @@ class Payment implements PaymentInterface
     /**
      * {@inheritdoc}
      */
-    public function setSource(PaymentSourceInterface $source = null)
-    {
-        if (null === $source) {
-            $this->creditCard = null;
-        }
-
-        if ($source instanceof CreditCardInterface) {
-            $this->creditCard = $source;
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getSource()
-    {
-        if (null !== $this->creditCard) {
-            return $this->creditCard;
-        }
-
-        return null;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function getCurrencyCode()
     {
         return $this->currencyCode;
@@ -140,6 +109,8 @@ class Payment implements PaymentInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @throws \InvalidArgumentException
      */
     public function setAmount($amount)
     {
@@ -169,6 +140,16 @@ class Payment implements PaymentInterface
     /**
      * {@inheritdoc}
      */
+    public function getDetails()
+    {
+        return $this->details;
+    }
+
+    /**
+     * {@inheritdoc}
+     *
+     * @throws UnexpectedTypeException
+     */
     public function setDetails($details)
     {
         if ($details instanceof \Traversable) {
@@ -180,13 +161,5 @@ class Payment implements PaymentInterface
         }
 
         $this->details = $details;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getDetails()
-    {
-        return $this->details;
     }
 }

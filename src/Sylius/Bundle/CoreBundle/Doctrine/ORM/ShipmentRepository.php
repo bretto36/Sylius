@@ -19,15 +19,21 @@ class ShipmentRepository extends EntityRepository implements ShipmentRepositoryI
     /**
      * {@inheritdoc}
      */
-    public function findByOrderIdAndId($orderId, $id)
+    public function createListQueryBuilder()
     {
-        $queryBuilder = $this->createQueryBuilder('o');
+        return $this->createQueryBuilder('o');
+    }
 
-        return $queryBuilder
-            ->where('o.order = :orderId')
-            ->andWhere('o.id = :id')
+    /**
+     * {@inheritdoc}
+     */
+    public function findOneByOrderId($shipmentId, $orderId)
+    {
+        return $this->createQueryBuilder('o')
+            ->andWhere('o.id = :shipmentId')
+            ->andWhere('o.order = :orderId')
+            ->setParameter('shipmentId', $shipmentId)
             ->setParameter('orderId', $orderId)
-            ->setParameter('id', $id)
             ->getQuery()
             ->getOneOrNullResult()
         ;
@@ -36,15 +42,14 @@ class ShipmentRepository extends EntityRepository implements ShipmentRepositoryI
     /**
      * {@inheritdoc}
      */
-    public function findByName($name, $localeCode)
+    public function findByName($name, $locale)
     {
         return $this->createQueryBuilder('o')
-            ->addSelect('translation')
-            ->leftJoin('o.translations', 'translation')
-            ->where('translation.name = :name')
-            ->andWhere('translation.locale = :localeCode')
+            ->innerJoin('o.translations', 'translation')
+            ->andWhere('translation.name = :name')
+            ->andWhere('translation.locale = :locale')
             ->setParameter('name', $name)
-            ->setParameter('localeCode', $localeCode)
+            ->setParameter('localeCode', $locale)
             ->getQuery()
             ->getResult()
         ;

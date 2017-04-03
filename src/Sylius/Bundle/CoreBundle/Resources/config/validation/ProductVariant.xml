@@ -13,24 +13,6 @@
 
 <constraint-mapping xmlns="http://symfony.com/schema/dic/constraint-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://symfony.com/schema/dic/constraint-mapping http://symfony.com/schema/dic/services/constraint-mapping-1.0.xsd">
     <class name="Sylius\Component\Core\Model\ProductVariant">
-        <property name="price">
-            <constraint name="NotBlank">
-                <option name="message">sylius.product_variant.price.not_blank</option>
-                <option name="groups">sylius</option>
-            </constraint>
-            <constraint name="Range">
-                <option name="min">0.00</option>
-                <option name="minMessage">sylius.product_variant.price.min</option>
-                <option name="groups">sylius</option>
-            </constraint>
-        </property>
-        <property name="originalPrice">
-            <constraint name="Range">
-                <option name="min">0.00</option>
-                <option name="minMessage">sylius.product_variant.original_price.min</option>
-                <option name="groups">sylius</option>
-            </constraint>
-        </property>
         <property name="onHand">
             <constraint name="NotBlank">
                 <option name="message">sylius.product_variant.onHand.not_blank</option>
@@ -41,6 +23,45 @@
                 <option name="minMessage">sylius.product_variant.onHand.min</option>
                 <option name="groups">sylius</option>
             </constraint>
+            <constraint name="Expression">
+                <option name="expression">this.getOnHand() >= this.getOnHold()</option>
+                <option name="message">sylius.product_variant.onHand.reserved</option>
+                <option name="groups">sylius</option>
+            </constraint>
+        </property>
+        <property name="weight">
+            <constraint name="Range">
+                <option name="min">0</option>
+                <option name="minMessage">sylius.product_variant.weight.min</option>
+                <option name="groups">sylius</option>
+            </constraint>
+        </property>
+        <property name="width">
+            <constraint name="Range">
+                <option name="min">0</option>
+                <option name="minMessage">sylius.product_variant.width.min</option>
+                <option name="groups">sylius</option>
+            </constraint>
+        </property>
+        <property name="height">
+            <constraint name="Range">
+                <option name="min">0</option>
+                <option name="minMessage">sylius.product_variant.height.min</option>
+                <option name="groups">sylius</option>
+            </constraint>
+        </property>
+        <property name="depth">
+            <constraint name="Range">
+                <option name="min">0</option>
+                <option name="minMessage">sylius.product_variant.depth.min</option>
+                <option name="groups">sylius</option>
+            </constraint>
+        </property>
+        <constraint name="Sylius\Bundle\CoreBundle\Validator\Constraints\HasAllPricesDefined">
+            <option name="groups">sylius</option>
+        </constraint>
+        <property name="channelPricings">
+            <constraint name="Valid" />
         </property>
     </class>
 </constraint-mapping>

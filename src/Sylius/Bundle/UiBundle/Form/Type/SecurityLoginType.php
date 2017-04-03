@@ -20,7 +20,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-class SecurityLoginType extends AbstractType
+final class SecurityLoginType extends AbstractType
 {
     /**
      * {@inheritdoc}
@@ -44,7 +44,7 @@ class SecurityLoginType extends AbstractType
     /**
      * {@inheritdoc}
      */
-    public function getName()
+    public function getBlockPrefix()
     {
         return 'sylius_security_login';
     }

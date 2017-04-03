@@ -2,5 +2,5 @@
 # (c) Paweł Jędrzejewski
 
 sylius:
-    ui:
-        the_channel_cannot_be_deleted_at_least_one_enabled_channel_is_required: کانال فروش نمی تواند حذف شود، حداقل یک کانال فروش فعال لازم است.
+    channel:
+        delete_error: 'کانال فروش نمی تواند حذف شود، حداقل یک کانال فروش فعال لازم است.'

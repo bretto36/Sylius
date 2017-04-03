@@ -1,6 +1,7 @@
 * :doc:`/customization/model`
 * :doc:`/customization/form`
 * :doc:`/customization/repository`
+* :doc:`/customization/factory`
 * :doc:`/customization/controller`
 * :doc:`/customization/validation`
 * :doc:`/customization/menu`
@@ -8,3 +9,4 @@
 * :doc:`/customization/translation`
 * :doc:`/customization/flash`
 * :doc:`/customization/state_machine`
+* :doc:`/customization/grid`

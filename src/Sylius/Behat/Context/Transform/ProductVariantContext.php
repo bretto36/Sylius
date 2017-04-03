@@ -13,8 +13,7 @@ namespace Sylius\Behat\Context\Transform;
 
 use Behat\Behat\Context\Context;
 use Sylius\Component\Core\Repository\ProductRepositoryInterface;
-use Sylius\Component\Core\Repository\ProductVariantRepositoryInterface;
-use Sylius\Component\Resource\Repository\RepositoryInterface;
+use Sylius\Component\Product\Repository\ProductVariantRepositoryInterface;
 use Webmozart\Assert\Assert;
 
 /**
@@ -28,16 +27,18 @@ final class ProductVariantContext implements Context
     private $productRepository;
 
     /**
-     * @var RepositoryInterface
+     * @var ProductVariantRepositoryInterface
      */
     private $productVariantRepository;
 
     /**
      * @param ProductRepositoryInterface $productRepository
-     * @param RepositoryInterface $productVariantRepository
+     * @param ProductVariantRepositoryInterface $productVariantRepository
      */
-    public function __construct(ProductRepositoryInterface $productRepository, RepositoryInterface $productVariantRepository)
-    {
+    public function __construct(
+        ProductRepositoryInterface $productRepository,
+        ProductVariantRepositoryInterface $productVariantRepository
+    ) {
         $this->productRepository = $productRepository;
         $this->productVariantRepository = $productVariantRepository;
     }
@@ -50,17 +51,18 @@ final class ProductVariantContext implements Context
         $products = $this->productRepository->findByName($productName, 'en_US');
 
         Assert::eq(
-            1,
             count($products),
+            1,
             sprintf('%d products has been found with name "%s".', count($products), $productName)
         );
 
-        $productVariant = $this->productVariantRepository->findOneBy(['name' => $variantName, 'product' => $products[0]]);
-        if (null === $productVariant) {
-            throw new \InvalidArgumentException(sprintf('Product variant with name "%s" of product "%s" does not exist', $variantName, $productName));
-        }
+        $productVariants = $this->productVariantRepository->findByNameAndProduct($variantName, 'en_US', $products[0]);
+        Assert::notEmpty(
+            $productVariants,
+            sprintf('Product variant with name "%s" of product "%s" does not exist', $variantName, $productName)
+        );
 
-        return $productVariant;
+        return $productVariants[0];
     }
 
     /**
@@ -70,14 +72,26 @@ final class ProductVariantContext implements Context
      */
     public function getProductVariantByName($name)
     {
-        $productVariants = $this->productVariantRepository->findByName($name);
+        $productVariants = $this->productVariantRepository->findByName($name, 'en_US');
 
         Assert::eq(
-            1,
             count($productVariants),
+            1,
             sprintf('%d product variants has been found with name "%s".', count($productVariants), $name)
         );
 
         return $productVariants[0];
+    }
+
+    /**
+     * @Transform /^variant with code "([^"]+)"$/
+     */
+    public function getProductVariantByCode($code)
+    {
+        $productVariant = $this->productVariantRepository->findOneBy(['code' => $code]);
+
+        Assert::notNull($productVariant, sprintf('Cannot find product variant with code %s', $code));
+
+        return $productVariant;
     }
 }

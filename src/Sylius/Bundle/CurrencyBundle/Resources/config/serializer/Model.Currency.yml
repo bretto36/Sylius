@@ -19,11 +19,10 @@ Sylius\Component\Currency\Model\Currency:
             expose: true
             type: boolean
             groups: [Default, Detailed]
-        createdAt:
-            expose: true
-            type: DateTime
-            groups: [Detailed]
-        updatedAt:
-            expose: true
-            type: DateTime
-            groups: [Detailed]
+    relations:
+        - rel: self
+          href:
+                route: sylius_admin_api_currency_show
+                parameters:
+                    code: expr(object.getCode())
+                    version: 1

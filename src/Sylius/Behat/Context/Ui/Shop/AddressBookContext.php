@@ -17,7 +17,6 @@ use Sylius\Behat\Page\Shop\Account\AddressBook\CreatePageInterface;
 use Sylius\Behat\Page\Shop\Account\AddressBook\IndexPageInterface;
 use Sylius\Behat\Page\Shop\Account\AddressBook\UpdatePageInterface;
 use Sylius\Behat\Page\SymfonyPageInterface;
-use Sylius\Behat\Page\UnexpectedPageException;
 use Sylius\Behat\Service\NotificationCheckerInterface;
 use Sylius\Behat\Service\Resolver\CurrentPageResolverInterface;
 use Sylius\Behat\Service\SharedStorageInterface;
@@ -94,7 +93,7 @@ final class AddressBookContext implements Context
     }
 
     /**
-     * @Given /^I am editing the address of "([^"]+)"$/
+     * @Given I am editing the address of :fullName
      */
     public function iEditAddressOf($fullName)
     {
@@ -105,7 +104,6 @@ final class AddressBookContext implements Context
     }
 
     /**
-     * @Given my default address is of :fullName
      * @When I set the address of :fullName as default
      */
     public function iSetTheAddressOfAsDefault($fullName)
@@ -116,7 +114,7 @@ final class AddressBookContext implements Context
     }
 
     /**
-     * @Given I want to add a new address to my address book
+     * @When I want to add a new address to my address book
      */
     public function iWantToAddANewAddressToMyAddressBook()
     {
@@ -160,8 +158,9 @@ final class AddressBookContext implements Context
 
     /**
      * @When /^I change the ([^"]+) to "([^"]+)"$/
+     * @When /^I remove the ([^"]+)$/
      */
-    public function iChangeMyTo($field, $value)
+    public function iChangeMyTo($field, $value = null)
     {
         $this->addressBookUpdatePage->fillField($field, $value);
     }
@@ -209,11 +208,11 @@ final class AddressBookContext implements Context
     /**
      * @When /^I try to edit the address of "([^"]+)"$/
      */
-    public function iTryToEdit($fullName)
+    public function iTryToEditTheAddressOf($fullName)
     {
-        $this->sharedStorage->set('full_name', $fullName);
-
         $address = $this->getAddressOf($fullName);
+
+        $this->sharedStorage->set('full_name', sprintf('%s %s', $address->getFirstName(), $address->getLastName()));
 
         $this->addressBookUpdatePage->tryToOpen(['id' => $address->getId()]);
     }
@@ -229,23 +228,12 @@ final class AddressBookContext implements Context
     }
 
     /**
-     * @Then there should( still) be a single address in my book
-     */
-    public function iShouldSeeASingleAddressInTheList()
-    {
-        $this->assertAddressesCountOnPage(1);
-    }
-
-    /**
      * @Then this address should be assigned to :fullName
      * @Then /^the address assigned to "([^"]+)" should (appear|be) in my book$/
      */
     public function thisAddressShouldHavePersonFirstNameAndLastName($fullName)
     {
-        Assert::true(
-            $this->addressBookIndexPage->hasAddressOf($fullName),
-            sprintf('An address of "%s" should be on the list.', $fullName)
-        );
+        Assert::true($this->addressBookIndexPage->hasAddressOf($fullName));
     }
 
     /**
@@ -253,10 +241,33 @@ final class AddressBookContext implements Context
      */
     public function iShouldStillBeOnAddressAdditionPage()
     {
-        Assert::true(
-            $this->addressBookCreatePage->isOpen(),
-            'The address creation page should be opened.'
-        );
+        $this->addressBookCreatePage->verify();
+    }
+
+    /**
+     * @Then I should still be on the :fullName address edit page
+     */
+    public function iShouldStillBeOnTheAddressEditPage($fullName)
+    {
+        $address = $this->getAddressOf($fullName);
+
+        Assert::true($this->addressBookUpdatePage->isOpen(['id' => $address->getId()]));
+    }
+
+    /**
+     * @Then I should still have :value as my specified province
+     */
+    public function iShouldStillHaveAsMySpecifiedProvince($value)
+    {
+        Assert::same($this->addressBookUpdatePage->getSpecifiedProvince(), $value);
+    }
+
+    /**
+     * @Then I should still have :value as my chosen province
+     */
+    public function iShouldStillHaveAsMyChosenProvince($value)
+    {
+        Assert::same($this->addressBookUpdatePage->getSelectedProvince(), $value);
     }
 
     /**
@@ -264,10 +275,7 @@ final class AddressBookContext implements Context
      */
     public function iShouldBeNotifiedThatTheProvinceNeedsToBeSpecified()
     {
-        Assert::true(
-            $this->addressBookCreatePage->hasProvinceValidationMessage(),
-            'Province validation messages should be visible.'
-        );
+        Assert::true($this->addressBookCreatePage->hasProvinceValidationMessage());
     }
 
     /**
@@ -275,13 +283,7 @@ final class AddressBookContext implements Context
      */
     public function iShouldBeNotifiedAboutErrors($expectedCount)
     {
-        $actualCount = $this->addressBookCreatePage->countValidationMessages();
-
-        Assert::same(
-            (int) $expectedCount,
-            $actualCount,
-            sprintf('There should be %d validation messages, but %d has been found.', $expectedCount, $actualCount)
-        );
+        Assert::same($this->addressBookCreatePage->countValidationMessages(), (int) $expectedCount);
     }
 
     /**
@@ -289,10 +291,7 @@ final class AddressBookContext implements Context
      */
     public function thereShouldBeNoAddresses()
     {
-        Assert::true(
-            $this->addressBookIndexPage->hasNoAddresses(),
-            'There should be no addresses on the list.'
-        );
+        Assert::true($this->addressBookIndexPage->hasNoAddresses());
     }
 
     /**
@@ -300,20 +299,18 @@ final class AddressBookContext implements Context
      */
     public function iShouldNotSeeAddressOf($fullName)
     {
-        Assert::false(
-            $this->addressBookIndexPage->hasAddressOf($fullName),
-            sprintf('The address of "%s" should not be on the list.', $fullName)
-        );
+        Assert::false($this->addressBookIndexPage->hasAddressOf($fullName));
     }
 
     /**
-     * @Then /^I should(?:| still) have (\d+) address(?:|es) in my address book$/
+     * @Then /^I should(?:| still) have a single address in my address book$/
+     * @Then /^I should(?:| still) have (\d+) addresses in my address book$/
      */
-    public function iShouldHaveAddresses($count)
+    public function iShouldHaveAddresses($count = 1)
     {
         $this->addressBookIndexPage->open();
 
-        $this->assertAddressesCountOnPage((int) $count);
+        Assert::same($this->addressBookIndexPage->getAddressesCount(), (int) $count);
     }
 
     /**
@@ -339,14 +336,7 @@ final class AddressBookContext implements Context
     {
         $address = $this->getAddressOf($this->sharedStorage->getLatestResource());
 
-        Assert::false(
-            $this->addressBookUpdatePage->isOpen(['id' => $address->getId()]),
-            sprintf(
-                'I should be unable to edit the address of "%s %s"',
-                $address->getFirstName(),
-                $address->getLastName()
-            )
-        );
+        Assert::false($this->addressBookUpdatePage->isOpen(['id' => $address->getId()]));
     }
 
     /**
@@ -370,25 +360,18 @@ final class AddressBookContext implements Context
      */
     public function iShouldHaveNoDefaultAddress()
     {
-        Assert::true(
-            $this->addressBookIndexPage->hasNoDefaultAddress(),
-            'There should be no default address.'
-        );
+        Assert::true($this->addressBookIndexPage->hasNoDefaultAddress());
     }
 
     /**
-     * @Then /^the address of "([^"]+)" should be marked as my default$/
-     * @Then /^(it) should be marked as my default address$/
+     * @Then /^(address "[^"]+", "[^"]+", "[^"]+", "[^"]+", "[^"]+"(?:|, "[^"]+")) should(?:| still) be marked as my default address$/
      */
-    public function itShouldBeMarkedAsMyDefaultAddress($fullName)
+    public function addressShouldBeMarkedAsMyDefaultAddress(AddressInterface $address)
     {
         $actualFullName = $this->addressBookIndexPage->getFullNameOfDefaultAddress();
+        $expectedFullName = sprintf('%s %s', $address->getFirstName(), $address->getLastName());
 
-        Assert::same(
-            $fullName,
-            $actualFullName,
-            sprintf('The default address should be of "%s", but is of "%s".', $fullName, $actualFullName)
-        );
+        Assert::same($actualFullName, $expectedFullName);
     }
 
     /**
@@ -418,25 +401,5 @@ final class AddressBookContext implements Context
                 $this->addressBookCreatePage,
                 $this->addressBookUpdatePage
         ]);
-    }
-
-    /**
-     * @param int $expectedCount
-     *
-     * @throws \InvalidArgumentException
-     */
-    private function assertAddressesCountOnPage($expectedCount)
-    {
-        $actualCount = $this->addressBookIndexPage->getAddressesCount();
-
-        Assert::same(
-            $expectedCount,
-            $actualCount,
-            sprintf(
-                'There should be %d addresses on the list, but %d addresses has been found.',
-                $expectedCount,
-                $actualCount
-            )
-        );
     }
 }
